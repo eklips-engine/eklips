@@ -5,11 +5,11 @@ def _process(self, delta):
     rs = delta * 450
     rz = delta * 5
     if engine.is_key_pressed("moveup"):
-        transform["pos"][1] -= rs
+        y -= rs
     if engine.is_key_pressed("movedown"):
-        transform["pos"][1] += rs
+        y += rs
     if engine.is_key_pressed("moveleft"):
-        transform["pos"][0] -= rs
+        x -= rs
     if engine.is_key_pressed("moveright"):
-        transform["pos"][0] += rs
+        x += rs
     self.zoom += rz * engine.get_mouse_scroll()

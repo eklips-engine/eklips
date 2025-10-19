@@ -55,5 +55,5 @@ class Treeview(CanvasItem):
         self.treechildren = self.properties["children"]
         self.revealed     = []
         
-        if self.properties["visible"]:
+        if self.visible:
             self._rlayer(self.treechildren, self.runtime_data["rendererpos"].copy())

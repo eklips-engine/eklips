@@ -37,8 +37,9 @@ class Label(CanvasItem):
     }
 
     def draw(self):
-        if self.properties["visible"]:
-            self.w,self.h = self._draw_onto_screen(self.properties["text"])
+        if self.visible:
+            size          = self._draw_onto_screen(self.properties["text"])
+            self.w,self.h = size
         
     def _draw_onto_screen(self, text):
         return self.screen.render(
@@ -46,11 +47,11 @@ class Label(CanvasItem):
             pos     = self.runtime_data["rendererpos"],
 
             anchor  = self.anchor,
-            layer   = self.properties["transform"]["layer"],
+            layer   = self.layer,
             blit_in = self.window_id,
             size    = self.properties["font_size"],
-            rot     = self.properties["transform"]["rot"],
-            alpha   = self.properties["transform"]["alpha"],
+            rot     = self.rotation,
+            alpha   = self.alpha,
             color   = self.properties["color"]
         )
     

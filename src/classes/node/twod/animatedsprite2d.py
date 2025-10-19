@@ -44,7 +44,7 @@ class AnimatedSprite2D(Sprite2D):
             self.images.append(asset)       
     
     def draw(self):
-        if self.sprite_used in self.images and self.properties["visible"]:
+        if self.sprite_used in self.images and self.visible:
             img=self.images[self.sprite_used]
             self.w,self.h=img.w,img.h
             return self._draw_onto_screen(img)

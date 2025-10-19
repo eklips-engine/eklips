@@ -9,7 +9,7 @@ def __chng(self, pth,info,rat):
     if not os.path.isdir(path):
         return engine.showerror("Eklips Editor", "Directory must exist")
     if not os.path.isfile(f"{path}/game.json"):
-        return engine.showerror("Eklips Editor", "Directory must have a game.json")
+        return engine.showerror("Eklips Editor", "Directory must have a game.json file")
     
     info[0] = path
     print(info)
@@ -57,8 +57,6 @@ def _hover(self):
     if broken:
         pointer.properties["text"] = "!>"
     else:
-        pointer.properties["text"] = "->"
-    pointer.properties["transform"]["pos"] = [
-        self.properties["transform"]["pos"][0] + -10,
-        self.properties["transform"]["pos"][1]
-    ]
+        pointer.properties["text"] = f"->{projid}"
+    pointer.x = self.x - 10
+    pointer.y = self.y

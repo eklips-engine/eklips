@@ -50,8 +50,6 @@ class VideoPlayer(CanvasItem):
         self.is_playedyet = 0
         self.media_id     = None
         self.playing      = False
-
-        self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
     
     def play(self, volume=1):
         self.call("_player_started")
@@ -118,15 +116,15 @@ class VideoPlayer(CanvasItem):
     
     def draw(self):
         c_size = [
-            round(self.og_px_size[0] * self.properties["transform"]["scale"][0]),
-            round(self.og_px_size[1] * self.properties["transform"]["scale"][1])
+            round(self.og_px_size[0] * self.scale_x),
+            round(self.og_px_size[1] * self.scale_y)
         ]
         if self.old_size != c_size:
             self.vid.resize(c_size)
             self.old_size = c_size
         
         use_img = self.vid.frame_surf
-        if self.properties["visible"]:
+        if self.visible:
             self.w,self.h=use_img.width,use_img.height
             self._draw_onto_screen(use_img)
     
@@ -134,12 +132,12 @@ class VideoPlayer(CanvasItem):
         return self.screen.blit(
             img,                                   
             self.runtime_data["rendererpos"],             
-            anchor                       = self.properties["transform"]["anchor"],
+            anchor                       = self.anchor,
             scale                        = [1, 1],
-            layer                        = self.properties["transform"]["layer"],
-            rot                          = self.properties["transform"]["rot"],
-            opacity                      = self.properties["transform"]["alpha"],
-            scroll                       = self.properties["transform"]["scroll"],
+            layer                        = self.layer,
+            rot                          = self.rot,
+            opacity                      = self.alpha,
+            scroll                       = self.scroll,
             use_pyglet_resource_directly = True,
             custom_id                    = self.media_id,
             sprite                       = self.sprite

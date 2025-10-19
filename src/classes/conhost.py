@@ -40,6 +40,7 @@ class ConHost:
         self.cmd_historyp = shared_console_history_pointer
         self.cmd_history  = shared_console_history
         self.klp          = None
+        self.curpos       = 0
         self.speed        = self.cvars.get("con_speed")
         self.bl_rate      = self.cvars.get("con_rate")
         self.shifted      = False
@@ -88,7 +89,7 @@ class ConHost:
         """Hide the console."""
         self.hiding  = True
     
-    def update(self, keys_pressed, keys_held, eng_gl):
+    def update(self, keys_pressed, keys_held, eng_gl, modifiers):
         self.eng_gl = eng_gl
         """Update the console."""
         if self.showing:
@@ -138,15 +139,15 @@ class ConHost:
 
             if self.hold_timer > 0.5 and self.klp and self.klp in keys_held:
                 self.hold_timer_t += engine.delta
-                if self.hold_timer_t > engine.delta * 2:
-                    self._prockey(self.klp)
+                if self.hold_timer_t > engine.delta * 450:
+                    self._prockey(self.klp, modifiers)
             
             if len(keys_pressed) > 0:
-                char = keys_pressed[0]
-                if char == pg.window.key.RETURN:    # Enter
-                    self.input(self.input_text)
-                self._prockey(char)
-                self.hold_timer = 0
+                for char in keys_pressed:
+                    if char == pg.window.key.RETURN:    # Enter
+                        self.input(self.input_text)
+                    self._prockey(char, modifiers)
+                    self.hold_timer = 0
             
             if len(keys_held) == 0:
                 self.hold_timer = 0
@@ -155,12 +156,13 @@ class ConHost:
 
             self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", self.ll, batchxt=self.contxtbatch)
     
-    def _prockey(self, key):
+    def _prockey(self, key, modifier=None):
         """Process a key input."""
+        shifted = False
         if key == pg.window.key.CAPSLOCK:
             self.is_upper = not self.is_upper
-        if key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
-            self.shifted = True
+        if modifier == pg.window.key.MOD_SHIFT:
+            shifted = True
         
         if key == pg.window.key.BACKSPACE:
             self.input_text = self.input_text[:-1]
@@ -182,15 +184,14 @@ class ConHost:
         elif key in key_entries:
             self.input_text += key_entries[key]
         else:
-            if self.shifted: # or self.is_upper:
-                nk = Convenience.shift_key(chr(key))
-                self.input_text += nk if 0 <= key < 256 else ""
-                if not key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
-                    self.shifted = False
+            nk = "?"
+            if shifted: # or self.is_upper:
+                nk = Convenience.shift_key(chr(key)) if 0 <= key < 256 else ""
             elif self.is_upper:
-                self.input_text += chr(key).upper() if 0 <= key < 256 else ""
+                nk = chr(key).upper() if 0 <= key < 256 else ""
             else:
-                self.input_text += chr(key) if 0 <= key < 256 else ""
+                nk = chr(key) if 0 <= key < 256 else ""
+            self.input_text += nk
         self.klp = key
     
     def list_cvar(self, name):
@@ -242,11 +243,13 @@ class ConHost:
         if text:
             printf(f"] {text}")
             self.input_text = ""
+            self.curpos     = 0
             self.klp        = None
             self.hold_timer = 0
             self.cmd_history.append(text)
             try:
-                self._proccmd(text)
+                for i in text.split("&&"):
+                    self._proccmd(i.strip())
             except Exception as error:
                 printf(f"Error processing command '{text}': {error}")
                 raise error

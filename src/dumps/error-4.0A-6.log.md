@@ -4,59 +4,44 @@ Here's this crash log!
 Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: KeyError
-Error: '='
-
-FrameSummary #1:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
-  | Line: engine.scene.update(engine.delta)
-  | Line #: 43
-
-FrameSummary #2:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
-  | Line: raise error
-  | Line #: 148
-
-FrameSummary #3:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
-  | Line: node.update(delta)
-  | Line #: 145
-
-FrameSummary #4:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\color_rect.py
-  | Line: super().update(delta)
-  | Line #: 65
-
-FrameSummary #5:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\canvasitem.py
-  | Line: super().update(delta)
-  | Line #: 111
-
-FrameSummary #6:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\node.py
-  | Line: self._process(delta)
-  | Line #: 42
-
-FrameSummary #7:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Object.py
-  | Line: self.call("_process", delta)
-  | Line #: 86
-
-FrameSummary #8:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Object.py
-  | Line: return mobj(*args)
-  | Line #: 63
-
-FrameSummary #9:
-  | Filename: <string>
-  | Line: 
-  | Line #: 32
-
-FrameSummary #10:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Singleton.py
-  | Line: keyd = key_entries[key.upper()]
-  | Line #: 158
-
+Error Type: TypeError
+    Error: type tuple doesn't define __round__ method
+    
+    FrameSummary #1:
+    | Filename: D:\src\Eklips.py
+    | Line: engine.scene.update(engine.delta)
+    | Line #: 58
+    
+    FrameSummary #2:
+    | Filename: D:\src\classes\Scene.py
+    | Line: raise error
+    | Line #: 148
+    
+    FrameSummary #3:
+    | Filename: D:\src\classes\Scene.py
+    | Line: node.update(delta)
+    | Line #: 145
+    
+    FrameSummary #4:
+    | Filename: D:\src\classes\node\gui\label.py
+    | Line: super().update(delta)
+    | Line #: 59
+    
+    FrameSummary #5:
+    | Filename: D:\src\classes\node\gui\canvasitem.py
+    | Line: if self.get_if_mouse_hovering():
+    | Line #: 121
+    
+    FrameSummary #6:
+    | Filename: D:\src\classes\node\gui\canvasitem.py
+    | Line: x,y  = self.screen.get_anchor(
+    | Line #: 86
+    
+    FrameSummary #7:
+    | Filename: D:\src\classes\UI.py
+    | Line: new_pos=[round(new_pos[0]),round(new_pos[1])]
+    | Line #: 70
+    
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 
 Your feedback is important!

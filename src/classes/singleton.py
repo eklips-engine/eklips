@@ -21,8 +21,10 @@ except:
     printf("Eklips(?) v?.? (??/??/????)")
 
 ## Global states
-events         = []
-mpos, mpressed = [0,0], [0,0,0]
+events                = []
+mpos, mpressed, dmpos = [0,0], [0,0,0], [0,0]
+
+flags = []
 
 ## Global variables
 pacing          : int                   = 1             # delta = (calculate delta here) * pacing
@@ -30,7 +32,7 @@ old_pacing      : int                   = pacing        # Run it back
 obj_ids         : int                   = 10            
 delta           : int                   = 0             
 truedelta       : int                   = 0             
-keys_held, keys_pressed                 = [None],[None] 
+keys_held, keys_pressed, modifiers      = [None],[None],[None] 
 savefile        : Save.Savefile         = 0             
 resource_loader : Resources.Loader      = 0             
 display         : Any                   = 0             

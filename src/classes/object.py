@@ -64,7 +64,7 @@ class Object:
     def _init_script(self):
         """Initialize the script attached to the Object"""
         if self.scriptpath:
-            self.script = engine.resource_loader.load(self.scriptpath)
+            self.script = engine.resource_loader.load(self.scriptpath, force_new_resource=True)
             self.script.init_param(self.properties)
     
     def _onready(self):
@@ -87,7 +87,6 @@ class Object:
     
     ## Other
     def _free(self):
-        del self.data, self.properties
         del self
         gc.collect()
     

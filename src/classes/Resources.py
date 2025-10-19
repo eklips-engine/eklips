@@ -574,12 +574,12 @@ class Loader:
         
         return obj
     
-    def load(self, path, can_cache=1, force_type = None, return_identifier = False):
+    def load(self, path, can_cache=1, force_type = None, return_identifier = False, force_new_resource = False):
         """
         Load a resource. Specify path "`user://..`", "`res://..`" or `root://..`"
-        - User:// = save directory
-        - Res://  = project directory
-        - Root:// = directory that the binary is in
+        - user:// = save directory
+        - res://  = project directory
+        - root:// = directory that the binary is in
 
         # force_type = None
         Force the file to be handled as if the file extension is `force_type`.
@@ -587,6 +587,9 @@ class Loader:
 
         # return_identifier = False
         If True, this function will return the Resource object and its ID in the Loader class.
+
+        # force_new_resource = False
+        If True, this function will make a new Resource object everytime it's called instead of caching it.
         """
 
         asset       = 0
@@ -599,7 +602,7 @@ class Loader:
             ext      = force_type
             location = f"Ekl{engine.VER}{path}::forced::{ext}".replace('/','.').replace(':',',')
         if can_cache:
-            if location in self.resource_tree:
+            if location in self.resource_tree and not force_new_resource:
                 asset = self.resource_tree[location]
                 return asset
             else:

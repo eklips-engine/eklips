@@ -25,7 +25,7 @@ def _onready(self):
     
     x  = 0
     y  = 0
-    id = -1
+    id = 0
     for i in projects:
         id                                  += 1
         path, name, version, ekl_ver, broken = get_curr_project_data(i)
@@ -40,7 +40,7 @@ def _onready(self):
                     "rot":    0,           
                     "anchor": "",          
                     "layer":  10,          
-                    "alpha":  1,           
+                    "alpha":  10,           
                     "scale":  [5,95],      
                     "scroll": [0,0]        
                 },
@@ -48,11 +48,33 @@ def _onready(self):
                 "color":   [20,20,30]
             },
             "script_properties": {},
-            "name":              f"ProjectPointRec{i}",
+            "name":              f"PpRa{i}",
             "script":            None,
             "path":              "",
             "runtimedata":       0
         })
+        if id == 1:
+            scene.add_node({
+                "type":       "ColorRect",
+                "properties": {
+                    "transform": {  
+                        "pos":    [50+x,100+y],
+                        "rot":    0,           
+                        "anchor": "",          
+                        "layer":  10,          
+                        "alpha":  10,           
+                        "scale":  [5,95],      
+                        "scroll": [0,0]        
+                    },
+                    "visible": True,
+                    "color":   [20,20,30]
+                },
+                "script_properties": {},
+                "name":              f"PpRa{i}",
+                "script":            None,
+                "path":              "",
+                "runtimedata":       0
+            })
         lbl_name = scene.add_node({
             "type":       "Label",
             "properties": {
@@ -62,7 +84,7 @@ def _onready(self):
                     "anchor": "",
                     "layer":  11,
                     "alpha":  1,
-                    "scale":   [5,95],
+                    "scale":   [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   True,
@@ -85,7 +107,7 @@ def _onready(self):
                     "anchor": "",
                     "layer":  11,
                     "alpha":  1,
-                    "scale":   [5,95],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   True,
@@ -104,24 +126,22 @@ def _onready(self):
         lbl_ver.draw()
         j           = lbl_name.w - lbl_ver.w
         if j > 0: j = 0
-        width = int(lbl_name.w + j + 25)
-        
+        width = int(lbl_name.w + abs(j) + 25)
+
         scene.add_node({
-            "type":       "Button",
+            "type":       "ColorRect",
             "properties": {
                 "transform": {
-                    "pos":    [50+x,  100+y],
+                    "pos":    [55+x,  100+y],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  -10,
+                    "layer":  10,
                     "alpha":  1,
-                    "scale":   [width, 365],
+                    "scale":  [width-15,300],
                     "scroll": [0,     0]
                 },
                 "visible":   True,
-                "color":     [0,0,0],
-                "text":      "",
-                "font_size": 20,
+                "color":     [255,0,255],
                 "projdata":  i,
                 "broken":    broken,
                 "projid":    id
@@ -133,4 +153,4 @@ def _onready(self):
             "runtimedata":       0
         })
 
-        x+=200
+        x+=width+5

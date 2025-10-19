@@ -42,7 +42,7 @@ class Parallax2D(Sprite2D):
     def update(self, delta):
         super().update(delta)
 
-        self.properties["transform"]["scroll"][0] -= self.properties["scroll_speed"]
-        if self.properties["transform"]["scroll"][0] < (-self.image.get().width) + self.properties["scroll_speed"]:
-            self.properties["transform"]["scroll"][0] = -(self.properties["scroll_speed"])
+        self.scroll -= self.properties["scroll_speed"]
+        if self.scroll < (-self.image.get().width) + self.properties["scroll_speed"]:
+            self.scroll = -(self.properties["scroll_speed"])
             self.call("_reached_end")

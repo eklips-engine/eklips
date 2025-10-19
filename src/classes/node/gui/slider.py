@@ -1,4 +1,7 @@
 # XXX not implemented
+# XXX not up-to-date in refactor
+# XXX very broken and shit
+# XXX i hate you jeff
 ## Import inherited
 from classes.node.gui.canvasitem import CanvasItem
 
@@ -46,7 +49,7 @@ class Slider(CanvasItem):
         self.barfbatch = pg.graphics.Batch()
         
     def draw(self):
-        if self.properties["visible"]:
+        if self.visible:
             self.w,self.h=self._draw_onto_screen(self.properties["transform"]["scale"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
     
     def _draw_onto_screen(self, width):

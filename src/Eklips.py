@@ -10,6 +10,9 @@ from classes.Constants import *
 ## Make Temp dir
 os.makedirs("tmp", exist_ok=True)
 
+## Editor values
+held_down = -1
+
 ## Run the engine
 last_dt = time.time()
 while (engine.im_running):
@@ -33,11 +36,12 @@ while (engine.im_running):
         # get events
         try:
             engine.display.dispatch_events()
-            engine.events                   = engine.event.get_and_handle()
-            engine.mpos, engine.mpressed    = engine.event.get_mouse()
-            engine.keys_pressed               = engine.event.key_once_map
-            engine.keys_held_dict        = engine.event.key_map
-            engine.keys_held             = []
+            engine.events                                                = engine.event.get_and_handle()
+            engine.mpos, engine.mpressed, engine.modifiers, engine.dmpos = engine.event.get_mouse()
+            engine.keys_pressed                                          = engine.event.key_once_map
+            engine.keys_held_dict                                        = engine.event.key_map
+            engine.keys_held                                             = []
+
         except Exception as error:
             ErrorHandler.error  = error
             ErrorHandler.reason = "Reading User input"
@@ -56,6 +60,24 @@ while (engine.im_running):
         # handle scene                                                        
         try:
             engine.scene.update(engine.delta)
+            if EDITORMODE in engine.flags:
+                for nodeid in engine.scene.nodes:
+                    node : engine.Scene.CanvasItem = engine.scene.nodes[nodeid]["object"]
+                    try:
+                        if node.get_if_mouse_hovering() and held_down == -1:
+                            held_down = nodeid
+                    except:
+                        pass
+                if engine.mpressed[0]:
+                    if held_down != -1:
+                        node : engine.Scene.CanvasItem = engine.scene.nodes[held_down]["object"]
+                        if CAN_DESTROY_NODES in engine.flags:
+                            node.free()
+                        if CAN_GRAB_NODES in engine.flags:
+                            node.x += engine.dmpos[0]
+                            node.y -= engine.dmpos[1]
+                else:
+                    held_down = -1
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error     
             ErrorHandler.reason = f"Scene {engine.scene.file_path}"
@@ -75,7 +97,7 @@ while (engine.im_running):
         try:
             if engine.savefile.get("display/showfps", True) or engine.cvars.get("showfps", False):
                 engine.fps_display.draw()
-            engine.console.update(engine.keys_pressed, engine.keys_held, globals())
+            engine.console.update(engine.keys_pressed, engine.keys_held, globals(), engine.modifiers)
             engine.interface.flip()
         except Exception as error:
             ErrorHandler.error  = error

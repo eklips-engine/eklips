@@ -13,7 +13,7 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "scale":  [1280, 720],
+                    "scale":  [1146, 640],
                     "scroll": [0,0]
                 },
                 "inwork":  true,
@@ -35,7 +35,7 @@
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -58,7 +58,7 @@
                     "anchor": "",
                     "layer":  1,
                     "alpha":  1,
-                    "scale":  [1240, 615],
+                    "scale":  [1106, 535],
                     "scroll": [0,0]
                 },
                 "visible": true,
@@ -79,7 +79,7 @@
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -102,7 +102,7 @@
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -120,12 +120,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "pos":    [1200,25],
+                    "pos":    [1066,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -143,12 +143,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "pos":    [1100,25],
+                    "pos":    [966,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -166,12 +166,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "pos":    [1030,25],
+                    "pos":    [896,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,

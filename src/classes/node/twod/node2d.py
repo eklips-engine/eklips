@@ -16,7 +16,6 @@ class Node2D(CanvasItem):
     
     def update(self, delta):
         global camera_pos
-        self.anchor                      = self.properties["transform"]["anchor"]
         rel_pos, parent_pos              = self.get_relative_pos()
 
         # World-space relative position

@@ -2,12 +2,12 @@
 
 def _process(self, delta):
     rs = delta * 150
-    transform["rot"] += rs
+    self.rotation += rs
 
-    if transform["rot"] > 360:
-        transform["alpha"] -= delta
+    if self.rotation > 360:
+        self.alpha -= delta
         ekl = engine.scene.get_node_from_path("","Eclipse")
-        ekl.properties["transform"]["alpha"] = transform["alpha"]
+        ekl.alpha = self.alpha
 
-    if transform["alpha"] < 0:
+    if self.alpha < 0:
         engine.load_new_scene(engine.cvars.get("master_scene"))

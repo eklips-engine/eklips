@@ -133,6 +133,7 @@ class Scene(Object):
 
     def update(self, delta):
         try:
+            nkill = []
             for nodeID in self.nodes:
                 try:
                     node = self.nodes[nodeID]["object"]
@@ -143,6 +144,8 @@ class Scene(Object):
                     node._free()
                     continue
                 node.update(delta)
+            for nodeID in nkill:
+                self.nodes.pop(nodeID)
         except Exception as error:
             print(f" Scene({self.file_path}) had an error updating; {error}")
             raise error

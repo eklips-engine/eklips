@@ -35,16 +35,16 @@ class Camera2D(Node2D):
         super().update(delta)
         if not self.target:
             self.cam_pos = [
-                self.properties["transform"]["pos"][0],
-                self.properties["transform"]["pos"][1],
+                self.x,
+                self.y,
                 self.cam_pos[2]
             ]
         else:
             # FIXME Target doesn't work apparently
             w,h=self.target.w,self.target.h
             self.cam_pos = [
-                self.target.properties["transform"]["pos"][0] - self.screen.screen.width  // 2 - w // 2,
-                self.target.properties["transform"]["pos"][1] - self.screen.screen.height // 2 - h // 2,
+                self.target.x - self.screen.screen.width  // 2 - w // 2,
+                self.target.y - self.screen.screen.height // 2 - h // 2,
                 self.cam_pos[2]
             ]
         if self.cam_pos != self.old_cam_pos or self.zoom != self.old_zoom:

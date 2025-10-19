@@ -43,4 +43,6 @@ class Node(Object, NodeMixin):
         self.stop_running = True
 
     def update(self, delta):
+        if self.stop_running:
+            return
         self._process(delta)

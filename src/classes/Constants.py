@@ -3,7 +3,7 @@
 ENGINE_NAME     = "Eklips"
 
 # Version constants
-BUILD_DATE      = "12/10/2025" ## ddmmyy
+BUILD_DATE      = "12/19/2025" ## ddmmyy
 MAJOR_VER       = 4             # [4].0 A
 MEDIU_VER       = 0             #  4.[0]A
 MINOR_VER       = "A"           #  4. 0[A]
@@ -24,3 +24,9 @@ MOUSEUP         = 62
 # Other
 MAIN_SCREEN     = "main"
 ZFF_FIX         = 0.0001
+
+# Flags
+EDITORMODE        = 70
+CAN_GRAB_NODES    = 71
+CAN_RESIZE_NODES  = 72
+CAN_DESTROY_NODES = 73

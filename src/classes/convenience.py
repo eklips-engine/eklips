@@ -43,3 +43,68 @@ def shift_key(key):
     if nk == "`": nk = "~"
     if nk == ";": nk = ":"
     return nk
+
+class Transform:
+    def __init__(self):
+        self._x = 0
+        self._y = 0
+        self._w = 0
+        self._h = 0
+
+        self.layer    = 0
+        self.rotation = 0
+        self.alpha    = 1
+        self.anchor   = "top left"
+        self.scroll   = [0,0]
+        self.visible  = True
+        
+        self._scale_x = 0
+        self._scale_y = 0
+
+    # Getters
+    @property
+    def x(self): return self._x
+    @property
+    def y(self): return self._y
+
+    @property
+    def scale_x(self): return self._scale_x
+    @property
+    def scale_y(self): return self._scale_y
+    @property
+    def scale(self):   return [self._scale_x, self._scale_y]
+    
+    @property
+    def w(self): return self._w * self._scale_y
+    @property
+    def h(self): return self._h * self._scale_y
+    
+    @property
+    def rect(self): return [self._x,self._y,self._w*self._scale_y,self._h*self._scale_y]
+    @property
+    def pos(self):  return [self._x,self._y]
+    
+    # Setters
+    @x.setter
+    def x(self, value): self._x = value
+    @y.setter
+    def y(self, value): self._y = value
+
+    @scale_x.setter
+    def scale_x(self, value):
+        self._scale_x = value
+    @scale_y.setter
+    def scale_y(self, value):
+        self._scale_y = value
+    @scale.setter
+    def scale(self, value):
+        self._scale_x, self._scale_y = value
+    
+    @w.setter
+    def w(self, value): self._w = value
+    @h.setter
+    def h(self, value): self._h = value
+    
+    @rect.setter
+    def rect(self, value):
+        self._x,self._y,self._w,self._h = value

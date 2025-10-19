@@ -1,40 +1,62 @@
 {
-    "project-ver":   "2.0",
-    "eklips-ver":    "4.0A",
-
-    "game_name":     "Eklips Editor",
-
+    "project-ver": "4.0A",
+    "eklips-ver": "4.0A",
+    "game_name": "Eklips Editor",
     "keys": {
         "cursorup": {
-            "keys": ["w","up"],
+            "keys": [
+                "w",
+                "up"
+            ],
             "holdable": false
         },
         "moveup": {
-            "keys": ["w","up"],
+            "keys": [
+                "w",
+                "up"
+            ],
             "holdable": true
         },
         "cursordown": {
-            "keys": ["s","down"],
+            "keys": [
+                "s",
+                "down"
+            ],
             "holdable": false
         },
         "movedown": {
-            "keys": ["s","down"],
+            "keys": [
+                "s",
+                "down"
+            ],
             "holdable": true
         },
         "cursorleft": {
-            "keys": ["a","left"],
+            "keys": [
+                "a",
+                "left"
+            ],
             "holdable": false
         },
         "moveleft": {
-            "keys": ["a","left"],
+            "keys": [
+                "a",
+                "left"
+            ],
             "holdable": true
         },
         "cursorright": {
-            "keys": ["d","right"],
+            "keys": [
+                "d",
+                "right"
+            ],
             "holdable": false
         },
         "moveright": {
-            "keys": ["d","right"],
+            "keys": [
+                "d",
+                "right"
+            ],
             "holdable": true
         },
         "eng_editor_booty": {
@@ -42,9 +64,10 @@
             "holdable": false
         }
     },
-                                                     
-    "viewport_resolution": [1146, 640],
-
+    "viewport_resolution": [
+        1146,
+        640
+    ],
     "cvars": {
         "permissions": {
             "type": "str",
@@ -83,7 +106,7 @@
         },
         "loading_scene": {
             "type": "string",
-            "default": "root://internal/scn/fun.scn",
+            "default": "root://internal/scn/loading.scn",
             "description": "Scene to be used for the loading animation."
         },
         "master_scene": {
@@ -135,23 +158,24 @@
             "type": "string",
             "default": "root://internal/themes/default.res",
             "description": "Global theme path."
+        },
+        "con_type_rate": {
+            "type": "int",
+            "default": 550,
+            "description": "The speed (deltaTime * cvar) for typing a character when a key is held down."
         }
     },
-
     "cmd": {
-        "help":        "@pointer=root://internal/scr/cmd/help.ekl\n# This dialog box",
-        
-        "con_clear":   "engine.console.console_text.clear()\n# Clear the console",
-        "clear":       "engine.console.console_text.clear()\n# Alias for con_clear",
-        "cls":         "engine.console.console_text.clear()\n# Alias for con_clear",
-        "sv_list":     "\n# List all CVars",
-        "eng_chproj":  "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
-        "eng_reload":  "engine.reload_engine()\n# Reload the engine",
-        "eng_skip":    "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it.",
-        "eng_memcl":   "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
-        
-        "chproj":      "engine.Data.project_file = f'{args[0]}/game.json'\n# Alias for eng_chproj\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
-        "reload":      "engine.reload_engine()\n# Alias for eng_reload",
-        "skip":        "@pointer=root://internal/scr/cmd/dswrld.ekl\n# Alias for eng_skip"
+        "help": "@pointer=root://internal/scr/cmd/help.ekl\n# This dialog box",
+        "clear": "engine.console.console_text.clear()\n# Clear the console",
+        "cls": "engine.console.console_text.clear()\n# Alias for clear",
+        "sv_list": "\n# List all CVars",
+        "chproj": "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
+        "reload": "engine.reload_engine()\n# Reload the engine",
+        "skip": "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it.",
+        "memcl": "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
+        "chscn": "engine.load_new_scene(args[0])",
+        "crash": "engine.interface = None",
+        "impulse": "engine.flags.append(int(args[0]))"
     }
 }

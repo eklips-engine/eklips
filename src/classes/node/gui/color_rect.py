@@ -51,7 +51,7 @@ class ColorRect(CanvasItem):
                         'RGB',
                         raw_data
                     ),
-                    "path":   f"{r}{g}{b}{self.properties["transform"]["scale"]}.mm"
+                    "path":   f"{r}{g}{b}{self.scale}.mm"
                 },
                 "meta":   {
                     "kind": "Resource",

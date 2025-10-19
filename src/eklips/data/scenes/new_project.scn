@@ -13,7 +13,7 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "scale":  [1280, 720],
+                    "scale":  [1146, 640],
                     "scroll": [0,0]
                 },
                 "visible": true,
@@ -34,7 +34,7 @@
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -57,7 +57,7 @@
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -80,7 +80,7 @@
                     "anchor": "",
                     "layer":  1,
                     "alpha":  1,
-                    "scale":  [1240, 615],
+                    "scale":  [1106, 535],
                     "scroll": [0,0]
                 },
                 "visible": true,
@@ -101,7 +101,7 @@
                     "anchor": "",
                     "layer":  3,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -124,7 +124,7 @@
                     "anchor": "",
                     "layer":  3,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -142,12 +142,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "pos":    [1210,670],
+                    "pos":    [1070,590],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,

@@ -74,6 +74,7 @@ class Interface:
         return new_pos
 
     def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False, batchxt=None, sprite=None):
+        pos         = list(pos)
         new_pos     = list(pos)[:]
         if use_pyglet_resource_directly:
             path    = custom_id

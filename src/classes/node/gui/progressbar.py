@@ -45,12 +45,13 @@ class Progressbar(CanvasItem):
         self.barfbatch = pg.graphics.Batch()
         
     def draw(self):
-        if self.properties["visible"]:
-            self.w,self.h=self._draw_onto_screen(self.properties["transform"]["scale"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
+        if self.visible:
+            size          = self._draw_onto_screen(self.scale_x * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
+            self.w,self.h = size
     
     def _draw_onto_screen(self, width):
-        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["scale"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barbatch)
-        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["scale"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barfbatch)
+        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.scale, self.window_id, self.anchor, self.layer, batch=self.barbatch)
+        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.scale_y], self.window_id, self.anchor, self.layer, batch=self.barfbatch)
 
         lw, lh, l = self.screen.render(
             f"{round(self.properties['value']/self.properties['maximum']*100)}%",
@@ -58,13 +59,13 @@ class Progressbar(CanvasItem):
                 self.runtime_data["rendererpos"][0],
                 self.runtime_data["rendererpos"][1]
             ],                     
-            anchor     = self.properties["transform"]["anchor"],              
-            layer      = self.properties["transform"]["layer"],       
+            anchor     = self.anchor,              
+            layer      = self.layer,       
             color      = self.properties.get("txcolor", [255,255,255]),
             return_obj = True,
             batchxt    = self.barfbatch
         )
-        l.x = self.runtime_data["rendererpos"][0] + (self.properties["transform"]["scale"][0]/2 - lw/2)
+        l.x = self.runtime_data["rendererpos"][0] + (self.scale_x/2 - lw/2)
 
         return img_size
 

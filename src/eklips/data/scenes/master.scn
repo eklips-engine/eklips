@@ -13,10 +13,10 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "scale":  [1280, 720],
+                    "scale":  [1146, 640],
                     "scroll": [0,0]
                 },
-                "visible": true,
+                "visible": false,
                 "color":   [20,20,30]
             },
             "script_properties": {},
@@ -34,10 +34,10 @@
                     "anchor": "",
                     "layer":  1,
                     "alpha":  1,
-                    "scale":  [1240, 615],
+                    "scale":  [1106, 535],
                     "scroll": [0,0]
                 },
-                "visible": true,
+                "visible": false,
                 "color":   [5,5,10]
             },
             "script_properties": {},
@@ -55,7 +55,7 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -78,7 +78,7 @@
                     "anchor": "",
                     "layer":  10,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -96,12 +96,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "pos":    [1180,25],
+                    "pos":    [1046,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "scale":  [0,0],
+                    "scale":  [1,1],
                     "scroll": [0,0]
                 },
                 "visible":   true,
