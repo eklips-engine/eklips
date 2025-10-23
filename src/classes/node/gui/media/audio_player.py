@@ -43,11 +43,14 @@ class AudioPlayer(Node):
         self._autoplay_has_played_yet = False
         self.channel                  = None
     
+    def get_master_volume(self):
+        return engine.savefile.get("sound/master", 0.75)
+    
     def play(self, volume=1):
         self.call_signal("_player_started")
         if not self.audio_data:
             self.audio_data : pyg.Sound = self.resourceman.load(self.properties["media"]).get()
-        self.audio_data.set_volume(volume)
+        self.audio_data.set_volume(volume * self.get_master_volume())
         self.channel = self.audio_data.play()
 
     def pause(self):

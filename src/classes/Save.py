@@ -8,9 +8,9 @@ import classes.Singleton as engine
 class Savefile:
     def __init__(self):
         self.data      = engine.Data
-        self.save_dir  = f"{os.path.expanduser('~')}/{self.data.game_name}" # Save file directory
-        self.savefpath = f"{self.save_dir}/save.json" # Save file path
-        self.base_save = f"{self.data.data_directory}/base_save.json"       # Empty save file path
+        self.save_dir  = f"{os.path.expanduser('~')}/Eklips Engine/{self.data.game_name}" # Save file directory
+        self.savefpath = f"{self.save_dir}/save.json"                                     # Save file path
+        self.base_save = f"{self.data.data_directory}/base_save.json"                     # Empty save file path
         self.savefile  = {}
         self.load_data()
     
