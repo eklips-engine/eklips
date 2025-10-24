@@ -41,10 +41,8 @@ class Resource(Object):
 
     def serialize(self, path):
         # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"RSC")
-            f.write(struct.pack("<I", len(self.get())))
-            f.write(self.get().encode())
+        with open(path, "w") as f:
+            f.write(json.dumps({'type':'Resource'}, indent=1))
 
 class Image(Resource):
     """This resource stores an Image. you may get only the image by getting the `image` variable."""
@@ -69,11 +67,8 @@ class Image(Resource):
     
     def serialize(self, path):
         # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"IMG")
-            f.write(struct.pack("<II", self.width, self.height))
-            f.write(struct.pack("<I", len(self.get_path())))
-            f.write(self.get_path().encode())
+        with open(path, "w") as f:
+            f.write(json.dumps({'type':'Image','size':[self.width,self.height],'path':self.get_path()}, indent=1))
 
 class SheetImage(Resource):
     """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
@@ -112,23 +107,20 @@ class SheetImage(Resource):
     
     def serialize(self, path):
         """Save the resource into a file"""
-        with open(path, "wb") as f:
+        with open(path, "w") as f:
             f.write(b"IMS")
             try:
                 cx, cy, cw, ch = self.para["clip"]
             except:
                 cx, cy, cw, ch = 0, 0, self.sheet.width, self.sheet.height
-            f.write(struct.pack("<II", cw, ch))
-            f.write(struct.pack("<II", cx, cy))
-            f.write(struct.pack("<I", len(self.get_path())))
-            f.write(self.get_path().encode())
+            f.write(json.dumps({'type':'SheetImage','clip':[cx,cy,cw,ch],'path':self.get_path()}, indent=1))
 
 class Media(Resource):
     """Mediafile resource. Can be video or audio."""
     def serialize(self, path):
         # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"MED")
+        with open(path, "w") as f:
+            f.write(json.dumps({'type':'Media'}, indent=1))
 
 class Script(Resource):
     """A Script file."""
@@ -167,10 +159,12 @@ class Script(Resource):
     
     def serialize(self, path):
         # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"SCR")
-            f.write(struct.pack("<I", len(self.get())))
-            f.write(self.get().encode())
+        with open(path, "w") as f:
+            serialized = {
+                "type":     "Script",
+                "data":     self.get()
+            }
+            f.write(json.dumps(serialized,indent=1))
 
 class Theme(Resource):
     """A Theme. Used by widgets (Button, Progressbar..) to know what and how to draw themselves"""
@@ -214,11 +208,14 @@ class Theme(Resource):
     
     def serialize(self, path):
         # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"THM")
-            obj = json.dumps(self.get())
-            f.write(struct.pack("<I", len(obj)))
-            f.write(obj.encode())
+        with open(path, "w") as f:
+            serialized = {
+                "type":     "Theme"
+            }
+            data       = self.get()
+            for i in data:
+                serialized[i] = data[i]
+            f.write(json.dumps(serialized,indent=1))
     
     def get_thing(self, name): return self.get()["themed"][name]
     
@@ -446,12 +443,11 @@ class Tileset(Resource):
         "data":   {
             "object": {
                 "tile_size":  [40,40],
-                "padding_se": [0, 0],
-                "padding_nw": [0, 0],
-
-                "tiles":            {}, #'tile': {'collision_rect': [x,y,w,h], 'atlaspos':[x,y], 'scenefile': None}
-
-                "atlas":     "root://internal/tilemap_atlas.png"
+                "padding":    [0, 0],
+                              
+                "tiles":      {}, #'tile': {'collision_rect': [x,y,w,h], 'atlaspos':[x,y], 'scenefile': None}
+                              
+                "atlas":      "root://internal/tilemap_atlas.png"
             },
             "path":   "res://"
         },
@@ -461,6 +457,23 @@ class Tileset(Resource):
         },
         "script": None
     }
+    def __init__(self, data=til_base_data):
+        super().__init__(data)
+        self.tilesize = self.get()["tile_size"]
+        self.padding  = self.get()["padding"]
+        self.tiles    = self.get()["tiles"]
+        self.atlas    = engine.resource_loader.load(self.get()["atlas"])
+    
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "w") as f:
+            serialized = {
+                "type":     "Tileset"
+            }
+            data       = self.get()
+            for i in data:
+                serialized[i] = data[i]
+            f.write(json.dumps(serialized,indent=1))
 
 ## Functions
 def img_to_sheet(img, clip = 0):
@@ -510,16 +523,14 @@ class Loader:
         obj = 0
 
         with data as f:
-            type = f.read(3)
+            jsondata = json.loads(data.read())
 
-            if type == b"MED": return Media()
-            if type == b"SCR":
-                dal = struct.unpack("<I", f.read(4))[0] # Data length
-                dat = f.read(dal).decode()
+            if jsondata["type"] == "Media": return Media()
+            if jsondata["type"] == "Script":
                 obj = Script({
                     "prop":   {},
                     "data":   {
-                        "object": dat,
+                        "object": jsondata["data"],
                         "path":   "resfile://scr"
                     },
                     "meta":   {
@@ -528,7 +539,7 @@ class Loader:
                     },
                     "script": None
                 })
-            if type == b"RES":
+            if jsondata["type"] == "Resource":
                 obj = Resource({
                     "prop":   {},
                     "data":   {
@@ -541,30 +552,38 @@ class Loader:
                     },
                     "script": None
                 })
-            if type == b"THM":
-                datlen = struct.unpack("<I", f.read(4))[0]
-                dat    = json.loads(f.read(datlen).decode())
+            if jsondata["type"] == "Theme":
                 obj    = Theme({
                     "prop":   {},
                     "data":   {
-                        "object": dat,
+                        "object": jsondata,
                         "path":   "resfile://thm"
                     },
                     "meta":   {
                         "kind": "Resource",
-                        "name": "Image"
+                        "name": "Theme"
                     },
                     "script": None
                 })
-            if type == b"IMG":
-                w,h = struct.unpack("<II", f.read(8))
-                dal = struct.unpack("<I", f.read(4))[0] # Data length
-                dat = f.read(dal).decode()
+            if jsondata["type"] == "Tileset":
+                obj    = Theme({
+                    "prop":   {},
+                    "data":   {
+                        "object": jsondata,
+                        "path":   "resfile://til"
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Tileset"
+                    },
+                    "script": None
+                })
+            if jsondata["type"] == "Image":
                 obj = Image({
                     "prop":   {},
                     "data":   {
-                        "object": self.load(dat).get(),
-                        "path":   dat
+                        "object": self.load(jsondata["path"]).get(),
+                        "path":   jsondata["path"]
                     },
                     "meta":   {
                         "kind": "Resource",
@@ -572,26 +591,21 @@ class Loader:
                     },
                     "script": None
                 })
-            if type == b"IMS":
-                w,h      = struct.unpack("<II", f.read(8))   
-                cx, cy   = struct.unpack("<II", f.read(8))
-
-                clip     = [cx,cy,w,h]
+            if jsondata["type"] == "SheetImage":
+                clip     = jsondata["clip"]
                 if clip == [0,0,0,0]:
                     clip = 0
                 
-                dal      = struct.unpack("<I", f.read(4))[0]    # Data length
-                dat      = f.read(dal).decode()
                 obj      = SheetImage({
                     "prop":   {},
                     "data":   {
-                        "object": self.load(dat).get(),
-                        "path":   dat,
+                        "object": self.load(jsondata["path"]).get(),
+                        "path":   jsondata["path"],
                         "clip":   clip
                     },
                     "meta":   {
                         "kind": "Resource",
-                        "name": "Image"
+                        "name": "SheetImage"
                     },
                     "script": None
                 })
@@ -688,7 +702,7 @@ class Loader:
                             "script": None
                         })
                     elif ext in ("res", "import"):
-                        asset    = pg.resource.file(actual_path, "rb")
+                        asset    = pg.resource.file(actual_path, "r")
                         assetres = self.load_from_resf(asset)
                     elif ext in ("ekl", "py", "scn"):
                         asset    = pg.resource.file(actual_path).read()
@@ -761,7 +775,7 @@ class Loader:
                             "script": None
                         })
                     elif ext in ("res", "import"):
-                        asset    = open(actual_path,"rb")
+                        asset    = open(actual_path,"r")
                         assetres = self.load_from_resf(asset)
                     elif ext in ("ekl", "py", "scn"):
                         asset    = open(actual_path).read()
@@ -793,7 +807,7 @@ class Loader:
                 elif ext in ("png","jpg","jpeg","webp","bmp","dds"):
                     assetres = self.resource_tree[f"Ekl{engine.VER}mem,..unknown"]
                 elif ext in ("res", "import"):
-                    asset    = io.BytesIO(b"RES")
+                    asset    = io.TextIOWrapper("{'type':'Resource'}")
                     assetres = self.load_from_resf(asset)
                 elif ext in ("ekl", "py", "scn"):
                     asset    = "# Faulty"

@@ -1,5 +1,5 @@
 ## Import all the libraries
-import pyglet as pg, gc, struct, types
+import pyglet as pg, gc, struct, types, json
 from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 import classes.Singleton as engine
@@ -153,5 +153,5 @@ class Object:
     ## Virtual
     def serialize(self, path):
         """Save the object into a file"""
-        with open(path, "wb") as f:
-            f.write(b"OBJ")
+        with open(path, "w") as f:
+            f.write(json.dumps({'type':'Object'}, indent=1))
