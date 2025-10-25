@@ -30,9 +30,7 @@
             "properties": {
                 "media":       "root://internal/sfx/load.mp3",
                 "autostart":   true,
-                "loop":        false,
-                "where":       0,
-                "play_global": true
+                "loop":        false
             },
             "signals":           {},
             "name":              "AudioPlayer",

@@ -1,11 +1,16 @@
-# ![Eklips](img/icon.png) Eklips Engine
+<p>
+    <img src="img/logo.png" alt="Eklips Engine logo">
+</p>
+
+<hr>
+
 A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
 >[!WARNING]
 >This project is still in development and is very buggy and unstable, so use at your own risk.
 >Most features are yet to be completed...
 >
->Also, Do not go to the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account and it will not have any new commits or features.
+>This fork is the successor of the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account and it will not have any new commits or features.
 
 >[!NOTE]
 >I'm not gonna be committing as much.. cause school.. and life.. yayy..
