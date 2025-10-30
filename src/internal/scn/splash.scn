@@ -1,0 +1,64 @@
+{
+    "Properties": {
+        "inherited":   false,
+        "inheritedBy": ""
+    },
+    "Nodes":      {
+        "Ekl": {
+            "type":       "Sprite2D",
+            "properties": {
+                "transform": {
+                    "scale":  [2,2],
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "center",
+                    "layer":  1,
+                    "alpha":  1,
+                    "scroll": [0,0]
+                },
+                "visible":1,
+                "sprite":"root://internal/eklips/eklips.png"
+            },
+            "signals":           {},
+            "name":              "Eclipse",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
+        "aud": {
+            "type":       "AudioPlayer",
+            "properties": {
+                "media":       "root://internal/sfx/load.mp3",
+                "autostart":   true,
+                "loop":        false
+            },
+            "signals":           {},
+            "name":              "AudioPlayer",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
+        "Ring": {
+            "type":       "Sprite2D",
+            "properties": {
+                "transform": {
+                    "scale":  [2,2],
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "center",
+                    "layer":  2,
+                    "alpha":  1,
+                    "scroll": [0,0]
+                },
+                "visible":1,
+                "sprite":       "root://internal/eklips/ring.png",
+                "iwannarotate": 1
+            },
+            "signals":           {},
+            "name":              "Ring",
+            "script":            "root://internal/scr/spin.ekl",
+            "path":              "",
+            "runtimedata":       0
+        }
+    }
+}

@@ -1,0 +1,3 @@
+from classes import singleton as engine
+
+engine.resource_loader.resource_tree.clear()

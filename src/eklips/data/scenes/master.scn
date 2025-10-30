@@ -1,0 +1,119 @@
+{
+    "Properties": {
+        "inherited":   false,
+        "inheritedBy": ""
+    },
+    "Nodes":      {
+        "Background": {
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "scale":  [1146, 640],
+                    "scroll": [0,0]
+                },
+                "visible": true,
+                "color":   [20,20,30]
+            },
+            "signals":           {},
+            "name":              "Back",
+            "script":            "res://data/main_populate_tree.ekl",
+            "path":              "",
+            "runtimedata":       0
+        },
+        "Panel": {
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "pos":    [20,75],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  1,
+                    "alpha":  1,
+                    "scale":  [1106, 535],
+                    "scroll": [0,0]
+                },
+                "visible": true,
+                "color":   [5,5,10]
+            },
+            "signals":           {},
+            "name":              "Panel",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "TextPleaseSel": {
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "pos":    [40,17],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "scale":  [1,1],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "Projects:",
+                "color":     [255,255,255],
+                "font_size": 20
+            },
+            "signals":           {},
+            "name":              "PanelText",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "TxtPnt": {
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "pos":    [0,-100],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  10,
+                    "alpha":  1,
+                    "scale":  [1,1],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "->",
+                "color":     [255,255,255],
+                "font_size": 15
+            },
+            "signals":           {},
+            "name":              "TxtPnt",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "BtnAddNew": {
+            "type":       "Button",
+            "properties": {
+                "transform": {
+                    "pos":    [1046,25],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  2,
+                    "alpha":  1,
+                    "scale":  [1,1],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "+ Add",
+                "font_size": 20,
+                "color":     [20,20,30]
+            },
+            "signals":           {"_clicked": "open_new_project_dialog"},
+            "name":              "PanelText",
+            "script":            "res://data/functions.ekl",
+            "path":              "Back",
+            "runtimedata":       0
+        }
+    }
+}

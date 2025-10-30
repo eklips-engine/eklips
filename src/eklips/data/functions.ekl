@@ -1,0 +1,348 @@
+from classes import singleton as engine
+import json, os, subprocess
+import shutil
+import tkinter as tk
+from tkinter import ttk
+from tkinter.filedialog import *
+
+def get_curr_project_data(info, only_path_text=True):
+    gamejsloc = info[4]
+    broken    = False
+    try:
+        gamejs    = json.loads(open(gamejsloc).read())
+        title     = gamejs["game_name"]
+        ver       = gamejs["project_ver"]
+        eklver    = gamejs["eklips_ver"]
+    except:
+        broken     = True
+        title      = info[0]
+        ver,eklver = info[1],info[2]
+    path      = info[3]
+    return path,title,ver,eklver,broken,gamejs,engine.project_id,gamejsloc
+
+def get_projects():
+    return engine.savefile.get("projects", [])
+
+def _askdir(pth):
+    pth.set(askdirectory())
+
+def go_back(self):
+    answer = engine.askyesno("Eklips Editor", "Are you sure you want to exit? Your data may be lost!")
+
+    if answer:
+        engine.display.set_icon(engine.icon)
+        engine.display.set_caption("Eklips Editor")
+        engine.load_new_scene("res://data/scenes/master.scn")
+
+def go_back_without_asking(self):
+    engine.display.set_icon(engine.icon)
+    engine.display.set_caption("Eklips Editor")
+    engine.load_new_scene("res://data/scenes/master.scn")
+
+def open_current_project_dir(self):
+    engine.printf("Opening project dir")
+    path = get_curr_project_data(engine.project_info)[0]
+    os.startfile(path)
+
+def run_current_project(self):
+    info = get_curr_project_data(engine.project_info)
+
+    if engine.resources.IS_EXECUTABLE:
+        engine.printf("Invoking executable file")
+        invoker = "??"
+    else:
+        engine.printf("Invoking python file")
+        invoker = f"python {engine.__file__}"
+
+    cwd    = os.getcwd()
+    result = subprocess.Popen(f"{invoker} -js {info[4]} -dir {info[0]}", cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+def make_new_project(pathval, nameval, loading_include : str):
+    mygjs            = json.loads(engine.resource_loader.load("res://game.json"))
+    pathval          = pathval.replace("\\","/")
+    gjsl             = f"{pathval}/game.json"
+    prjs             = engine.savefile.get("projects")
+
+    if os.path.exists(pathval):
+        if os.path.isfile(pathval):
+            engine.showerror("Eklips Editor","A file with that name already exists.")
+        if not os.path.isdir(pathval+"/game.json"):
+            engine.showerror("Eklips Editor","A folder with that name already exists and it isn't a valid project.")
+        
+        if engine.askyesno("Eklips Editor","Do you want to overwrite this project?"):
+            shutil.rmtree(pathval)
+        else:
+            return 1
+    
+    try:
+        os.makedirs(pathval)
+    except:
+        os.makedir(pathval)
+    prjs.append([nameval,mygjs['project_ver'],mygjs['eklips_ver'], pathval, gjsl])
+    
+    print(loading_include)
+    
+    with open(gjsl,"w") as f:
+       mygjs["game_name"]                         = nameval
+
+       lpth = "root://internal/scn/loading.scn"
+       if loading_include == "Hide":              lpth = "root://internal/scn/skip.scn"
+       if loading_include == "Use Splash Screen": lpth = "root://internal/scn/splash.scn"
+       mygjs["cvars"]["loading_scene"]["default"] = lpth
+
+       mygjs["project_ver"]                       = "1.0"
+       mygjs["cvars"]["directory"]["default"]     = pathval.split("/")[-1]
+       f.write(json.dumps(mygjs,indent=4))
+    os.makedirs(f"{pathval}/data/scenes")
+    os.makedirs(f"{pathval}/media/font")
+    with open(f"{pathval}/media/icon.png", "wb") as f:
+        f.write(engine.resource_loader.load(engine.cvars.get('icon_file'), force_type="bin"))
+    with open(f"{pathval}/data/scenes/master.scn", "w") as f:
+        scnm = {"Properties": {"inherited": False, "inheritedBy": ""}, "Nodes": {}}
+        f.write(json.dumps(scnm))
+    with open(f"{pathval}/base_save.json", "w") as f:
+        f.write(engine.resource_loader.load("res://base_save_temp.json","bin"))
+    engine.savefile.set("projects", prjs)
+
+def open_new_project_dialog(self):
+    rat = tk.Tk()
+    rat.title(f"Eklips Editor")
+    rat.geometry("315x125")
+    rat.resizable(False, False)
+    
+    pth = tk.StringVar()
+    nam = tk.StringVar()
+    rnd = tk.StringVar()
+
+    lbln = ttk.Label(rat,  text="Project directory:")
+    lbln.place(x=5,y=5)    
+    lbln = ttk.Entry(rat,  textvariable=pth)
+    lbln.place(x=105,y=5)  
+    lbln = ttk.Button(rat, text="Browse..", command=lambda: _askdir(pth))
+    lbln.place(x=-80,y=5,  relx=1)
+    lbln = ttk.Label(rat,  text="Project name:")
+    lbln.place(x=5,y=35)    
+    lbln = ttk.Entry(rat,  textvariable=nam)
+    lbln.place(x=105,y=35)  
+    lbln = ttk.Label(rat,  text="Loading scene:")
+    lbln.place(x=5,y=65)    
+    lbln = ttk.OptionMenu(rat, rnd, "Hide", "Show", "Hide", "Use Splash Screen")  
+    lbln.place(x=105,y=62)    
+                           
+    lbln = ttk.Button(rat, text="Make", command=lambda: make_new_project(pth.get(),nam.get(),rnd.get()))
+    lbln.place(x=5,y=95)
+    lbln = ttk.Button(rat, text="Make & Edit")#, command=lambda: __chng(self, pth, info, rat))
+    lbln.place(x=85,y=95)
+    
+    lbln = ttk.Button(rat, text="Cancel", command=rat.destroy)
+    lbln.place(x=-80,y=95, relx=1)
+
+    rat.mainloop()
+
+def __chng(self, pth,info,rat,root):
+    engine.printf("Change project dir")
+    path    = pth.get()
+
+    if not os.path.isdir(path):
+        return engine.showerror("Eklips Editor", "Directory must exist")
+    if not os.path.isfile(f"{path}/game.json"):
+        return engine.showerror("Eklips Editor", "Directory must have a game.json file")
+    
+    info[0] = path
+    gid     = projid - 1
+    
+    prjs         = engine.savefile.get("projects")
+    prjs[gid][3] = path
+    prjs[gid][4] = f"{path}/game.json"
+
+    engine.savefile.set("projects", engine.savefile.get("projects"))
+    with open(info[6],"w") as f:
+        f.write(json.dumps(info[5],indent=4))
+
+    engine.savefile.set("projects", engine.savefile.get("projects"))
+
+    rat.destroy()
+    root.destroy()
+
+def _change_dir(self, root, info):
+    rat = tk.Tk()
+    rat.title(f"Eklips Editor")
+    rat.geometry("315x70")
+
+    pth = tk.StringVar()
+    pth.set(info[0])    
+
+    lbln = ttk.Label(rat,  text="Project directory:")
+    lbln.place(x=5,y=5)    
+    lbln = ttk.Entry(rat,  textvariable=pth)
+    lbln.place(x=105,y=5)  
+    lbln = ttk.Button(rat, text="Browse..", command=lambda: _askdir(pth))
+    lbln.place(x=-80,y=5,  relx=1)
+                           
+    lbln = ttk.Button(rat, text="Apply", command=lambda: __chng(self, pth, info, rat, root))
+    lbln.place(x=-80,y=35, relx=1)
+
+    rat.mainloop()
+
+def pick_project(self):
+    engine.printf("Editing project")
+    if broken:
+        engine.printf("Error")
+        if engine.askyesno("Eklips Editor", "Project files could not be found or was not loaded properly. Would you like to change the folder for this project?"):
+            _change_dir(self, projdata)
+        return
+    engine.project_info = projdata
+    engine.project_id   = projid
+    engine.load_new_scene("res://data/scenes/curr_project.scn")
+
+def pp_hover(self):
+    pointer : engine.Scene.Label = engine.scene.get_node_from_path("Back", "TxtPnt")
+    if broken:
+        pointer.properties["text"] = "!>"
+    else:
+        pointer.properties["text"] = f"->"
+    pointer.x = self.x - 15
+    pointer.y = self.y
+
+def _apply_meta(self, nm, vr, ip, tp, con, info, root,lsp):
+    engine.printf("Applying project meta")
+    info    = list(info)
+    name    = nm.get()
+    ver     = vr.get()
+    lsn     = lsp.get()
+    icon    = ip.get()
+    theme   = tp.get()
+    console = con.get()
+    lsd     = "root://internal/scn/loading.scn"
+    if lsn == "Hide": 
+        lsd = "root://internal/scn/skip.scn"
+    elif lsn == "Use Splash Screen":
+        lsd   = "root://internal/scn/splash.scn"
+    print(lsn, lsd)
+    print(lsn)
+
+    info[1] = name
+    info[2] = ver
+    gjs     = info[5]
+    gid     = info[6]-1
+    
+    prjs         = engine.savefile.get("projects")
+    prjs[gid][0] = name                           
+    prjs[gid][1] = ver                            
+
+    workflow     = engine.scene.get_node_from_path("", "Back")
+    workflow     : engine.Scene.Node                          
+
+    gjs["game_name"]   = name
+    gjs["project_ver"] = ver 
+    
+    gjs["cvars"]["loading_scene"]["default"] = lsd   
+    gjs["cvars"]["icon_file"]["default"]     = icon   
+    gjs["cvars"]["theme_file"]["default"]    = theme  
+    gjs["cvars"]["con"]["default"]           = console
+
+    with open(info[7],"w") as f:
+        f.write(json.dumps(gjs,indent=4))
+    
+    engine.savefile.set("projects", engine.savefile.get("projects"))
+
+    root.destroy()
+
+def _invoke_menu(self):
+    engine.printf("Show menu")
+    info = get_curr_project_data(engine.project_info)
+    root = tk.Tk()
+    root.title(f"Settings for {info[1]}")
+    root.geometry("500x500")
+    cvars = info[5]["cvars"]
+    keys  = info[5]["keys"]
+
+    # Meta
+    tabs = ttk.Notebook(root)
+    tab1 = ttk.Frame(tabs)
+    nm   = tk.StringVar(value=info[5]["game_name"])
+    vr   = tk.StringVar(value=info[5]["project_ver"])
+    ip   = tk.StringVar(value=cvars["icon_file"]["default"])
+    tp   = tk.StringVar(value=cvars["theme_file"]["default"])
+    con  = tk.BooleanVar(value=cvars["con"]["default"])
+    lsno = cvars["loading_scene"]["default"]
+    lsn  = tk.StringVar(value="Show")
+    if lsno == "root://internal/scn/skip.scn":
+        lsn.set("Hide")
+    elif lsno == "root://internal/scn/splash.scn":
+        lsn.set("Use Splash Screen")
+    lbln = ttk.Label(tab1, text="Project name:")
+    lbln.place(x=5,y=5)
+    lbln = ttk.Entry(tab1, textvariable=nm)
+    lbln.place(x=105,y=5, relwidth=1, width=-110)
+    lbln = ttk.Label(tab1, text="Project version:")
+    lbln.place(x=5,y=27)
+    lbln = ttk.Entry(tab1, textvariable=vr)
+    lbln.place(x=105,y=27, relwidth=1, width=-110)
+    lbln = ttk.Label(tab1, text="Icon path:")
+    lbln.place(x=5,y=49)
+    lbln = ttk.Entry(tab1, textvariable=ip)
+    lbln.place(x=105,y=49, relwidth=1, width=-110)
+    lbln = ttk.Label(tab1, text="Theme path:")
+    lbln.place(x=5,y=71)
+    lbln = ttk.Entry(tab1, textvariable=tp)
+    lbln.place(x=105,y=71, relwidth=1, width=-110)
+    lbln = ttk.Label(tab1, text="Console?:")
+    lbln.place(x=5,y=93)
+    lbln = ttk.Checkbutton(tab1, variable=con)
+    lbln.place(x=105,y=93)
+    lbln = ttk.Label(tab1, text="Loading scene:")
+    lbln.place(x=5,y=115)    
+    lbln = ttk.OptionMenu(tab1, lsn, lsn.get(), "Show", "Hide", "Use Splash Screen")  
+    lbln.place(x=105,y=112)    
+    lbln = ttk.Label(tab1, text="You cannot change the name of your\nproject directory by using Explorer!\nPlease, change it using this button;")
+    lbln.place(x=5,rely=1, y=-55)
+    lblb = ttk.Button(tab1, text="Change directory name", command=lambda: _change_dir(self, root, info))
+    lblb.place(relx=1,rely=1, x=-225, y=-35)
+    lblb = ttk.Button(tab1, text="Apply", command=lambda:_apply_meta(self, nm,vr,ip,tp,con, info, root, lsn))
+    lblb.place(relx=1,rely=1, x=-85, y=-35)
+
+    # cvars
+    tab2 = ttk.Frame(tabs)
+    cvtr = ttk.Treeview(tab2, columns=("Value", "Comment"))
+    cvtr.column("Value")
+    cvtr.heading("Value", text="Value")
+    cvtr.column("Comment")
+    cvtr.heading("Comment", text="Comment")
+    cvtr.pack(expand=1, fill="both")
+
+    for i in cvars:
+        cvar = cvars[i]
+        id   = f"sv_{i}"
+        cvtr.insert("", "end", id, text=i)
+        cvtr.set(id, "Value", cvar["default"])
+        cvtr.set(id, "Comment", cvar.get("description", "N/A"))
+
+    # Keys
+    tab3 = ttk.Frame(tabs)
+    kytr = ttk.Treeview(tab3, columns=("Keybinds", "Holdable"))
+    kytr.column("Keybinds")
+    kytr.heading("Keybinds", text="Keybinds")
+    kytr.column("Holdable",  width=35)
+    kytr.heading("Holdable", text="Holdable")
+
+    kytr.pack(expand=1, fill="both")
+
+    for i in keys:
+        key = keys[i]
+        id   = f"ky_{i}"
+        kytr.insert("", "end", id, text=i)
+        kytr.set(id, "Keybinds", key["keys"])
+        kytr.set(id, "Holdable", engine.boollike_to_word(key["holdable"]))
+
+    # CMD
+    tab4 = ttk.Frame(tabs)
+
+    # Add them
+    tabs.add(tab1, text="Project metadata")
+    tabs.add(tab2, text="cvars")
+    tabs.add(tab3, text="Keybinds")
+    tabs.add(tab4, text="Commands")
+    tabs.pack(expand=1, fill='both')
+
+    root.mainloop()
