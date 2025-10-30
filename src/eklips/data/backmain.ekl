@@ -1,6 +1,0 @@
-from classes import Singleton as engine
-
-def _clicked(self):
-    engine.display.set_icon(engine.icon)
-    engine.display.set_caption("Eklips Editor")
-    engine.load_new_scene("res://data/scenes/master.scn")
