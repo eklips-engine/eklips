@@ -178,6 +178,6 @@
         "crash": "engine.interface = None\n# Crash the app. Idk why you need ts",
         "impulse": "engine.flags.append(int(args[0]))\n# Add a flag to flags list, See classes/constants.py",
         "bind": "engine.Data.game_bdata['keys'][args[0]] = {'keys':[args[1]],'holdable':False}\n#Bind action (arg0) to key (arg1)",
-        "get": "exec(f'print({args[0]})')\n# Print the outcome of whatever code you put in arg 0"
+        "get": "exec(f'printf({args[0]})', globals=globals(), locals=locals())\n# Print the outcome of whatever code you put in arg 0"
     }
 }

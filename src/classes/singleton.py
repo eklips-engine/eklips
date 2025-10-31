@@ -35,7 +35,7 @@ truedelta       : int                    = 0
 keys_held, keys_pressed, modifiers       = [None],[None],[None] 
 savefile        : save.Savefile          = 0             
 resource_loader : resources.Loader       = 0             
-display         : Any                    = 0             
+display         : pg.window.BaseWindow   = 0             
 batch           : pg.graphics.Batch      = 0             
 icon            : pg.image.BufferImage   = 0             
 global_stream   : pg.media.Player        = 0             
@@ -56,6 +56,21 @@ thm             : resources.Theme        = 0
 global_scripts  : list[resources.Script] = []
 
 ## Global functions
+def make_display(resolution, style = pg.window.Window.WINDOW_STYLE_DEFAULT):
+    global Data, display, savefile, cvars, batch, interface
+    printf(" ~ Creating display")
+    display       = pg.window.Window(
+        resolution[0], resolution[1],
+        caption    = Data.game_name,
+        fullscreen = savefile.get("display/fullscreen"),
+        vsync      = savefile.get("display/vsync"),
+        file_drops = cvars.get("file_drops"),
+        resizable  = cvars.get("screen_scalable", False),
+        visible    = False
+    )
+    batch       = pg.graphics.Batch()
+    interface   = ui.Interface()
+
 def reload_engine(dir=None):
     global savefile,resource_loader,cvars,global_scripts,console,thm,keys_held,keys_pressed,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
     """Reload/Load the engine variables."""
@@ -71,7 +86,7 @@ def reload_engine(dir=None):
     gc.enable()
     cvars = Data._init()
     printf(f"{Data.game_name} v{Data.game_bdata['project_ver']} for {ENGINE_NAME} v{VER}")
-    printf(" ~ Initializing cvARs")
+    printf(" ~ Initializing CVars")
     if dir:
         Data.data_directory = dir
         cvars.set("directory", dir, dir, "directoryParameterModifiedByArgument")
@@ -84,17 +99,7 @@ def reload_engine(dir=None):
 
     ## .. and then display
     if not initialized:
-        printf(" ~ Initializing display")
-        display        = pg.window.Window(
-            savefile.get("display/resolution")[0], savefile.get("display/resolution")[1],
-            caption    = Data.game_name,
-            fullscreen = savefile.get("display/fullscreen"),
-            vsync      = savefile.get("display/vsync"),
-            file_drops = cvars.get("file_drops"),
-            resizable  = cvars.get("screen_scalable", False)
-        )
-        batch       = pg.graphics.Batch()
-        interface   = ui.Interface()
+        make_display(savefile.get("display/resolution"))
     else:
         # Empty the screen
         interface.fill(0)
@@ -142,6 +147,9 @@ def reload_engine(dir=None):
         scriptobj = resource_loader.load(script, force_new_resource=True)
         scriptobj.init_param({})
         global_scripts.append(scriptobj)
+
+    ## Last touches
+    display.set_visible()
 
     ## Set flag to true
     initialized = True
