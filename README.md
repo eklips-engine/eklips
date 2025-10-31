@@ -1,5 +1,5 @@
 <p>
-    <img src="img/splash.png" alt="Eklips Engine logo">
+    <img src="img/splash-beeg.png" alt="Eklips Engine logo">
 </p>
 
 A 2D Node hierarchy-based game engine written in Python using Pyglet.
