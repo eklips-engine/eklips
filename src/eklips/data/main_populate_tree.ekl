@@ -124,9 +124,10 @@ def _onready(self):
 
         lbl_name.draw()
         lbl_ver.draw()
-        j           = lbl_name.w - lbl_ver.w
-        if j > 0: j = 0
-        width = int(lbl_name.w + abs(j) + 25)
+        print(lbl_ver.w,lbl_name.w)
+        if lbl_name.w > lbl_ver.w: width = lbl_name.w
+        if lbl_name.w < lbl_ver.w: width = lbl_ver.w
+        width += 25
 
         scene.add_node({
             "type":       "ColorRect",
@@ -137,7 +138,7 @@ def _onready(self):
                     "anchor": "",
                     "layer":  -10,
                     "alpha":  1,
-                    "scale":  [width-15,300],
+                    "scale":  [width,300],
                     "scroll": [0,     0]
                 },
                 "visible":   True,

@@ -39,7 +39,7 @@ class Label(CanvasItem):
     def draw(self):
         if self.visible:
             img           = self._draw_onto_screen(self.properties["text"])
-            self.w,self.h = img._w, img._h
+            self.w,self.h = img.w, img.h
         
     def _draw_onto_screen(self, text):
         return self.screen.render(

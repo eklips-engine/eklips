@@ -1,6 +1,8 @@
-<p>
-    <img src="img/splash-beeg.png" alt="Eklips Engine logo">
-</p>
+<center>
+    <img src="img/splash.png" alt="Eklips Engine logo">
+</center>
+
+<br>
 
 A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
@@ -27,6 +29,9 @@ For now, the features are:
  - Python scripting support
 
 # Documentation
+>[!WARNING]
+>There isn't any documentation yet.. as the editor is not done and initial release isn't out yet.
+
 Documentations for Eklips are at the [Wiki](https://github.com/ZeeAyZ/Eklips/wiki) tab of the Github repository.
 
 # Requirements

@@ -427,7 +427,7 @@ class Theme(Resource):
 
     def create_null_texture(_, w="rand", color=[255,0,255]):
         if w == "rand":
-            w = random.randint(50,150)
+            w = random.randint(204,250)
         w = int(w)
         if w % 2 != 0:
             w += 1  # make it even
@@ -824,7 +824,7 @@ class Loader:
                 elif ext in ("png","jpg","jpeg","webp","bmp","dds"):
                     assetres = self.resource_tree[f"Ekl{engine.VER}mem,..unknown"]
                 elif ext in ("res", "import"):
-                    asset    = io.TextIOWrapper("{'type':'Resource'}")
+                    asset    = io.StringIO("{\"type\":\"Resource\"}")
                     assetres = self.load_from_resf(asset)
                 else:
                     asset    = "# Faulty"

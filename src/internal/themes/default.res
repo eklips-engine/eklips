@@ -31,6 +31,6 @@
    "pluspos":[6,23,7,6]
   }
  },
- "atlas": "root://internal/themes/atlas.png",
+ "atlas": "root://internal/themes/awtlas.png",
  "type":  "Theme"
 }

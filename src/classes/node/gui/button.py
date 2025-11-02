@@ -56,6 +56,7 @@ class Button(CanvasItem):
                 self.runtime_data["rendererpos"][0]+7.5,
                 self.runtime_data["rendererpos"][1]
             ],
+            layer  = self.layer+1,
             anchor = self.anchor,
             color  = engine.thm.get_thing(typ)["fontcol"]
         )

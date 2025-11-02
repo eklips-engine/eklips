@@ -16,7 +16,7 @@
                     "scale":  [1146, 640],
                     "scroll": [0,0]
                 },
-                "visible": true,
+                "visible": 0,
                 "color":   [20,20,30]
             },
             "signals":           {},
@@ -32,12 +32,12 @@
                     "pos":    [20,75],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  1,
+                    "layer":  -10,
                     "alpha":  1,
                     "scale":  [1106, 535],
                     "scroll": [0,0]
                 },
-                "visible": true,
+                "visible": 1,
                 "color":   [5,5,10]
             },
             "signals":           {},
@@ -99,7 +99,7 @@
                     "pos":    [1046,25],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  2,
+                    "layer":  5,
                     "alpha":  1,
                     "scale":  [1,1],
                     "scroll": [0,0]
