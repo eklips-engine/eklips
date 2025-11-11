@@ -1,308 +1,444 @@
-## Import all the libraries
-import pyglet as pg
+# Import libraries
+import pyglet as pg, gc
+
+# Import components
 import classes.singleton as engine
-from classes.constants import *
-from classes.convenience import *
+from classes.locals      import *
+from classes.customprops import *
 
-## UI Class.
-class Interface:
-    def add_screen(self, screen, batch):
-        id                  = len(self.surfaces)+1
-        self.making_surface = 1
-        self.surfaces[id]   = {
-            "screen": screen,
-            "batch":  batch,
-            "tbatch": pg.graphics.Batch()
-        }
-        self.making_surface = 0
-        return id
+# Colors
+_r    = [0,0,0]
+_rs   = [1,1,1]
+red   = [255,0,0]
+green = [255,0,0]
+blue  = [0,0,255]
+black = [0,0,0]
+white = [255,255,255]
+def rainbow():
+    global _rs
+    _r[0] += 15.5  * _rs[0]
+    _r[1] += 7.75  * _rs[1]
+    _r[2] += 3.875 * _rs[2]
+    if _r[0] > 255 or _r[0] < 0:
+        _rs[0] = -_rs[0]
+    if _r[1] > 255 or _r[2] < 0:
+        _rs[1] = -_rs[2]
+    if _r[2] > 255 or _r[2] < 0:
+        _rs[2] = -_rs[2]
+    return _r
 
-    def __init__(self):
-        self.mpos            = [0,0]
-        self.mclk            = [0,0,0]
-        self.cvars           = engine.cvars
-        self.screen          = engine.display
-        self.batch           = engine.batch
-        self.delta           = 0
-        self.surfaces        = {}
-        self.making_surface  = False
-        self.main_surf_id    = self.add_screen(self.screen, self.batch)
-        self.is_doublebuffer = True
-        self.area_cache      = {}
-        self.boilerimg       = pg.image.ImageData(1,1,"RGB", bytes([0,0,0]))
-        self.label_pool      = {i: pg.text.Label("", font_size=15, batch=self.batch) for i in range(self.cvars.get("ui_labelpoolamount"))}
-        self.sprite_pool     = {i: pg.sprite.Sprite(self.boilerimg, batch=self.batch) for i in range(self.cvars.get("ui_labelpoolamount"))}
-        self.label_used      = []
-        self.sprite_used     = []
-        self.draw_queue      = {}
-        self.anchors         = {}
-        self.label_queue     = {}
-        self.layers          = {}
-        self.layer_amount    = self.cvars.get("ui_layers") # -X ... X
-
-        for i in range(-self.layer_amount,self.layer_amount):
-            self.layers[i] = pg.graphics.Group(order=i)
+# Classes
+class EklipsWindow(pg.window.Window):
+    def on_close(self):
+        engine.display.close_window(self.wid)
+        self.eklips_viewport.close()
     
-    def get_anchor(self, transform : Transform, can_cache=True, screen_id = MAIN_SCREEN, no_y_flip=False):
-        pos         = list(transform.pos)
-        
-        if screen_id == MAIN_SCREEN:
-            screen_id = self.main_surf_id
-        
-        screen = self.surfaces[screen_id]["screen"]
-        
-        win_w, win_h = screen.get_size()
-        anchor_id    = f"{transform.anchor}{win_w}x{win_h}{transform.w}x{transform.h}{transform.pos}{transform.rotation}{no_y_flip}"
+    def on_mouse_motion(self, x, y, dx, dy):
+        engine.mouse.pos  = [x, y]
+        engine.mouse.dpos = [dx,dy]
+    
+    def on_mouse_press(self, x, y, button, modifiers):
+        engine.mouse.pos           = [x, y]
+        engine.mouse.clk[button-1] = True
 
-        new_pos = pos.copy()
-        if can_cache:
-            if not anchor_id in self.anchors:
-                if not "bottom" in transform.anchor and not no_y_flip:
-                    new_pos[1] = (win_h - transform.h) - transform.pos[1] # Pyglet uses bottom-left for 0,0 while pygame uses top-left. I'm more familliar with pygame
-                if "right" in transform.anchor:
-                    new_pos[0] = (win_w - transform.w) - transform.pos[0]
-                if "centerX" in transform.anchor:
-                    new_pos[0] = (win_w/2 - transform.w/2) + pos[0]
-                if "centerY" in transform.anchor:
-                    new_pos[1] = (win_h/2 - transform.h/2) + pos[1]
-                if "center" in transform.anchor:
-                    new_pos[0] = (win_w/2 - transform.w/2) + pos[0]
-                    new_pos[1] = (win_h/2 - transform.h/2) + pos[1]
-                if transform.rotation:
-                    new_pos[0]+=transform.w/2
-                    new_pos[1]+=transform.h/2
-                new_pos=[round(new_pos[0]),round(new_pos[1])]
-                self.anchors[anchor_id]=new_pos
-            else:
-                new_pos = self.anchors[anchor_id]
-        return new_pos
+    def on_mouse_release(self, x, y, button, modifiers):
+        engine.mouse.pos           = [x, y]
+        engine.mouse.clk[button-1] = True
 
-    def blit(self, surface, pos, clip=0, anchor="", alpha = 1, layer = 0, scroll=[0,0], scale=[1,1], screen_id=MAIN_SCREEN, can_cache = 1, rotation = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False, batchxt=None, sprite=None):
-        if alpha*255 < 1:
+class Viewport:
+    _window_is_slave = False
+    _width           = 0
+    _height          = 0
+    _background      = [0,0,0,1]
+
+    def __init__(self, batches : dict = {}, size : list[int,int] = [640,480], position : list[int,int] = [0,0]):
+        self.window : EklipsWindow = None
+        self.batches               = {}
+        self.width                 = size[0]
+        self.height                = size[1]
+
+        self._sprite   = pg.sprite.Sprite(self.color_buffer, x=0, y=0)
+
+        self.sprites : list[pg.sprite.Sprite] = []
+        self.used_sprites                     = []
+        self._base_img                        = engine.loader.load("root://_assets/error.png")
+    
+    def _make_framebuffer(self):
+        self.color_buffer = pg.image.Texture.create(self.width,      self.height, min_filter=GL_NEAREST, mag_filter=GL_NEAREST)
+        self.depth_buffer = pg.image.buffer.Renderbuffer(self.width, self.height, GL_DEPTH_COMPONENT)
+
+        self.framebuffer = pg.image.Framebuffer()
+        self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
+        self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
+    
+    @property
+    def width(self): return self._width
+    @property
+    def height(self): return self._height
+    
+    @property
+    def x(self): return self._sprite.x
+    @property
+    def y(self): return self._sprite.y
+
+    @property
+    def size(self): return [self.width,self.height]
+
+    @size.setter
+    def size(self, value):
+        self._width = value[0]
+        self._height = value[1]
+        self._make_framebuffer()
+
+    @x.setter
+    def x(self, value): self._sprite.x = value
+    @y.setter
+    def y(self, value): self._sprite.y = value
+    
+    @width.setter
+    def width(self, value):
+        self._width = value
+        self._make_framebuffer()
+    @height.setter
+    def height(self, value):
+        self._height = value
+        self._make_framebuffer()
+
+    def _make_new_sprite(self, batch_id=MAIN_BATCH):
+        sprite = pg.sprite.Sprite(self._base_img, batch = self.batches[batch_id])
+        i      = len(self.sprites)
+        self.sprites.append(sprite)
+        return sprite, i
+    def delete_sprite(self, sprite_id : int):
+        if not sprite_id in self.sprites:
             return
+        self.sprites[sprite_id].delete()
+        self.sprites.pop(sprite_id)
+        gc.collect()
+    def _allocate_sprite(self, batch_id=MAIN_BATCH):
+        i = 0
+        for sprite in self.sprites:
+            if not i in self.used_sprites:
+                self.used_sprites.append(i)
+                return sprite, i
+            i += 1
         
-        pos         = list(pos)
-        new_pos     = list(pos)[:]
-        if use_pyglet_resource_directly:
-            path    = custom_id
-            img     = surface
-        else:
-            path    = surface.get_path()
-            img     = surface.get()
-        img.subpixel = True
-
-        if clip:
-            ## Clipping
-            cx, cy, cw, ch = clip
-            cy             = surface.height - cy - ch
-
-            if can_cache:
-                id = f"{path}{cx}{cy}{cw}{ch}"
-                if not id in self.area_cache:
-                    img = img.get_region(cx, cy, cw, ch)
-                    self.area_cache[id] = img
-                else:
-                    img = self.area_cache[id]
-        
-        ## Get screen and batch
-        if screen_id  == MAIN_SCREEN:
-            screen_id  =  self.main_surf_id
-        
-        batch             = self.surfaces[screen_id]["batch"]
-        if batchxt: batch = batchxt
-
-        ## Anchoring
-        transform    = Transform.new(pos, surface, scale, alpha, layer, rotation, anchor, scroll, True)
-        new_pos      = self.get_anchor(transform, screen_id = screen_id)
-        
-        ## Detect if i'm even visible and change position
-        if not self.cull(img.width, img.height, new_pos, screen_id, scale=scale):
-            if not layer in self.layers: layer = 0
-            if scroll != [0, 0]:
-                img = img.get_region(
-                    0, #int(scroll[0] % img.width), 
-                    0, #int(scroll[1] % img.height),
-                    img.width,                  
-                    img.height                  
-                )
-
-            spr_id       = -1
-            hsize        = [img.width//2,img.height//2]
-            sprite       = None
-            if sprite:
-                spr                      = sprite
-                spr_id                   = len(self.sprite_pool)
-                self.sprite_pool[spr_id] = spr
-            else:
-                for i in self.sprite_pool:
-                    if not i in self.sprite_used:     
-                        spr      = self.sprite_pool[i]
-                        spr_id   = i                  
-                        break                         
-                if spr_id == -1:
-                    spr = pg.sprite.Sprite(
-                        self.boilerimg,
-                        batch    = batch,
-                        subpixel = True
-                    )
-                    spr_id                   = len(self.sprite_pool)
-                    self.sprite_pool[spr_id] = spr
-            if spr.x        != new_pos[0]:
-                spr.x        = new_pos[0]
-            if spr.y        != new_pos[1]:
-                spr.y        = new_pos[1]
-            if spr.image    != img:
-                if img != None:
-                    try:
-                        if img.get_texture() == None:
-                            print("Warning; Image texture is None")
-                        else:
-                            spr.image = img
-                    except Exception as e:
-                        print(f"Failed to assign sprite image: {e}")
-            if spr.z        != layer:
-                spr.z        = layer
-                spr.group    = self.layers[layer]
-            if spr.rotation != rotation:
-                spr.rotation = rotation
-            if spr.opacity  != int(alpha*255):
-                spr.opacity  = int(alpha*255)
-            if spr.scale_x  != scale[0]:
-                spr.scale_x  = scale[0]
-            if spr.scale_y  != scale[1]:
-                spr.scale_y  = scale[1]
-            if rotation:
-                if spr.image.anchor_x != hsize[0]:
-                    spr.image.anchor_x = hsize[0]
-                if spr.image.anchor_y != hsize[1]:
-                    spr.image.anchor_y = hsize[1]
-            spr.visible = True
-            self.draw_queue[spr_id] = spr
-            self.sprite_used.append(spr_id)
-            if return_obj:
-                return transform, spr
-        if return_obj:
-            return transform, None
-        return transform
+        sprite, i = self._make_new_sprite(batch_id)
+        self.used_sprites.append(i)
+        return sprite, i
     
-    def cull(self, w, h, pos, screen_id, scale=[1,1]):
-        if screen_id  == MAIN_SCREEN:
-            screen_id  =  self.main_surf_id
-        scr          = self.surfaces[screen_id]["screen"]
-        win_w, win_h = scr.width, scr.height
-        w           *= scale[0]
-        h           *= scale[1]
+    def set_background(self, r=0,g=0,b=0, a=1):
+        """
+        Set the background color of the Viewport.
 
-        return (
-            pos[0] > win_w or
-            pos[1] > win_h or
-            pos[0] < -w    or
-            pos[1] < -h
-        )
-
-    def render(self, text, pos, screen_id=MAIN_SCREEN, layer=5, anchor="", size=15, rotation=0, alpha=1, color=[255,255,255], return_obj=False, batchxt=None):
-        if alpha < 1:
-            return [0,0]
-        
-        id           = len(self.label_queue)
-        if screen_id  == MAIN_SCREEN:
-            screen_id  =  self.main_surf_id
-        
-        screen       = self.surfaces[screen_id]["screen"]
-        batch        = self.surfaces[screen_id]["tbatch"]
-
-        if batchxt:
-            batch    = batchxt
-        lbl_id       = -1
-        for i in self.label_pool:
-            if not i in self.label_used:
-                lbl      = self.label_pool[i]
-                lbl_id   = i                 
-                id       = i                 
-                break
-        if lbl_id == -1:
-            lbl = pg.text.Label(
-                text,
-                font_size=15,
-                z=layer,
-                batch=batch
-            )
-            self.label_pool[id] = lbl
-            lbl_id              = id
-        color_new = [color[0],color[1],color[2],255]
-        if not lbl.text == text:
-            lbl.text = text
-        
-        transform = Transform.new(pos, WHLike(lbl.content_width, lbl.content_height), [1,1], alpha, layer, rotation, anchor, [0,0], True)
-        new_pos   = self.get_anchor(transform, screen_id = screen_id)
-
-        if self.cull(lbl.content_width, lbl.content_height, new_pos, screen_id):
-            self.label_pool[id].visible = False
-            return transform
-
-        if not lbl.z    == layer:
-            if not layer in self.layers: layer = 0
-            lbl.z       = layer
-            lbl.group   = self.layers[layer]
-        if not lbl.x == new_pos[0]:
-            lbl.x = new_pos[0]
-        if not lbl.y == new_pos[1]:
-            lbl.y = new_pos[1]
-        if not lbl.font_size == size:
-            lbl.font_size = size
-        if not lbl.rotation == rotation:
-            lbl.rotation = rotation
-            hsize        = [lbl.content_width//2, lbl.content_height//2]
-            if lbl.anchor_x != hsize[0]:
-                lbl.anchor_x = hsize[0]
-            if lbl.anchor_y != hsize[1]:
-                lbl.anchor_y = hsize[1]
-        if not lbl.color == color_new:
-            lbl.color = color_new
-        if not lbl.opacity == alpha*255:
-            lbl.opacity = alpha*255
-
-        self.label_pool[id].visible = True
-        self.label_used.append(id)
-        self.label_queue[id] = lbl
-
-        if return_obj:
-            return transform, lbl
-        else:
-            return transform
+        .. r:: Red value of the background color (0-255).
+        .. g:: Green value of the background color (0-255).
+        .. b:: Blue value of the background color (0-255).
+        .. a:: Alpha of the background color (0-255).
+        """
+        self._background = [
+            (r+ZDE_FIX) / 255,
+            (g+ZDE_FIX) / 255,
+            (b+ZDE_FIX) / 255,
+            (a+ZDE_FIX) / 255
+        ]
+    
+    def clear(self):
+        for sprite in self.sprites:
+            sprite.visible = False
+        self.used_sprites.clear()
+    
+    @property
+    def x(self):        return self._sprite.x
+    @property
+    def y(self):        return self._sprite.y
+    @x.setter
+    def x(self, value): self._sprite.x = value
+    @y.setter
+    def y(self, value): self._sprite.y = value
     
     def flip(self):
-        ## === 1. Draw batches ===
-        if not self.making_surface:
-            for surf in self.surfaces.values():
-                surf["batch"].draw() 
-                surf["tbatch"].draw()
-        self.making_surface = False
+        """
+        Draw viewport contents to the window and flip it if the viewport is its master.
+        """
+        # Window-only 1
+        if self.window and self._window_is_slave:
+            self.window.switch_to()
+            self.window.clear()
+            if self.color_buffer.width != self.window.width:
+                self.width = self.window.width
+            if self.color_buffer.height != self.window.height:
+                self.height = self.window.height
+        
+        # Bind buffer
+        self.framebuffer.bind()
+        glViewport(self.x, self.y, self.width, self.height)
+        glEnable(GL_CULL_FACE)
+        glClearColor(*self._background)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        ## === 2. Flip/update window ===
-        for i in self.surfaces:
-            screen = self.surfaces[i]["screen"]
-            if self.is_doublebuffer:
-                self.screen.flip()
-            else:
-                self.screen.update()
+        # Draw batches for this Window and unbind buffer
+        for batch in self.batches:
+            batch.draw()
+        self.used_sprites.clear()
+        self.framebuffer.unbind()
+
+        # Window-only 2
+        if self.window:
+            self.window.switch_to()
+            self._sprite.image = self.color_buffer
+            self._sprite.draw()
+            if self._window_is_slave:
+                self.window.flip()
     
-    def fill(self, delta, color="black"):
-        self.delta = delta      
-        for i in self.surfaces: 
-            screen = self.surfaces[i]["screen"]
-            screen.clear()      
-        for lbl in self.label_used:
-            self.label_pool[lbl].visible  = False
-        for spr in self.sprite_used:
-            self.sprite_pool[spr].visible = False
-        self.label_used.clear() 
-        self.draw_queue.clear() 
-        self.label_queue.clear()
-        self.sprite_used.clear()
+    def provide_window(self, window, master=False):
+        """
+        Provide the window `window` to the Viewport to draw to.
+
+        .. window:: Window object (engine.ui.EklipsWindow).
+        .. master:: If the viewport is the master.
+        """
+        self.window           = window
+        self._window_is_slave = master
     
     def close(self):
-        for i in self.surfaces:
-            screen = self.surfaces[i]["screen"]
-            screen.close()
-        self.surfaces = {}
+        """
+        Free the viewport (and window if the viewport is the master.)
+        """
+        if self.window and self._window_is_slave:
+            self.window.close()
+        self.framebuffer.delete()
+        self.color_buffer.delete()
+        self.depth_buffer.delete()
+    
+class Display:
+    print(" ~ Initialize Display")
+    windows            = {}
+    main_window_id     = None
+
+    def add_window(self, name=DEFAULT_NAME, size=[640,480], viewport_size=VIEWPORT_EQUAL_WINDOW, viewport_color=black):
+        """
+        Add a new Window, returns its Window ID.
+
+        .. name:: Title of the window.
+        .. size:: Size of the window.
+        .. viewport_size:: Size of the window's viewport. Use constant `VIEWPORT_EQUAL_WINDOW` to make the Viewport size equal the Window size.
+        .. viewport_color:: Background color of the viewport.
+        """
+        wid = len(self.windows)
+        print(f" ~ Initialize Window '{name}'")
+
+        if viewport_size == VIEWPORT_EQUAL_WINDOW:
+            viewport_size = size
+        if self.main_window_id == None:
+            self.main_window_id = wid
+        
+        window   = EklipsWindow(
+            width   = size[0],
+            height  = size[1],
+            caption = name
+        )
+        viewport = Viewport({}, viewport_size, [0,0])
+        viewport.set_background(*viewport_color)
+        viewport.provide_window(window, master=True)
+
+        self.windows[wid] = {
+            "name": name,
+
+            "window":     window,
+            "viewport":   viewport,
+
+            "batches":    [],
+            "main_batch": None
+        }
+        self.add_batch(wid)
+        viewport.batches = self.windows[wid]["batches"]
+
+        window.eklips_viewport = viewport
+        window.wid             = wid
+
+        return wid
+    
+    def clear_window(self, wid):
+        window_data           = self.windows[wid]
+        if window_data.get("viewport",None):
+            window_data["viewport"].clear()
+    
+    def clear_windows(self):
+        """
+        Clear all windows and their viewports.
+        """
+        for wid in self.windows:
+            self.clear_window(wid)
+        
+    def flip_window(self, wid):
+        window_data           = self.windows[wid]
+        if window_data.get("viewport",None):
+            window_data["viewport"].flip()
+    
+    def flip_windows(self):
+        """
+        Flip all windows and their viewports.
+        """
+        for wid in self.windows:
+            self.flip_window(wid)
+    
+    def close_window(self, wid):
+        """
+        Close the window `wid`.
+
+        .. wid:: ID of Window.
+        """
+        window_data = self.windows[wid]
+        window_data["window"].close()
+
+        window_data["window"]     = None
+        window_data["viewport"]   = None
+        window_data["batches"]    = None
+        window_data["main_batch"] = None
+        
+        window_data = None
+        del window_data
+
+        if wid == self.main_window_id:
+            self.main_window_id = None
+        
+        gc.collect()
+    
+    def close_windows(self):
+        """
+        Close all windows and their viewports.
+        """
+        for wid in self.windows:
+            self.close_window(wid)
+    
+    def dispatch_events(self):
+        """
+        Dispatch the events of all windows.
+        """
+        for wid in self.windows:
+            window_data                   = self.windows[wid]
+            window : pg.window.BaseWindow = window_data["window"]
+            if window:
+                window.switch_to()
+                window.dispatch_events()
+    
+    def add_batch(self, wid):
+        """
+        Add a batch to Window `wid`.
+
+        .. wid:: ID of Window.
+        """
+        window_data = self.windows[wid]
+
+        bid = len(window_data["batches"])
+        if window_data["main_batch"] == None:
+            window_data["main_batch"] = bid
+        
+        window_data["batches"].append(pg.graphics.Batch())
+
+        self.windows[wid] = window_data
+        return bid
+
+    def get_window(self, wid : int = MAIN_WINDOW) -> EklipsWindow:
+        """
+        Get the window `wid`.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        """
+        return self.windows[wid]["window"]
+
+    def get_viewport_from_window(self, wid : int = MAIN_WINDOW, vid : int = MAIN_VIEWPORT) -> Viewport:
+        """
+        Get the viewport `vid` from the window `wid`.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        .. vid:: ID of Viewport (Unused since Windows can't have multiple viewports for now)
+        """
+        return self.windows[wid]["viewport"]
+
+    def get_batch_from_window(self, wid : int = MAIN_WINDOW, bid : int = MAIN_BATCH) -> pg.graphics.Batch:
+        """
+        Get the batch `bid` from the window `wid`.
+
+        .. wid:: ID of Window.
+        .. bid:: ID of Batch.
+        """
+        return self.windows[wid]["batches"][bid]
+    
+    def blit(
+        self,
+        surface        : pg.image.AbstractImage,
+        transform      : Transform,
+        sprite         : pg.sprite.Sprite,
+        window_id      : int               = MAIN_WINDOW,
+        group          : pg.graphics.Group = None,
+        ignore_scaling : bool              = False
+    ) -> None:
+        """
+        Draw an Image to a Window's main viewport.
+        
+        The batch must be manually set, you can get this batch by running `get_batch_from_window()` and setting that as your sprites batch.
+        If you don't have a Sprite, you can call `viewport._allocate_sprite()`, you can get `viewport` by running `get_viewport_from_window()`.
+        
+        You must also pass a Transform object, you can get this by either manually creating one yourself or running `Transform.new(...)`.
+
+        .. surface:: Pyglet image.
+        .. transform:: Transform object to tell where the image is drawn.
+        .. sprite:: Pyglet Sprite with the Batch set properly.
+        .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
+        .. group:: Pyglet Group. Defaults to None.
+        .. ignore_scaling:: Ignore scale properties in transform.
+        """
+        if not surface:
+            return
+        if not transform.visible:
+            return
+        if not (transform.scale_x or transform.scale_y):
+            return
+        if not sprite:
+            return
+        if not (self.windows and self.windows.get(window_id, None)):
+            return
+        
+        windata             = self.windows[window_id]
+        viewport : Viewport = windata["viewport"]
+        if not viewport:
+            return
+
+        x, y = transform.into_screen_coords(viewport.size)
+        
+        # Set properties for sprite
+        if sprite.image != surface:
+            sprite.image = surface
+        
+        # Adjustments
+        if ignore_scaling:
+            w,h             = surface.width,surface.height
+            scale_x,scale_y = 1,1
+        else:
+            w,h             = transform.w,transform.h
+            scale_x,scale_y = transform.scale
+        
+        # Make the sprite center
+        if transform.rotation:
+            sprite.image.anchor_x = w/4
+            sprite.image.anchor_y = h/4
+            x += w/2
+            y += h/2
+
+        if sprite.rotation != transform.rotation:
+            sprite.rotation = transform.rotation
+        if sprite.x != x:
+            sprite.x = x
+        if sprite.y != y:
+            sprite.y = y
+        if sprite.group != group:
+            sprite.group = group
+        if sprite.scale_x != scale_x:
+            sprite.scale_x = scale_x
+        if sprite.scale_y != scale_y:
+            sprite.scale_y = scale_y
+        if sprite.opacity != int(transform.alpha):
+            sprite.opacity = int(transform.alpha)
+        sprite.visible = True

@@ -1,0 +1,10 @@
+import classes.singleton as engine
+
+def _process(self : engine.nodes.CanvasItem, _delta=None):
+    eklips         = engine.scene.get_node_from_path("Eklips")
+    self.rotation += 150 * engine.delta
+    if self.rotation > 351:
+        self.alpha -= engine.delta * 150
+    if self.alpha < 0:
+        engine.scene.load(engine.game.master_scene)
+    eklips.alpha   = self.alpha

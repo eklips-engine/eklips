@@ -1,0 +1,25 @@
+{
+    "name":    "Eklips Editor",
+    "version": {
+        "app": "1.0",
+        "ekl": "4.1A"
+    },
+    "viewport": {
+        "size":  [1152, 648],
+        "color": [0, 0, 0]
+    },
+    "scenes": {
+        "master":  "res://scenes/master.scn",
+        "loading": "root://_assets/loading.scn"
+    },
+    
+    "directory": "editor",
+
+    "cvars": {
+        "icon_file": {
+            "type":        "str",
+            "default":     "res://media/icon.png",
+            "description": "Image file to use for the icon"
+        }
+    }
+}

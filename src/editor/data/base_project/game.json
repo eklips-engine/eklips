@@ -1,0 +1,22 @@
+{
+    "name":    "lorem_ipsum",
+    "version": {
+        "app": "1.0",
+        "ekl": "4.1A"
+    },
+
+    "directory": "lorem_ipsum",
+
+    "viewport": {
+        "size":  [1152, 648],
+        "color": [0, 0, 0]
+    },
+
+    "cvars": {
+        "icon_file": {
+            "type":        "str",
+            "default":     "res://media/icon.png",
+            "description": "Image file to use for the icon"
+        }
+    }
+}

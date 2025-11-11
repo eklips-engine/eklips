@@ -1,116 +1,38 @@
-## Import all the libraries
-import pyglet as pg
-import ErrorHandler, json, Data, shutil, time, os
+# Import libraries
+import pygame, pyglet as pg, time
+
+# Import components
+from classes.locals      import *
+from classes.customprops import *
 import classes.singleton as engine
-from classes.conhost import printf
-from classes.constants import *
 
-## No initialization code is here. Look at classes/singleton.py
+# Variables
+_old_delta     = time.time()
+_current_delta = None
 
-## Editor values
-held_down = -1
-
-## Run the engine
-last_dt = time.time()
-while (engine.im_running):
-    engine.events = []
+# Game loop
+while engine.running:
     try:
-        # fill the interface if allowed
-        if engine.cvars.get("screen_fillable"):
-            try:
-                # empty screen if allowed to
-                engine.interface.fill(engine.delta)
-            except Exception as error:
-                ErrorHandler.error  = error
-                ErrorHandler.reason = "UI (clearing screen)"
-                engine.events.append(PREMATURE_DEATH)
-        
-        # calculate delta time
-        engine.clock.get_delta() # Delta time variables
-                                 #  engine.truedelta = can't be manipulated by game speed, good for ui
-                                 #  engine.delta     = can
+        # Clear and dispatch windows
+        engine.display.clear_windows()
+        engine.display.dispatch_events()
 
-        # get events
-        try:
-            engine.display.dispatch_events()
-            engine.events                                                = engine.event.get_and_handle()
-            engine.mpos, engine.mpressed, engine.modifiers, engine.dmpos = engine.event.get_mouse()
-            engine.keys_pressed                                          = engine.event.key_once_map
-            engine.keys_held_dict                                        = engine.event.key_map
-            engine.keys_held                                             = []
-        except Exception as error:
-            ErrorHandler.error  = error
-            ErrorHandler.reason = "Reading User input"
-            engine.events.append(PREMATURE_DEATH)
+        # Calculate delta
+        _current_delta = time.time()
+        engine.delta   = _current_delta - _old_delta
+        engine.uptime += engine.delta
+        _old_delta     = _current_delta
 
-        # add key presses from dictionary to a list that only shows currently pressed keys
-        try:
-            for i in engine.keys_held_dict:
-                if engine.keys_held_dict[i]:
-                    engine.keys_held.append(i)
-        except Exception as error:
-            ErrorHandler.error  = error
-            ErrorHandler.reason = "Key parsing"
-            engine.events.append(PREMATURE_DEATH)
+        # Update scene
+        engine.scene.update()
         
-        # handle scene                                                        
-        try:
-            engine.scene.update(engine.delta)
-            if EDITORMODE in engine.flags:
-                for nodeid in engine.scene.nodes:
-                    node : engine.Scene.CanvasItem = engine.scene.nodes[nodeid]["object"]
-                    try:
-                        if node.get_if_mouse_hovering() and held_down == -1:
-                            held_down = nodeid
-                    except:
-                        pass
-                if engine.mpressed[0]:
-                    if held_down != -1:
-                        node : engine.Scene.CanvasItem = engine.scene.nodes[held_down]["object"]
-                        if CAN_DESTROY_NODES in engine.flags:
-                            node.free()
-                        if CAN_GRAB_NODES in engine.flags:
-                            node.x += engine.dmpos[0]
-                            node.y -= engine.dmpos[1]
-                else:
-                    held_down = -1
-        except (BaseException, Exception) as error:
-            ErrorHandler.error  = error     
-            ErrorHandler.reason = f"Scene {engine.scene.file_path}"
-            engine.events.append(PREMATURE_DEATH)  
-        
-        # handle events (most of them)                                                    
-        if SOFT_QUIT in engine.events:
-            engine.suicide()
-            engine.savefile.save_data()
-            break
-        
-        # handle console                                                                  
-        if engine.is_key_pressed("eng_cheats"):
-            engine.console.toggle()
+        # Flip windows
+        engine.display.flip_windows()
 
-        # flip the screen
-        try:
-            if engine.savefile.get("display/showfps", True) or engine.cvars.get("showfps", False):
-                engine.fps_display.draw()
-            engine.console.update(engine.keys_pressed, engine.keys_held, globals(), engine.modifiers)
-            engine.interface.flip()
-        except Exception as error:
-            ErrorHandler.error  = error
-            ErrorHandler.reason = "UI (updating window)"
-            engine.events.append(PREMATURE_DEATH)
-
-        engine.event.key_once_map = []
+        # Close if there is no Main Window
+        if engine.display.main_window_id == None:
+            engine.running = False
     except Exception as error:
-        ErrorHandler.error  = error
-        ErrorHandler.reason = "Engine, probably"
-        engine.events.append(PREMATURE_DEATH)
-    
-    # handle crashes
-    if PREMATURE_DEATH in engine.events:
-        ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
-        engine.suicide()
-        break
-
-## Cleanup
-engine.cleanup()
+        engine.error_handler.show_error(error)
+        engine.running = False
+        engine.display.close_windows()

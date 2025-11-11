@@ -1,0 +1,54 @@
+{
+    "nodes":      {
+        "Eklips": {
+            "type":   "Sprite2D",
+            "name":   "Eklips",
+            "sprite": "root://_assets/eklips.png",
+            "path":   "",
+
+            "transform": {
+                "position": [0,0],
+                "size":     [2,2],
+                "scale":    [2,2],
+                "scroll":   [0,0],
+
+                "rotation": 0,
+                "alpha":    255,
+                "anchor":   "center",
+                "visible":  true,
+                "skew":     0
+            }
+        },
+        "Audio":  {
+            "type":       "AudioPlayer",
+            "name":       "Audio",
+            "media":      "root://_assets/load.mp3",
+            "path":       "",
+            "auto_start": true
+        },
+        "Ring":   {
+            "type":   "Sprite2D",
+            "name":   "Ring",
+            "sprite": "root://_assets/ring.png",
+            "path":   "",
+            "script": "root://_assets/ring.ekl",
+
+            "transform": {
+                "position": [0,0],
+                "size":     [2,2],
+                "scale":    [2,2],
+                "scroll":   [0,0],
+
+                "rotation": 0,
+                "alpha":    255,
+                "anchor":   "center",
+                "visible":  true,
+                "skew":     0
+            }
+        }
+    },
+    "properties": {
+        "inherited": false,
+        "inherits":  null
+    }
+}

@@ -1,4 +1,0 @@
-# ver=4.0A / py=3.12
-
-def _process(self, delta):
-    engine.load_new_scene(engine.cvars.get("master_scene"))

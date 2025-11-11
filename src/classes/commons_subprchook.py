@@ -8,10 +8,10 @@ import sys
 import threading
 import warnings
 
-print(f" ~ Modify subprocess.Popen")
-print(f" | ~ Save original Popen")
+print(" ~ Modify subprocess.Popen")
+print(" | ~ Save original Popen")
 ogpopen = subprocess.Popen
-print(f" | ~ Make hook function")
+print(" | ~ Make hook function")
 print(" | | ~ Import everything")
 
 _can_fork_exec = sys.platform not in {"emscripten", "wasi", "ios", "tvos", "watchos"}
