@@ -1,7 +1,7 @@
 USE_GAME_PARENT = "UseFileParent"
 USE_GAME_CV_DIR = "UseFileCVar"
 
-BDATE   = [7, 11, 2025] # DMY
+BDATE   = [14, 11, 2025] # DMY
 MAJOR   = "4"           # Major [4].1 A 
 MINOR   = "1"           # Minor  4.[1]A 
 HOTFIX  = "A"           # Hotfix 4. 1[A]
@@ -12,7 +12,7 @@ MAIN_WINDOW   = 0
 MAIN_BATCH    = 0
 MAIN_VIEWPORT = 0
 
-DEFAULT_NAME = "#FreeKoulchi"
+DEFAULT_NAME = "Window"
 
 VIEWPORT_EQUAL_WINDOW = 10
 
