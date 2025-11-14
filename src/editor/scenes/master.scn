@@ -85,11 +85,10 @@
             }
         },
         "version_str": {
-            "type": "Sprite2D",
+            "type": "Label",
             "name": "TxtVer",
             "path": "",
 
-            "sprite": "res://media/iconew.png",
             "text":   "version_str",
             
             "transform": {

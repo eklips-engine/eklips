@@ -34,8 +34,8 @@ def load_engine():
         viewport_color = game.viewport_color,
         icon           = loader.load(cvars.get("icon_file")),
         resizable      = game.winresizable,
-        maximum_size   = game.winminsize,
-        minimum_size   = game.winmaxsize
+        minimum_size   = game.winminsize,
+        maximum_size   = game.winmaxsize
     )
 
     # Initialize garbage collection

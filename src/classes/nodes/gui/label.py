@@ -34,6 +34,19 @@ class Label(CanvasItem):
         super().update()
         self.draw()
     
+    def draw(self):
+        """Draw the label. This is usually called automatically."""
+        if len(self.text.split()):
+            self.w, self.h = self._draw()
+    
+    def _draw(self):
+        return engine.display.blit_label(
+            transform = self,
+            window_id = self.window_id,
+            label     = self.sprite,
+            group     = self._canvas_layer
+        )
+    
     def _remove_sprite(self):
         if not self.sprite:
             return

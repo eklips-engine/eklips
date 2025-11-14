@@ -117,13 +117,16 @@ class Viewport:
         self._make_framebuffer()
 
     def _make_new_sprite(self, batch_id=MAIN_BATCH):
-        sprite = pg.sprite.Sprite(self._base_img, batch = self.batches[batch_id])
-        i      = len(self.sprites)
+        sprite         = pg.sprite.Sprite(self._base_img, batch = self.batches[batch_id])
+        sprite.visible = False
+        i              = len(self.sprites)
         self.sprites.append(sprite)
+
         return sprite, i
     def _make_new_label(self, batch_id=MAIN_BATCH):
-        label = pg.text.Label(batch = self.batches[batch_id])
-        i     = len(self.labels)
+        label         = pg.text.Label(batch = self.batches[batch_id])
+        label.visible = False
+        i             = len(self.labels)
         self.labels.append(label)
         return label, i
     def delete_sprite(self, sprite_id : int):
@@ -252,14 +255,14 @@ class Display:
     main_window_id     = None
 
     def add_window(self,
-        name           = DEFAULT_NAME,
-        size           = [640,480],
-        viewport_size  = VIEWPORT_EQUAL_WINDOW,
-        viewport_color = black,
-        icon           = None,
-        resizable      = True,
-        minimum_size   = [648,648],
-        maximum_size   = None,
+        name           : str                    = DEFAULT_NAME,
+        size           : list[int]              = [640,480],
+        viewport_size  : list[int] | int        = VIEWPORT_EQUAL_WINDOW,
+        viewport_color                          = black,
+        icon           : pg.image.AbstractImage = None,
+        resizable      : bool                   = True,
+        minimum_size   : None | list[int]       = [648,648],
+        maximum_size   : None | list[int]       = None,
     ) -> int:
         """
         Add a new Window, returns its Window ID.
@@ -497,3 +500,80 @@ class Display:
         if sprite.opacity != int(transform.alpha):
             sprite.opacity = int(transform.alpha)
         sprite.visible = True
+    
+    def blit_label(
+        self,
+        text           : str,
+        transform      : Transform,
+        label          : pg.text.Label,
+        window_id      : int               = MAIN_WINDOW,
+        group          : pg.graphics.Group = None,
+        ignore_scaling : bool              = False
+    ) -> None:
+        """
+        Draw a Label to a Window's main viewport.
+        
+        The batch must be manually set, you can get this batch by running `get_batch_from_window()` and setting that as your labels batch.
+        If you don't have a Label, you can call `viewport._allocate_label()`, you can get `viewport` by running `get_viewport_from_window()`.
+        
+        You must also pass a Transform object, you can get this by either manually creating one yourself or running `Transform.new(...)`.
+
+        .. text:: Read the property silly
+        .. transform:: Transform object to tell where the image is drawn.
+        .. label:: Pyglet Label with the Batch set properly.
+        .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
+        .. group:: Pyglet Group. Defaults to None.
+        .. ignore_scaling:: Ignore scale properties in transform.
+        """
+        if not transform.visible:
+            return
+        if not (transform.scale_x or transform.scale_y):
+            return
+        if not label:
+            return
+        if not (self.windows and self.windows.get(window_id, None)):
+            return
+        
+        windata             = self.windows[window_id]
+        viewport : Viewport = windata["viewport"]
+        if not viewport:
+            return
+
+        x, y = transform.into_screen_coords(viewport.size)
+        
+        # Set properties for label
+        if label.text != text:
+            label.text = text
+        
+        # | Adjustments
+        if ignore_scaling:
+            w,h             = label.content_width, label.content_height
+            scale_x,scale_y = 1,1
+        else:
+            w,h             = label.content_width*transform.scale_x, label.content_height*transform.scale_y
+            scale_x,scale_y = transform.scale
+        
+        # Make the sprite center
+        if transform.rotation:
+            label.anchor_x = w/4
+            label.anchor_y = h/4
+            x += w/2
+            y += h/2
+
+        if label.rotation != transform.rotation:
+            label.rotation = transform.rotation
+        if label.x != x:
+            label.x = x
+        if label.y != y:
+            label.y = y
+        if label.group != group:
+            label.group = group
+        if label.scale_x != scale_x:
+            label.scale_x = scale_x
+        if label.scale_y != scale_y:
+            label.scale_y = scale_y
+        if label.opacity != int(transform.alpha):
+            label.opacity = int(transform.alpha)
+        label.visible = True
+
+        return label.content_width, label.content_height
