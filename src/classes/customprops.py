@@ -191,8 +191,9 @@ class Mouse:
     clk  = [0,0,0]
 
 class Keyboard:
-    pressed = []
-    held    = []
+    modifiers = 0
+    pressed   = {}
+    held      = {}
 
 class Language:
     def __init__(self, file="res://data/foobar.json"):

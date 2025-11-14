@@ -1,10 +1,6 @@
 # Import libraries
-import traceback as tb
+import traceback as tb, os
 from tkinter.messagebox import *
-
-# Variables
-background_color = "#14141E"
-foreground_color = "#EBEBE1"
 
 # Functions
 def get_info(error : Exception):
@@ -12,4 +8,7 @@ def get_info(error : Exception):
 
 def show_error(error : Exception):
     info = get_info(error)
-    showerror("Eklips Engine", f"Eklips has crashed with the traceback:\n\n{info}")
+    if askyesno("Eklips Engine", f"Eklips has crashed with the traceback:\n\n{info}\n\nWould you like a dump to be saved?"):
+        os.makedirs("tmp", exist_ok=True)
+        with open(f"tmps/{len(os.listdir('tmps'))}.log","w") as f:
+            f.write(info)

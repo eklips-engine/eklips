@@ -55,7 +55,7 @@ def open_editor_settings(self):
 
     # Construct tabs
     tab1 = ttk.Frame()
-    lcln = tk.StringVar(value="en")
+    lcln = tk.StringVar(value=engine.savefile.get("lang","en"))
     tabs.add(tab1, text=engine.lang.get("pe_gnrl"))
 
     ttk.Label(tab1, text=engine.lang.get("pe_lang")).place(x=5,y=5)
