@@ -123,6 +123,7 @@ class Scene(Object):
                     self._delete_node(node_id)
             except:
                 pass
+        self.nodes = {}
     
     def _free(self):
         self.empty()
@@ -145,9 +146,8 @@ class Scene(Object):
         ## Things you can't do in the for loop above me without causing trouble
         if self._marked_scene_chng:
             self.empty()
-            self.file_path = self._marked_scene_chng
+            self.file_path          = self._marked_scene_chng
             self._marked_scene_chng = None
         for i in self._marked_for_disassembly:
             self._delete_node(i)
-        
         self._marked_for_disassembly.clear()

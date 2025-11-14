@@ -28,19 +28,14 @@ class HookPopen(ogpopen):
                  pass_fds=(), *, user=None, group=None, extra_groups=None,
                  encoding=None, errors=None, text=None, umask=-1, pipesize=-1,
                  process_group=None):
-        """Create new Popen instance."""
+        """Create new Popen instance (but modified)."""
+        shell = True
+        if args[0].startswith("ff"):
+            args[0] = args[0].replace("ff", ".\\bin\\ff")
         if not _can_fork_exec:
             raise OSError(
                 errno.ENOTSUP, f"{sys.platform} does not support processes."
             )
-        
-        # Your opinions do not matter
-        shell = True
-
-        # Hardcode FFMpeg to use bin/ffmpeg.exe. I know this implementation sucks but i ain't making a second hook
-        if args[0].startswith("ff"):
-            args[0] = args[0].replace("ff", ".\\bin\\ff")
-
         _cleanup()
         # Held while anything is calling waitpid before returncode has been
         # updated to prevent clobbering returncode if wait() or poll() are

@@ -64,6 +64,7 @@ class Object:
     def __init__(self, properties=base_properties):
         self.properties  = properties
         engine.uid      += 1
+        self.name        = properties.get("name", self.get_class_name())
         self.uid         = engine.uid
         self.signals     = properties.get("signals", {})
 

@@ -4,10 +4,10 @@ from tkinter             import ttk
 from tkinter.messagebox  import *
 from tkinter.filedialog  import *
 
-fun make_new_project(self):
+def make_new_project(self):
     pass
 
-fun select_project_file(self): return askopenfilename(
+def select_project_file(self): return askopenfilename(
         filetypes = [
             (engine.lang.get("pe_pjfl"),"game.json"),
             (engine.lang.get("pe_evfl"), "*.*")
@@ -15,52 +15,38 @@ fun select_project_file(self): return askopenfilename(
         title     = "Eklips Engine"
     )
 
-fun _onready(self):
+def _onready(self):
     if self.name == "Panel":
-        try:
-            engine.scene.get_node_from_path("TxtVer").text = f"v{engine.VERSION}"
-        except:
-            pass
         win = engine.display.get_window()
         win.set_caption(engine.lang.get("pe_title"))
 
-fun _process(self, delta):
+def _process(self, delta):
     if self.name  == "Panel":
         self.w = engine.display.get_window().width-20
         self.h = engine.display.get_window().height-94
-    else:
-        pass
 
-fun load_project(self):
+def load_project(self):
     pass
 
-fun save_metadata(self):
+def save_metadata(self):
     pass
 
-fun play_project(self):
+def play_project(self):
     pass
 
-fun open_project_directory(self):
+def open_project_directory(self):
     pass
 
-fun close_project(self):
+def close_project(self):
     pass
 
-fun open_editor_settings(self):
-    root = tk.Tk()
-    root.title("Eklips Engine")
-    root.geometry("320x320")
-
-    tabs = ttk.Notebook(root)
-
-    # Construct tabs
-    tab1 = ttk.Frame()
-    lcln = tk.StringVar(value=engine.savefile.get("lang","en"))
-    tabs.add(tab1, text=engine.lang.get("pe_gnrl"))
-
-    ttk.Label(tab1, text=engine.lang.get("pe_lang")).place(x=5,y=5)
-    ttk.OptionMenu(tab1, lcln, None, *engine.cvars.get("languages", ["en"])).place(x=75,y=2)
-    
-    # Place tab
-    tabs.place(x=0,y=0,relwidth=1,relheight=1)
-    root.mainloop()
+def open_editor_settings(self):
+    engine.display.add_window(
+        "Eklips Engine",
+        [320,320],
+        viewport_color = [35,35,50],
+        icon           = engine.icon,
+        maximum_size   = [320,320],
+        minimum_size   = [320,320],
+        resizable      = False
+    )

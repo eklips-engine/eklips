@@ -1,14 +1,13 @@
 # Import libraries
 import pygame, pyglet as pg, json, gc
-from classes import ui
 
 # Import inherited
-from classes.nodes.td.node2d import *
+from classes.nodes.gui.canvasitem import *
 
 # Classes
 class Label(CanvasItem):
     """
-    ## A 2D Sprite.
+    ## A Label.
     
     XXX
     """
@@ -17,7 +16,6 @@ class Label(CanvasItem):
     base_properties        = {
         "name":      "Label",
         "transform": base_transform,
-        "sprite":    None,
         "script":    None
     }
 
@@ -36,11 +34,11 @@ class Label(CanvasItem):
     
     def draw(self):
         """Draw the label. This is usually called automatically."""
-        if len(self.text.split()):
-            self.w, self.h = self._draw()
+        self.w, self.h = self._draw()
     
     def _draw(self):
         return engine.display.blit_label(
+            text      = self.text,
             transform = self,
             window_id = self.window_id,
             label     = self.sprite,

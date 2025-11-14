@@ -86,13 +86,9 @@ class Transform:
     @x.setter
     def x(self, value):
         self._x = value
-        if self.sprite:
-            self.sprite.x = self._x
     @y.setter
     def y(self, value):
         self._y = value
-        if self.sprite:
-            self.sprite.y = self._y
 
     @anchor.setter
     def anchor(self, value):
@@ -109,10 +105,12 @@ class Transform:
     
     @scale_x.setter
     def scale_x(self, value):
+        if self._scale_x == value: return
         self._scale_x = value
         self._set_size(self.w, self.h)
     @scale_y.setter
     def scale_y(self, value):
+        if self._scale_y == value: return
         self._scale_y = value
         self._set_size(self.w, self.h)
     @scale.setter
@@ -125,10 +123,12 @@ class Transform:
     
     @w.setter
     def w(self, value):
+        if self._w == value: return
         self._w = value
         self._set_size(self.w,self.h)
     @h.setter
     def h(self, value):
+        if self._h == value: return
         self._h = value
         self._set_size(self.w,self.h)
     

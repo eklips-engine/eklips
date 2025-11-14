@@ -1,5 +1,5 @@
 # Import libraries
-import pyglet as pg, gc
+import pyglet as pg, gc, time
 
 # Import components
 import classes.singleton as engine
@@ -121,7 +121,6 @@ class Viewport:
         sprite.visible = False
         i              = len(self.sprites)
         self.sprites.append(sprite)
-
         return sprite, i
     def _make_new_label(self, batch_id=MAIN_BATCH):
         label         = pg.text.Label(batch = self.batches[batch_id])
@@ -156,12 +155,12 @@ class Viewport:
         i = 0
         for label in self.labels:
             if not i in self.used_labels:
-                self.labels.append(i)
+                self.used_labels.append(i)
                 return label, i
             i += 1
         
         label, i = self._make_new_label(batch_id)
-        self.labels.append(i)
+        self.used_labels.append(i)
         return label, i
     
     def set_background(self, r=0,g=0,b=0, a=1):
@@ -181,9 +180,12 @@ class Viewport:
         ]
     
     def clear(self):
+        for label in self.labels:
+            label.visible = False
         for sprite in self.sprites:
             sprite.visible = False
         self.used_sprites.clear()
+        self.used_labels.clear()
     
     @property
     def x(self):        return self._sprite.x
@@ -253,6 +255,7 @@ class Display:
     print(" ~ Initialize Display")
     windows            = {}
     main_window_id     = None
+    _fontsizecache     = {}
 
     def add_window(self,
         name           : str                    = DEFAULT_NAME,
@@ -509,7 +512,7 @@ class Display:
         window_id      : int               = MAIN_WINDOW,
         group          : pg.graphics.Group = None,
         ignore_scaling : bool              = False
-    ) -> None:
+    ) -> list[int,int]:
         """
         Draw a Label to a Window's main viewport.
         
@@ -524,20 +527,23 @@ class Display:
         .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
         .. group:: Pyglet Group. Defaults to None.
         .. ignore_scaling:: Ignore scale properties in transform.
+        .. font_name:: Name of the font to be used. Defaults to "Arial"
         """
+        if not text:
+            return 0,0
         if not transform.visible:
-            return
+            return 0,0
         if not (transform.scale_x or transform.scale_y):
-            return
+            return 0,0
         if not label:
-            return
+            return 0,0
         if not (self.windows and self.windows.get(window_id, None)):
-            return
+            return 0,0
         
         windata             = self.windows[window_id]
         viewport : Viewport = windata["viewport"]
         if not viewport:
-            return
+            return 0,0
 
         x, y = transform.into_screen_coords(viewport.size)
         
@@ -546,14 +552,9 @@ class Display:
             label.text = text
         
         # | Adjustments
-        if ignore_scaling:
-            w,h             = label.content_width, label.content_height
-            scale_x,scale_y = 1,1
-        else:
-            w,h             = label.content_width*transform.scale_x, label.content_height*transform.scale_y
-            scale_x,scale_y = transform.scale
-        
-        # Make the sprite center
+        w,h = label.content_width, label.content_height
+
+        # Make the label centered if rotating
         if transform.rotation:
             label.anchor_x = w/4
             label.anchor_y = h/4
@@ -568,12 +569,7 @@ class Display:
             label.y = y
         if label.group != group:
             label.group = group
-        if label.scale_x != scale_x:
-            label.scale_x = scale_x
-        if label.scale_y != scale_y:
-            label.scale_y = scale_y
         if label.opacity != int(transform.alpha):
             label.opacity = int(transform.alpha)
         label.visible = True
-
-        return label.content_width, label.content_height
+        return w,h

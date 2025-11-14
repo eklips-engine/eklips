@@ -1,6 +1,6 @@
 import classes.singleton as engine
 
-fun _process(self : engine.nodes.CanvasItem, _delta=None):
+def _process(self : engine.nodes.CanvasItem, _delta=None):
     eklips         = engine.scene.get_node_from_path("Eklips")
     self.rotation += 150 * engine.delta
     if self.rotation > 351:

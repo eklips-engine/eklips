@@ -14,7 +14,7 @@ pygame.mixer.init()
 
 # Functions
 def load_engine():
-    global running,game,cvars,display,mouse,loader,keyboard,scene,savefile,lang
+    global running,game,cvars,display,mouse,loader,keyboard,scene,savefile,lang,icon,clock
 
     # Initialize metadata
     game  = GameData()
@@ -26,20 +26,19 @@ def load_engine():
     loader = resources.Loader()
 
     # Initialize display and windows
+    icon    = loader.load(cvars.get("icon_file"))
     display = ui.Display()
+    clock   = pg.clock.Clock()
     display.add_window(
         name           = game.name, 
         size           = game.viewport_size, 
         viewport_size  = game.viewport_size, 
         viewport_color = game.viewport_color,
-        icon           = loader.load(cvars.get("icon_file")),
+        icon           = icon,
         resizable      = game.winresizable,
         minimum_size   = game.winminsize,
         maximum_size   = game.winmaxsize
     )
-
-    # Initialize garbage collection
-    gc.enable()
 
     # Initialize user input sections
     mouse    = Mouse()
@@ -93,20 +92,22 @@ def handle_closing():
     savefile.save_data()
 
 # Variables
-display   : ui.Display          = None
-cvars     : cvar.CvarCollection = None
-game      : GameData            = None
-loader    : resources.Loader    = None
-lang      : Language            = None
-savefile  : saving.Savefile     = None
-mouse     : Mouse               = None
-keyboard  : Keyboard            = None
-scene     : resources.Scene     = None
-running   : bool                = False
-uid       : int                 = 0
-sid       : int                 = 0
-delta     : float               = 0.0
-uptime    : float               = 0.0
+clock     : pg.clock.Clock         = None
+display   : ui.Display             = None
+cvars     : cvar.CvarCollection    = None
+game      : GameData               = None
+loader    : resources.Loader       = None
+lang      : Language               = None
+savefile  : saving.Savefile        = None
+mouse     : Mouse                  = None
+icon      : pg.image.AbstractImage = None
+keyboard  : Keyboard               = None
+scene     : resources.Scene        = None
+running   : bool                   = False
+uid       : int                    = 0
+sid       : int                    = 0
+delta     : float                  = 0.0
+uptime    : float                  = 0.0
 
 _screenc_cache = {}
 

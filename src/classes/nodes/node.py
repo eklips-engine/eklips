@@ -28,7 +28,6 @@ class Node(Object, NodeMixin):
     def __init__(self, properties=base_properties, parent=None):
         super().__init__(properties)
         self.parent = parent
-        self.name   = properties["name"]
         if self._can_init_script:
             self.script_path = self.properties["script"]
         
