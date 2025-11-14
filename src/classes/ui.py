@@ -52,7 +52,7 @@ class EklipsWindow(pg.window.Window):
         engine.keyboard.pressed[symbol] = True
         
     def on_key_release(self, symbol, modifiers):
-        engine.keyboard.modifiers       = modifiers
+        engine.keyboard.modifiers    = modifiers
         engine.keyboard.held[symbol] = False
 
 class Viewport:

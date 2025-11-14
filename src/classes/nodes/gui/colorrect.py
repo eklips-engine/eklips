@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class ColorRect(CanvasItem):
     """
-    ## A 2D Sprite.
+    ## A single-color rectangle on the screen.
     
     XXX
     """
@@ -28,6 +28,7 @@ class ColorRect(CanvasItem):
     
     @property
     def color(self) -> list[int]:
+        """RGB color of the ColorRect."""
         return self._color
     @color.setter
     def color(self, rgb : list[int]):

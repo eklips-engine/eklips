@@ -25,11 +25,11 @@ class Scene(Object):
     _inherited_scn          = None
 
     @property
-    def file_path(self):
+    def file_path(self) -> str:
         return self._file_path
     @file_path.setter
     def file_path(self, path : str):
-        self._empty()
+        self.empty()
         self._file_path = path
         _data           = engine.loader.load(path)
         self.nodes      = _data["nodes"]
@@ -79,8 +79,8 @@ class Scene(Object):
         # Set obj parameter to Node
         node["obj"] = obj
     
-    def add_node(self, data):
-        """Add a node with parameters."""
+    def add_node(self, data) -> int:
+        """Add a node with parameters. Returns that Node's ID."""
         nid = f"@:{len(self.nodes)}"
 
         self.nodes[nid] = data
@@ -89,7 +89,7 @@ class Scene(Object):
         return nid
     
     def get_node_from_path(self, nodepath) -> Node:
-        """Get a Node using its path"""
+        """Get a Node using its path in the scene tree. (e.g. `foo/bar`)"""
         path = "/".join(nodepath.split("/")[:-1])
         name = nodepath.split("/")[-1]
         for i in self.nodes:
@@ -98,21 +98,25 @@ class Scene(Object):
                     return self.nodes[i]["obj"]
 
     def delete_node(self, node_id):
+        """Mark a Node to be deleted after the scene is updated using its ID."""
         if not node_id in self.nodes:
             return
         self._marked_for_disassembly.append(node_id)
+    
     def _delete_node(self, node_id):
+        """Delete a Node using its ID."""
         if not node_id in self.nodes:
             return
         try:
             node   = self.nodes[node_id]["obj"]
             node._free()
         except:
-            print("FUCK")
+            pass
         self.nodes[node_id]["obj"] = None
         self.nodes.pop(node_id)
         gc.collect()
-    def _empty(self):
+    def empty(self):
+        """Empty the scene."""
         while len(self.nodes):
             try:
                 for node_id in self.nodes:
@@ -121,7 +125,7 @@ class Scene(Object):
                 pass
     
     def _free(self):
-        self._empty()
+        self.empty()
         super()._free()
     
     def update(self):
@@ -140,7 +144,7 @@ class Scene(Object):
 
         ## Things you can't do in the for loop above me without causing trouble
         if self._marked_scene_chng:
-            self._empty()
+            self.empty()
             self.file_path = self._marked_scene_chng
             self._marked_scene_chng = None
         for i in self._marked_for_disassembly:

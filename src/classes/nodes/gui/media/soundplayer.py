@@ -39,14 +39,14 @@ class AudioPlayer(Node):
             self.play()
     
     @property
-    def sound(self):
+    def sound(self) -> Sound:
         """Sound object. Read-only."""
         return self._sound
     @sound.setter
     def sound(self,_): raise AudioError("Please replace the audio using `self.media` instead")
     
     @property
-    def media(self):
+    def media(self) -> str:
         """Filepath of sound. Read-write."""
         return self._media
     @media.setter
@@ -89,13 +89,13 @@ class AudioPlayer(Node):
         self.channel.set_volume(self.get("volume", 0.5))
     
     @property
-    def busy(self):
+    def busy(self) -> bool:
         """
         True if sound is playing. Read-only
         """
         return self.channel.get_busy()
 
     @property
-    def volume(self):                             return self.channel.get_volume()
+    def volume(self) -> int:                      return self.channel.get_volume()
     @volume.setter
     def volume(self, value : int | float | None): self.set_volume(value)

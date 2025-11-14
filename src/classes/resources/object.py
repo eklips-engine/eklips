@@ -1,6 +1,7 @@
 # Import components
 import classes.singleton as engine
 import gc, types
+from classes.fakes.script import _ScriptDoc
 
 # Classes
 class ScriptError(Exception):
@@ -27,10 +28,10 @@ class Object:
     _can_init_script = True
     obj_id           = None
     @property
-    def script(self):
+    def script(self) -> _ScriptDoc:
         return self._script
     @property
-    def script_path(self):
+    def script_path(self) -> str:
         return self._script_path
     
     @script.setter
@@ -66,7 +67,7 @@ class Object:
         self.uid         = engine.uid
         self.signals     = properties.get("signals", {})
 
-    def get_class_name(self): 
+    def get_class_name(self) -> str: 
         """Return the name of the Object. (e.g. Object, Node...)"""
         return self.__class__.__name__
 
@@ -115,7 +116,7 @@ class Object:
         else:
             return mobj(*args)
     
-    def call_deferred(self, function, *args, is_signal = False):
+    def call_deferred(self, function, *args, is_signal = False) -> None:
         """Call a function/signal from the attached Script after the Script has finished its process tick."""
         self._function_queue.append([function, args, is_signal])
 

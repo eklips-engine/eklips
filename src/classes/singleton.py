@@ -61,6 +61,14 @@ def load_engine():
     # Set running flag to true
     running = True
 
+def is_action_pressed(entry) -> bool:
+    """Returns true if action `entry` is pressed. Might return False if the entry's settings have `holdable` disabled."""
+    return False
+
+def is_anything_pressed() -> bool:
+    """Returns true if any key is pressed or held down."""
+    return False
+
 # Variables
 display   : ui.Display          = None
 cvars     : cvar.CvarCollection = None

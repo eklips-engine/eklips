@@ -71,14 +71,14 @@ class VideoPlayer(CanvasItem):
         self._video.resize([round(w),round(h)])
     
     @property
-    def video(self):
+    def video(self) -> engine.pvd.VideoPyglet:
         """Video object. Read-only."""
         return self._video
     @video.setter
     def video(self,_): raise VideoError("Please replace the video using `self.media` instead.")
     
     @property
-    def media(self):
+    def media(self) -> str:
         """Filepath of video. Read-write."""
         return self._media
     @media.setter
@@ -139,6 +139,6 @@ class VideoPlayer(CanvasItem):
         return self._video.active
 
     @property
-    def volume(self):                             return self._video.volume
+    def volume(self) -> int:                      return self._video.volume
     @volume.setter
     def volume(self, value : int | float | None): self.set_volume(value)

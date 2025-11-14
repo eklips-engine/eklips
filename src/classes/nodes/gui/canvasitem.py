@@ -75,6 +75,7 @@ class CanvasItem(Node, Transform):
         self.tsize         = transform_property["tsize"]
     
     def draw(self, image):
+        """Draw the Node's image. This is usually called automatically."""
         if image:
             self.w, self.h = image.width, image.height
             self._draw(image)
@@ -116,6 +117,7 @@ class CanvasItem(Node, Transform):
                 self.call_signal("_clicked")
     
     def get_if_mouse_hovering(self) -> bool:
+        """Returns true if the mouse is hovering over self."""
         mpos   = engine.mouse.pos
         window = engine.display.windows[self.window_id]["window"]
         if not window:
