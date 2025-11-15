@@ -1,10 +1,3 @@
-# Import libraries
-import pygame, pyglet as pg, json, gc
-
-# Import components
-from classes.locals      import *
-import classes.singleton as engine
-
 # Import nodes
 print(" ~ Importing all nodes")
 from classes.nodes.node import *

@@ -42,7 +42,10 @@ class Window(CanvasItem):
         super().__init__(properties, parent)
         
     def popup(self):
-        # Create the window.
+        """
+        Create the window.
+        """
+        
         self.wid           = engine.display.add_window(
             name           = self.title,
             size           = self.tsize,
