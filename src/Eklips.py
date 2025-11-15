@@ -9,14 +9,22 @@ import classes.singleton as engine
 # Variables
 _old_delta     = time.time()
 _current_delta = None
+main_window    = engine.display.get_window()
 
-# Game loop
-while engine.running:
+# Create event loop
+@main_window.event
+def on_close():
+    engine.running = False
+    engine.display.close_windows(forced=True)
+    engine.handle_closing()
+
+@main_window.event
+def on_draw():
+    global _old_delta, _current_delta
     try:
-        # Clear and dispatch windows
-        engine.display.clear_windows()
-        engine.display.dispatch_events()
-
+        # Clear and dispatch self
+        engine.display.clear_window()
+        
         # Calculate delta
         _current_delta = time.time()
         engine.delta   = _current_delta - _old_delta
@@ -26,15 +34,22 @@ while engine.running:
         # Update scene
         engine.scene.update()
         
-        # Flip windows
-        engine.display.flip_windows()
+        # Flip window
+        engine.display.flip_window()
 
-        # Close if there is no Main Window
-        if engine.display.main_window_id == None:
-            engine.running = False
+        # Clear the list of pressed keys
         engine.keyboard.pressed.clear()
     except Exception as error:
         engine.error_handler.show_error(error)
         engine.running = False
-        engine.display.close_windows()
-engine.handle_closing()
+        engine.handle_closing()
+        
+        # This will close the app by crashing it lul. Atleast we save beforehand.
+        # Why? Because i dunno how to close a window in this kind of event loop
+        # without begging the user to with a picture of a cute golden retriever.
+        #
+        # What? No, i'm not like Cyn- oh, shut up.
+        main_window.close()
+
+# Start the engine
+pg.app.run()

@@ -3,7 +3,7 @@ import pygame, pyglet as pg, json, gc
 import pyvidplayer2   as pvd
 
 # Import components
-from classes             import cvar, ui, resources, nodes, commons_subprchook
+from classes             import cvar, hooks, ui, resources, nodes
 from classes             import crash_screen as error_handler
 from classes             import saving
 from classes.customprops import *
@@ -66,18 +66,16 @@ def is_action_pressed(entry) -> bool:
     if entry in action_entries:
         action_data = action_entries[entry]
         for action in action_data["actions"]:
-            # Get action ID (pyglet.window.key.X, MOUSE_X)
-            action_id     = action
-            
+            # action = pyglet.window.key.X, MOUSE_LEFT, ...
             # See if action is not just mouse input and handle it
             action_is_key = (not action in MOUSE_BUTTONS)
             if action_is_key:
-                if (action_id in keyboard.held and action_data["holdable"]
+                if (action in keyboard.held and action_data["holdable"]
                     or 
-                    action_id in keyboard.pressed and not action_data["holdable"]):
+                    action in keyboard.pressed and not action_data["holdable"]):
                     return True
             else:
-                if mouse.buttons[action_id]: return True
+                if mouse.buttons[action]: return True
     return False
 
 def is_anything_pressed() -> bool:

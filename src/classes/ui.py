@@ -31,9 +31,15 @@ white = [255,255,255]
 
 # Classes
 class EklipsWindow(pg.window.Window):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.eklips_viewport = None
+        self.closed          = False
+    
     def on_close(self):
-        engine.display.close_window(self.wid)
         self.eklips_viewport.close()
+        engine.display.close_window(self.wid)
+        self.closed = True
     
     def on_mouse_motion(self, x, y, dx, dy):
         engine.mouse.pos  = [x, y]
@@ -62,13 +68,19 @@ class Viewport:
     _height          = 0
     _background      = [0,0,0,1]
 
-    def __init__(self, batches : dict = {}, size : list[int,int] = [640,480], position : list[int,int] = [0,0]):
+    def __init__(
+            self,
+            batches  : dict          = {},
+            size     : list[int,int] = [640,480],
+            position : list[int,int] = [0,0]
+        ):
         self.window : EklipsWindow = None
-        self.batches               = {}
+        self._closing              = False
+        self.batches               = batches
         self.width                 = size[0]
         self.height                = size[1]
 
-        self._sprite   = pg.sprite.Sprite(self.color_buffer, x=0, y=0)
+        self._sprite   = pg.sprite.Sprite(self.color_buffer, x=position[0], y=position[1])
 
         self.sprites : list[pg.sprite.Sprite] = []
         self.labels  : list[pg.text.Label]    = []
@@ -202,6 +214,8 @@ class Viewport:
         Draw viewport contents to the window and flip it if the viewport is its master.
         """
         # Window-only 1
+        if self._closing:
+            return
         if self.window and self._window_is_slave:
             self.window.switch_to()
             self.window.clear()
@@ -229,8 +243,6 @@ class Viewport:
             self.window.switch_to()
             self._sprite.image = self.color_buffer
             self._sprite.draw()
-            if self._window_is_slave:
-                self.window.flip()
     
     def provide_window(self, window, master=False):
         """
@@ -246,17 +258,21 @@ class Viewport:
         """
         Free the viewport (and window if the viewport is the master.)
         """
+        self._closing = True
         if self.window and self._window_is_slave:
             self.window.close()
+        self.window = None
         self.framebuffer.delete()
         self.color_buffer.delete()
         self.depth_buffer.delete()
     
 class Display:
     print(" ~ Initialize Display")
-    windows            = {}
-    main_window_id     = None
-    _fontsizecache     = {}
+    _marked_for_disassembly = []
+    windows                 = {}
+    main_window_id          = None
+    latest_window           = None
+    _fontsizecache          = {}
 
     def add_window(self,
         name           : str                    = DEFAULT_NAME,
@@ -316,12 +332,18 @@ class Display:
         self.add_batch(wid)
         viewport.batches = self.windows[wid]["batches"]
 
+        self.latest_window     = wid
         window.eklips_viewport = viewport
         window.wid             = wid
 
         return wid
     
-    def clear_window(self, wid):
+    def clear_window(self, wid : int = MAIN_WINDOW):
+        """
+        Clear the window `wid`.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        """
         window_data           = self.windows[wid]
         if window_data.get("viewport",None):
             window_data["viewport"].clear()
@@ -330,29 +352,54 @@ class Display:
         """
         Clear all windows and their viewports.
         """
+        self._delete_in_queue()
         for wid in self.windows:
             self.clear_window(wid)
         
-    def flip_window(self, wid):
+    def flip_window(self, wid : int = MAIN_WINDOW):
+        """
+        Flip the window `wid`.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        """
         window_data           = self.windows[wid]
         if window_data.get("viewport",None):
             window_data["viewport"].flip()
+    
+    def _delete_in_queue(self):
+        for wid in self._marked_for_disassembly:
+            self._close_window(wid)
+            self.windows.pop(wid)
+        self._marked_for_disassembly.clear()
     
     def flip_windows(self):
         """
         Flip all windows and their viewports.
         """
+        self._delete_in_queue()
         for wid in self.windows:
             self.flip_window(wid)
+        self._delete_in_queue()
     
-    def close_window(self, wid):
+    def close_window(self, wid : int = MAIN_WINDOW):
         """
-        Close the window `wid`.
+        Close the window `wid` after updating.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        """
+        self._marked_for_disassembly.append(wid)
+    
+    def _close_window(self, wid):
+        """
+        Close the window `wid` immediately.
 
         .. wid:: ID of Window.
         """
         window_data = self.windows[wid]
-        window_data["window"].close()
+        try:
+            window_data["window"].close()
+        except:
+            pass
 
         window_data["window"]     = None
         window_data["viewport"]   = None
@@ -367,29 +414,35 @@ class Display:
         
         gc.collect()
     
-    def close_windows(self):
+    def close_windows(self, forced : bool = False):
         """
         Close all windows and their viewports.
+
+        .. forced:: If true, close the window immediately. This may cause issues.
         """
         for wid in self.windows:
-            self.close_window(wid)
+            if forced:
+                self._close_window(wid)
+            else:
+                self.close_window(wid)
     
-    def dispatch_events(self):
+    def dispatch_events(self, wid : int = MAIN_WINDOW):
         """
-        Dispatch the events of all windows.
+        Dispatch the window `wid`.
+
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
         """
-        for wid in self.windows:
-            window_data                   = self.windows[wid]
-            window : pg.window.BaseWindow = window_data["window"]
-            if window:
-                window.switch_to()
-                window.dispatch_events()
+        window_data                   = self.windows[MAIN_WINDOW]
+        window : pg.window.BaseWindow = window_data["window"]
+        if window:
+            window.switch_to()
+            window.dispatch_events()
     
-    def add_batch(self, wid):
+    def add_batch(self, wid : int = MAIN_WINDOW):
         """
         Add a batch to Window `wid`.
 
-        .. wid:: ID of Window.
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
         """
         window_data = self.windows[wid]
 
@@ -408,7 +461,7 @@ class Display:
 
         .. wid:: ID of Window. Defaults to MAIN_WINDOW.
         """
-        return self.windows[wid]["window"]
+        return self.windows.get(wid, {"window": None})["window"]
 
     def get_viewport_from_window(self, wid : int = MAIN_WINDOW, vid : int = MAIN_VIEWPORT) -> Viewport:
         """
@@ -423,8 +476,8 @@ class Display:
         """
         Get the batch `bid` from the window `wid`.
 
-        .. wid:: ID of Window.
-        .. bid:: ID of Batch.
+        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        .. bid:: ID of Batch. Defaults to MAIN_BATCH.
         """
         return self.windows[wid]["batches"][bid]
     
@@ -547,6 +600,7 @@ class Display:
             return 0,0
 
         x, y = transform.into_screen_coords(viewport.size)
+        y   += 4
         
         # Set properties for label
         if label.text != text:

@@ -5,6 +5,8 @@
         "pe_title": "Eklips Engine - Project Editor",
         "pe_pjfl":  "Eklips Project File",
         "pe_lang":  "Language:",
+        "pe_titlesetting": "Eklips Engine - Settings",
+        "pe_titlenewprj": "Eklips Engine - New Project",
         "pe_evfl":  "Everything else.."
     },
     "properties": {

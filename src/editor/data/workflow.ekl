@@ -1,11 +1,34 @@
 import classes.singleton as engine
-import tkinter           as tk
+import tkinter           as tk, os, shutil
 from tkinter             import ttk
 from tkinter.messagebox  import *
 from tkinter.filedialog  import *
+from classes.ui          import *
 
-def make_new_project(self):
-    pass
+window_created = False
+
+def populate_frame():
+    # This checks for all projects' game.json file in your savefile,
+    # and populates the "Panel" Node with entries of those projects.
+    #
+    # The "projects" list is formatted like this:
+    # projects: ['editor/game.json', ...]
+    project = engine.savefile.get("projects", [])
+
+def make_new_project(name, directory):
+    # This makes a new project.
+    shutil.copytree("editor/data/base_project", directory, ignore=True)
+
+def make_new_project_interface(self):
+    # This provides an interface to this function above me.
+    # The main window cannot be interacted with untill this window gets removed.
+    if len(engine.display.windows) > 1:
+        return
+    wid = engine.scene.add_node({
+        "type": "Window",
+        "name": engine.lang.get("pe_titlenewprj"),
+        "path": ""
+    })
 
 def select_project_file(self): return askopenfilename(
         filetypes = [
@@ -19,11 +42,15 @@ def _onready(self):
     if self.name == "Panel":
         win = engine.display.get_window()
         win.set_caption(engine.lang.get("pe_title"))
+        populate_frame()
 
 def _process(self, delta):
     if self.name  == "Panel":
-        self.w = engine.display.get_window().width-20
-        self.h = engine.display.get_window().height-94
+        self.w = engine.display.get_window().width  - 20
+        self.h = engine.display.get_window().height - 83 - (engine.scene.get_node_from_path("TxtVer").sprite.content_height)
+    if self.name  == "TxtVer":
+        if self.text == "t":
+            self.text = engine.VERSION_FULL
 
 def load_project(self):
     pass
@@ -41,8 +68,12 @@ def close_project(self):
     pass
 
 def open_editor_settings(self):
-    engine.display.add_window(
-        "Eklips Engine",
+    # This provides an interface to modify editor settings.
+    # The main window cannot be interacted with untill this window gets removed.
+    if len(engine.display.windows) > 1:
+        return
+    wid                 = engine.display.add_window(
+        engine.lang.get("pe_titlesetting"),
         [320,320],
         viewport_color = [35,35,50],
         icon           = engine.icon,
@@ -50,3 +81,10 @@ def open_editor_settings(self):
         minimum_size   = [320,320],
         resizable      = False
     )
+    window              = engine.display.get_window(wid)
+    viewport : Viewport = engine.display.get_viewport_from_window(wid)
+
+    while engine.display.get_window(wid):
+        window.dispatch_events()
+        viewport.clear()
+        viewport.flip()

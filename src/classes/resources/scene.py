@@ -23,6 +23,7 @@ class Scene(Object):
     _marked_scene_chng      = ""
     _file_path              = None
     _inherited_scn          = None
+    _marked_for_creation    = []
 
     @property
     def file_path(self) -> str:
@@ -79,7 +80,11 @@ class Scene(Object):
         # Set obj parameter to Node
         node["obj"] = obj
     
-    def add_node(self, data) -> int:
+    def add_node(self, data):
+        """Add a node with parameters."""
+        self._marked_for_creation.append(data)
+    
+    def _add_node(self, data) -> int:
         """Add a node with parameters. Returns that Node's ID."""
         nid = f"@:{len(self.nodes)}"
 
@@ -150,4 +155,7 @@ class Scene(Object):
             self._marked_scene_chng = None
         for i in self._marked_for_disassembly:
             self._delete_node(i)
+        for i in self._marked_for_creation:
+            self._add_node(i)
+        self._marked_for_creation.clear()
         self._marked_for_disassembly.clear()

@@ -69,7 +69,7 @@
 
             "sprite": "res://media/iconew.png",
             "script": "res://data/workflow.ekl",
-            "signals": {"_clicked":"make_new_project"},
+            "signals": {"_clicked":"make_new_project_interface"},
             
             "transform": {
                 "position": [60.5,25.5],
@@ -91,10 +91,10 @@
             
             "script": "res://data/workflow.ekl",
 
-            "text": "version_str",
+            "text": "t",
             
             "transform": {
-                "position": [2,2],
+                "position": [2,4],
                 "tsize":    [1,1],
                 "scale":    [1,1],
                 "scroll":   [0,0],

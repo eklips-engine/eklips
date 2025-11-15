@@ -1,4 +1,5 @@
 ## Hook Subprocess.Popen as i am too lazy to hook every single call in pyvidplayer2
+## and also hook Pyglet to not commit suicide when a new window is made at runtime
 ## You can use this code in any project if you want :D
 import subprocess
 import errno
@@ -7,6 +8,14 @@ import os
 import sys
 import threading
 import warnings
+import pyglet as pg
+
+print(" ~ Modify pyglet.eventloop._redraw_windows")
+def newrwd(dt: float) -> None:
+    # Redraw all windows
+    for window in pg.app.windows.copy():
+        window.draw(dt)
+pg.app.event_loop._redraw_windows = newrwd
 
 print(" ~ Modify subprocess.Popen")
 print(" | ~ Save original Popen")
