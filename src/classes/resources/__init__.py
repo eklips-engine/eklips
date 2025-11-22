@@ -1,5 +1,6 @@
 # Import libraries
 import pygame, pyglet as pg, json, gc
+from pyglet.gl import *
 
 # Import components
 from classes.locals      import *
@@ -11,13 +12,16 @@ from classes.resources.object import *
 from classes.resources.script import *
 from classes.resources.scene  import *
 
+# Remove anti-aliasing. Why? Why not.
+pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = GL_NEAREST
+
 # Classes
 class Loader:
     print(" ~ Initialize Resource Loader")
     resource_tree = {}
     use_binary    = False
     extensions    = {
-        "img": ["png","jpg","jpeg","bmp"],
+        "img": ["png","jpg","jpeg","bmp","gif","dds","tif","tiff"],
         "sfx": ["mp3","ogg","wav"],
         "txt": ["py","txt","ekl"],
         "jsn": ["json","scn","res"],
@@ -43,6 +47,8 @@ class Loader:
                 return open(actual_path).read()
             if ext in self.extensions["jsn"]:
                 return json.loads(open(actual_path).read())
+            if ext in self.extensions["vid"]:
+                return engine.pvd.VideoPyglet(actual_path)
         except:
             pass
         
