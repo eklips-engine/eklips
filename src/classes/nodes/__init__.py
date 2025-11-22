@@ -8,5 +8,4 @@ from classes.nodes.gui.label       import *
 from classes.nodes.gui.window      import *
 from classes.nodes.gui.sprite      import *
 
-from classes.nodes.gui.media.soundplayer import *
-from classes.nodes.gui.media.videoplayer import *
+from classes.nodes.gui.mediaplayer import *

@@ -42,7 +42,13 @@ class _export:
 
 def export(default=None, type_=None, hint=None):
     """
-    Use this class to expose a value as a property in the editor. This class is similar to the `property` class in Python.
+    Use this class to expose a value as a property in the editor.
+    This class is similar to the `property` class in Python.
+    
+    "Wait a sec, this isn't a class!" You might be saying, well,
+    this is a decorator to make the `_export` class, and do you
+    really wanna type in `export.set_metadata(..)` every time you
+    wanna make an export property instead of just `@export(..)`?
     
     .. default:: The default value to use.
     .. type:: The type that the value should be (int, str...)

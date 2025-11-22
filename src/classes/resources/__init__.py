@@ -20,7 +20,8 @@ class Loader:
         "img": ["png","jpg","jpeg","bmp"],
         "sfx": ["mp3","ogg","wav"],
         "txt": ["py","txt","ekl"],
-        "jsn": ["json","scn","res"]
+        "jsn": ["json","scn","res"],
+        "vid": ["mp4","webm","gif"]
     }
 
     def _get_true_path(self, path : str):

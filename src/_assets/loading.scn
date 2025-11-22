@@ -23,7 +23,7 @@
                     }
                 },
                 "Audio": {
-                    "type":       "AudioPlayer",
+                    "type":       "MediaPlayer",
                     "media":      "root://_assets/load.mp3",
                     "auto_start": true,
 
