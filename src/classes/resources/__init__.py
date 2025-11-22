@@ -1,6 +1,5 @@
 # Import libraries
 import pygame, pyglet as pg, json, gc
-from pyglet.gl import *
 
 # Import components
 from classes.locals      import *
@@ -11,9 +10,6 @@ print(" ~ Importing all resources")
 from classes.resources.object import *
 from classes.resources.script import *
 from classes.resources.scene  import *
-
-# Remove anti-aliasing. Why? Why not.
-pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = GL_NEAREST
 
 # Classes
 class Loader:

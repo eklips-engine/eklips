@@ -57,6 +57,9 @@ def load_engine():
     # Initialize localization
     lang    = Language(f'{cvars.get("lang_dir", "res://lang")}/{savefile.get("lang", "en")}.json')
 
+    # See if anti-aliasing should be on
+    ui.set_anti_aliasing(cvars.get("anti_aliasing", False))
+
     # Set running flag to true
     running = True
 

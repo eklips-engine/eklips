@@ -7,6 +7,12 @@ from classes.locals      import *
 from classes.customprops import *
 from pyglet.gl           import *
 
+# Functions
+def set_anti_aliasing(yn : bool):
+    if yn: value = GL_LINEAR
+    else:  value = GL_NEAREST
+    pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = value
+
 # Colors
 _r    = [0,0,0]
 _rs   = [1,1,1]
