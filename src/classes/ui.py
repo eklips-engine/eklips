@@ -632,7 +632,8 @@ class Display:
         label          : pg.text.Label,
         window_id      : int               = MAIN_WINDOW,
         group          : pg.graphics.Group = None,
-        font_name      : str               = "Arial"
+        font_name      : str               = "Arial",
+        font_size      : int               = DEFAULT_FONT_SIZE
     ) -> list[int,int]:
         """
         Draw a Label to a Window's main viewport.
@@ -648,6 +649,7 @@ class Display:
         .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
         .. group:: Pyglet Group. Defaults to None.
         .. font_name:: Name of the font to be used. Defaults to "Arial"
+        .. font_size:: Read the property silly... Defaults to DEFAULT_FONT_SIZE (12.5)
         """
         if not text:
             return 0,0
@@ -675,6 +677,8 @@ class Display:
             label.text = text
         if label.font_name != font_name:
             label.font_name = font_name
+        if label.font_size != font_size:
+            label.font_size = font_size
         
         # | Adjustments
         w,h = label.content_width, label.content_height
