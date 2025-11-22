@@ -108,6 +108,9 @@ class Viewport:
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
     
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.width}x{self.height})"
+    
     def _resize_framebuffer(self):
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
@@ -292,8 +295,11 @@ class Display:
     _marked_for_disassembly = []
     windows                 = {}
     main_window_id          = None
-    latest_window           = None
     _fontsizecache          = {}
+    display_id              = 0
+    
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(display_id={self.display_id})"
 
     def get_size(self):
         """Returns the size of the screen in pixels."""
@@ -588,7 +594,7 @@ class Display:
         if sprite.image != surface:
             sprite.image = surface
         
-        # Adjustments
+        # | Adjustments
         if ignore_scaling:
             w,h             = surface.width,surface.height
             scale_x,scale_y = 1,1
@@ -596,7 +602,7 @@ class Display:
             w,h             = transform.w,transform.h
             scale_x,scale_y = transform.scale
         
-        # Make the sprite center
+        # | Set the others
         if transform.rotation:
             sprite.image.anchor_x = w/4
             sprite.image.anchor_y = h/4
@@ -626,7 +632,7 @@ class Display:
         label          : pg.text.Label,
         window_id      : int               = MAIN_WINDOW,
         group          : pg.graphics.Group = None,
-        ignore_scaling : bool              = False
+        font_name      : str               = "Arial"
     ) -> list[int,int]:
         """
         Draw a Label to a Window's main viewport.
@@ -641,7 +647,6 @@ class Display:
         .. label:: Pyglet Label with the Batch set properly.
         .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
         .. group:: Pyglet Group. Defaults to None.
-        .. ignore_scaling:: Ignore scale properties in transform.
         .. font_name:: Name of the font to be used. Defaults to "Arial"
         """
         if not text:
@@ -668,11 +673,13 @@ class Display:
         # Set properties for label
         if label.text != text:
             label.text = text
+        if label.font_name != font_name:
+            label.font_name = font_name
         
         # | Adjustments
         w,h = label.content_width, label.content_height
 
-        # Make the label centered if rotating
+        # | Set the others
         if transform.rotation:
             label.anchor_x = w/4
             label.anchor_y = h/4

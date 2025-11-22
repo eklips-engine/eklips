@@ -195,7 +195,7 @@ class Scene(Object):
         except:
             pass
         self.get_node_entry_from_path(nodepath)["obj"] = None
-        # Delete that entry? ^ (it's self.nodes["children"]["something"])
+        # XXX Delete that entry? ^ (it's self.nodes[""]["children"]["something"])
         gc.collect()
     
     def empty(self):

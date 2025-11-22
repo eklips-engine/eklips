@@ -6,11 +6,10 @@ def _process(self : engine.nodes.CanvasItem, delta):
     except:
         eklips = None
     self.rotation += delta * 150
+
     if self.rotation > 351:
         self.alpha -= delta * 150
     if self.alpha < 0:
-        engine.scene._delete_node("/Ring")
         engine.scene.load(engine.game.master_scene)
-        return
     if eklips:
         eklips.alpha   = self.alpha
