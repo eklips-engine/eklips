@@ -5,6 +5,7 @@
             "children": {
                 "Eklips": {
                     "type":       "Sprite",
+                    
                     "image_path": "root://_assets/eklips.png",
 
                     "children":   {},

@@ -135,7 +135,7 @@ class MediaPlayer(CanvasItem):
         if self._video:
             if self._video.active:
                 self._video._update()
-                self.draw(self._video.frame_surf)
+                self.draw()
         else:
             if self._playing:
                 self._playcounter += 1
@@ -143,10 +143,11 @@ class MediaPlayer(CanvasItem):
                 if self._playcounter < self.loops or self.loops < 0:
                     self.restart()
     
-    def draw(self, image):
-        if image:
-            self.w, self.h = self._ogsize
-            self._draw(image)
+    def draw(self):
+        if self._video.frame_surf:
+            self.w, self.h    = self._ogsize
+            self.sprite.image = self._video.frame_surf
+            self._draw()
     
     def _draw(self, image):
         return engine.display.blit(

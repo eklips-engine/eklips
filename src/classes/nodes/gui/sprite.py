@@ -21,6 +21,8 @@ class Sprite(CanvasItem):
         if not value: return
         self._imagepath = value
         self.image      = engine.loader.load(value)
+        if self.sprite:
+            self.sprite.image = self.image
     
     def __init__(self, properties={}, parent=None, children=None):
         self._imagepath = None

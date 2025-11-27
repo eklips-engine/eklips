@@ -1,8 +1,5 @@
 # Import inherited
 from classes.resources.object import *
-import types
-from functools import reduce
-import operator
 
 # Import nodes
 from classes.nodes import *
@@ -103,10 +100,6 @@ class Scene(Object):
         obj.__init__(node, parent)
         obj.name = nodepath.split("/")[-1]
         obj._setup_properties()
-
-        # Set values
-        #obj.set("script_path", node.get("script_path", None))
-        #obj._setup_properties()
 
         # Set obj parameter to Node
         node["obj"] = obj
@@ -223,7 +216,6 @@ class Scene(Object):
 
         ## Things you can't do in the for loop above me without causing trouble
         if self._marked_scene_chng:
-            self.empty()
             self.file_path          = self._marked_scene_chng
             self._marked_scene_chng = None
         for i in self._marked_for_disassembly:

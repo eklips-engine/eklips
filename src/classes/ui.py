@@ -39,13 +39,30 @@ white = [255,255,255]
 class EklipsWindow(pg.window.Window):
     def __init__(self, *args, **kwargs):
         self.closed          = True
+        self.wid             = -1
+        
         super().__init__(*args, **kwargs)
+
         self.eklips_viewport = None
         self.closed          = False
     
     def on_close(self):
+        if self.closed: return
         self.eklips_viewport.close()
         self.closed = True
+        engine.display._close_window(self.wid)
+    
+    def on_resize(self, width, height):
+        self.eklips_viewport.width  = width
+        self.eklips_viewport.height = height
+    
+    def on_draw(self):
+        self.switch_to()
+        self.clear()
+        
+    def flip(self):
+        self.eklips_viewport.flip()
+        super().flip()
     
     def on_mouse_motion(self, x, y, dx, dy):
         engine.mouse.pos  = [x, y]
@@ -71,32 +88,32 @@ class EklipsWindow(pg.window.Window):
 class Viewport:
     def __init__(
             self,
-            batches  : dict          = {},
+            batches  : list          = [],
             size     : list[int,int] = [640,480],
             position : list[int,int] = [0,0]
         ):
-        self._width           = 0
-        self._height          = 0
+        self._width           = size[1]
+        self._height          = size[0]
+        self._x               = position[0]
+        self._y               = position[1]
         self._background      = [0,0,0,1]
         self._window_is_slave = False
 
         self.framebuffer           = None
+        self.color_buffer          = None
+        self.depth_buffer          = None
         self.window : EklipsWindow = None
         self._closing              = False
         self.batches               = batches
-        self._width                = size[0]
-        self._height               = size[1]
-
+        
         self._make_framebuffer()
-
-        self._sprite   = pg.sprite.Sprite(self.color_buffer, x=position[0], y=position[1])
 
         self.sprites : list[pg.sprite.Sprite] = []
         self.labels  : list[pg.text.Label]    = []
         self.used_labels                      = []
         self.used_sprites                     = []
         self._base_img                        = engine.loader.load("root://_assets/error.png")
-    
+
     def _make_framebuffer(self):
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
@@ -104,7 +121,7 @@ class Viewport:
         )
         self.depth_buffer = pg.image.buffer.Renderbuffer(self.width, self.height, GL_DEPTH_COMPONENT)
 
-        self.framebuffer = pg.image.Framebuffer()
+        self.framebuffer  = pg.image.Framebuffer()
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
     
@@ -119,14 +136,14 @@ class Viewport:
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
     
     @property
-    def width(self): return int(self._width)
+    def width(self):  return int(self._width)
     @property
     def height(self): return int(self._height)
     
     @property
-    def x(self): return int(self._sprite.x)
+    def x(self): return int(self._x)
     @property
-    def y(self): return int(self._sprite.y)
+    def y(self): return int(self._y)
 
     @property
     def size(self): return [self.width,self.height]
@@ -138,9 +155,9 @@ class Viewport:
         self._resize_framebuffer()
 
     @x.setter
-    def x(self, value): self._sprite.x = int(value)
+    def x(self, value): self._x = int(value)
     @y.setter
-    def y(self, value): self._sprite.y = int(value)
+    def y(self, value): self._y = int(value)
     
     @width.setter
     def width(self, value):
@@ -222,73 +239,56 @@ class Viewport:
         self.used_sprites.clear()
         self.used_labels.clear()
     
-    @property
-    def x(self):        return self._sprite.x
-    @property
-    def y(self):        return self._sprite.y
-    @x.setter
-    def x(self, value): self._sprite.x = value
-    @y.setter
-    def y(self, value): self._sprite.y = value
-    
     def flip(self):
         """
         Draw viewport contents to the window and flip it if the viewport is its master.
         """
-        # Window-only 1
+        # If you or the window is closed, don't bother
         if self._closing:
             return
-        if self.window and self._window_is_slave:
-            self.window.switch_to()
-            self.window.clear()
-            if self.width != self.window.width:
-                self.width = self.window.width
-            if self.height != self.window.height:
-                self.height = self.window.height
+        if not self.window:
+            return
+        if self.window.closed:
+            return
         
         # Bind buffer
+        self.window.switch_to()
         self.framebuffer.bind()
         glViewport(self.x, self.y, self.width, self.height)
         glEnable(GL_CULL_FACE)
-        glClearColor(*self._background)
+        if self._background[:3] != [0,0,0]:
+            glClearColor(*self._background)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # Draw batches for this Viewport and unbind buffer
         for batch in self.batches:
             batch.draw()
-        self.used_sprites.clear()
-        self.used_labels.clear()
+        self.clear()
         self.framebuffer.unbind()
+        
+        # Draw Viewport to Window
+        self.window.switch_to()
+        self.color_buffer.blit(self.x, self.y)
 
-        # Window-only 2
-        if self.window:
-            self.window.switch_to()
-            if self._sprite.image != self.color_buffer:
-                self._sprite.image = self.color_buffer
-            self._sprite.draw()
-    
     def provide_window(self, window, master=False):
         """
         Provide the window `window` to the Viewport to draw to.
 
         .. window:: Window object (engine.ui.EklipsWindow).
-        .. master:: If the viewport is the master. Defaults to False.
+        .. master:: If the Window is linked to the Viewport. Defaults to False.
         """
         self.window           = window
         self._window_is_slave = master
     
     def close(self):
         """
-        Free the viewport (and window if the viewport is the master.)
+        Free the viewport.
         """
         self._closing = True
-        if self.window and self._window_is_slave:
-            self.window.close()
-            engine.display._close_window(self.window.wid)
-        self.window = None
         self.framebuffer.delete()
         self.color_buffer.delete()
         self.depth_buffer.delete()
+        gc.collect()
     
 class Display:
     print(" ~ Initialize Display")
@@ -369,7 +369,7 @@ class Display:
             window.set_icon(icon)
         
         # Create Viewport
-        viewport = Viewport({}, viewport_size, [0,0])
+        viewport = Viewport([], viewport_size, [0,0])
         viewport.set_background(*viewport_color)
         viewport.provide_window(window, master=True)
 
@@ -461,11 +461,8 @@ class Display:
             return
         
         window_data = self.windows[wid]
-        try:
-            window_data["window"].close()
-        except:
-            pass
-
+        window_data["window"].close()
+        
         window_data["window"]     = None
         window_data["viewport"]   = None
         window_data["batches"]    = None
@@ -476,13 +473,16 @@ class Display:
         self.windows.pop(wid)
         gc.collect()
     
-    def close_windows(self, forced : bool = False):
+    def close_windows(self, forced : bool = False, blacklist : list = []):
         """
         Close all windows and their viewports.
 
         .. forced:: If true, close the window immediately. This may cause issues.
+        .. blacklist:: List of Window IDs to NOT. CLOSE.
         """
         for wid in self.windows.copy():
+            if wid in blacklist:
+                continue
             if forced:
                 self._close_window(wid)
             else:
@@ -548,30 +548,24 @@ class Display:
     
     def blit(
         self,
-        surface        : pg.image.AbstractImage,
         transform      : Transform,
         sprite         : pg.sprite.Sprite,
         window_id      : int               = MAIN_WINDOW,
-        group          : pg.graphics.Group = None,
-        ignore_scaling : bool              = False
+        group          : pg.graphics.Group = None
     ) -> None:
         """
-        Draw an Image to a Window's main viewport.
+        Draw a Sprite to a Window's main viewport.
         
         The batch must be manually set, you can get this batch by running `get_batch_from_window()` and setting that as your sprites batch.
         If you don't have a Sprite, you can call `viewport._allocate_sprite()`, you can get `viewport` by running `get_viewport_from_window()`.
         
         You must also pass a Transform object, you can get this by either manually creating one yourself or running `Transform.new(...)`.
 
-        .. surface:: Pyglet image.
         .. transform:: Transform object to tell where the image is drawn.
         .. sprite:: Pyglet Sprite with the Batch set properly.
         .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
         .. group:: Pyglet Group. Defaults to None.
-        .. ignore_scaling:: Ignore scale properties in transform.
         """
-        if not surface:
-            return
         if not transform.visible:
             return
         if not (transform.scale_x or transform.scale_y):
@@ -591,16 +585,8 @@ class Display:
         x, y = transform.into_screen_coords(viewport.size)
         
         # Set properties for sprite
-        if sprite.image != surface:
-            sprite.image = surface
-        
-        # | Adjustments
-        if ignore_scaling:
-            w,h             = surface.width,surface.height
-            scale_x,scale_y = 1,1
-        else:
-            w,h             = transform.w,transform.h
-            scale_x,scale_y = transform.scale
+        w,h             = transform.tsize
+        scale_x,scale_y = transform.scale
         
         # | Set the others
         if transform.rotation:
@@ -632,7 +618,7 @@ class Display:
         label          : pg.text.Label,
         window_id      : int               = MAIN_WINDOW,
         group          : pg.graphics.Group = None,
-        font_name      : str               = "Arial",
+        font_name      : str               = DEFAULT_FONT_NAME,
         font_size      : int               = DEFAULT_FONT_SIZE
     ) -> list[int,int]:
         """
@@ -648,7 +634,7 @@ class Display:
         .. label:: Pyglet Label with the Batch set properly.
         .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
         .. group:: Pyglet Group. Defaults to None.
-        .. font_name:: Name of the font to be used. Defaults to "Arial"
+        .. font_name:: Read the property silly... Defaults to DEFAULT_FONT_NAME ("Arial")
         .. font_size:: Read the property silly... Defaults to DEFAULT_FONT_SIZE (12.5)
         """
         if not text:

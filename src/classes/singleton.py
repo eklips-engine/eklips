@@ -90,7 +90,11 @@ def is_anything_pressed() -> bool:
     return False
 
 def handle_closing():
+    global running, savefile, scene
+    
+    running = False
     savefile.save_data()
+    scene.free()
 
 # Variables
 clock     : pg.clock.Clock         = None
@@ -110,7 +114,8 @@ sid       : int                    = 0
 delta     : float                  = 0.0
 uptime    : float                  = 0.0
 
-_screenc_cache = {}
+_wincloseblacklist : list = [MAIN_WINDOW]
+_screenc_cache     : dict = {}
 
 # Load the engine components
 load_engine()

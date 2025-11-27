@@ -42,7 +42,7 @@ class Window(CanvasItem):
             self.popup()
     
     def _make_window(self):
-        self.wid = engine.display.add_window(
+        self.wid              = engine.display.add_window(
             name              = " ",
             size              = [5,5],
             minimum_size      = [5,5],
@@ -54,14 +54,13 @@ class Window(CanvasItem):
             visible           = False
         )
         self._window          = engine.display.get_window(self.wid)
-        self._window.on_close = self._free
         self._drawing_wid     = self.wid
         
     def popup(self):
         """
         Make the window.
         """
-        if not self._window:
+        if not self._window or self._window.closed:
             self._make_window()
         self._window.set_size(self.w, self.h)
         self._window.set_caption(self.title)
@@ -89,13 +88,6 @@ class Window(CanvasItem):
         self._color = rgb
         if self._window:
             self._window.eklips_viewport.set_background(*rgb)
-
-    def _free(self):
-        if self._window:
-            self._window.eklips_viewport.close()
-            engine.display.close_window(self.wid)
-            self._window.closed = True
-        super()._free()
     
     def _set_size(self,w,h):
         rw, rh = round(w),round(h)
@@ -103,9 +95,13 @@ class Window(CanvasItem):
             self._window.width  = rw
             self._window.height = rh
     
-    def update(self):
-        super().update()
-
-        if self._window:
-            engine.display.clear_window(self.wid)
-            engine.display.flip_window(self.wid)
+    def _get_viewport(self):
+        if not self._window:
+            return
+        return self._window.eklips_viewport
+    
+    def get_if_mouse_hovering(self):
+        """Returns true if the mouse is hovering over self."""
+        mpos     = engine.mouse.pos
+        viewport = self._get_viewport()
+        return False

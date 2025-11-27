@@ -19,10 +19,15 @@ class Label(CanvasItem):
     @text.setter
     def text(self, value): self.sprite.text = value
 
-    @export("Times New Roman","str","font")
+    @export(DEFAULT_FONT_NAME,"str","font")
     def font(self) -> str: return self.sprite.font_name
     @font.setter
     def font(self, value): self.sprite.font_name = value
+
+    @export(DEFAULT_FONT_SIZE,"float/int","float/int")
+    def font_size(self) -> float | int: return self.sprite.font_size
+    @font_size.setter
+    def font_size(self, value):         self.sprite.font_size = value
 
     def __init__(self, properties={}, parent=None, children=None):
         super().__init__(properties, parent, children)
@@ -41,7 +46,9 @@ class Label(CanvasItem):
             text      = self.text,
             transform = self,
             window_id = self._drawing_wid,
-            label     = self.sprite
+            label     = self.sprite,
+            font_name = self.font,
+            font_size = self.font_size  
         )
     
     def _remove_sprite(self):

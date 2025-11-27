@@ -51,8 +51,8 @@ def export(default=None, type_=None, hint=None):
     wanna make an export property instead of just `@export(..)`?
     
     .. default:: The default value to use.
-    .. type:: The type that the value should be (int, str...)
-    .. hint:: How to display this property in the editor (int, str, file_path, color, slider, etc..)
+    .. type_:: The type that the value should be (int, str, list, bool...)
+    .. hint:: How to display this property in the editor (int, float, int/float, float/int, str, file_path/xxx, color, slider, font, bool)
     """
     def wrapper(func):
         return _export(
@@ -115,12 +115,16 @@ class Transform:
     def __init__(self):
         self._x = 0
         self._y = 0
+        self._z = 0
         self._w = 10
         self._h = 10
 
+        self._offset_x = 0
+        self._offset_y = 0
+
         self._rotation = 0
         self.skew      = 0
-        self.alpha     = 255
+        self._alpha    = 255
         self._anchor   = "top left"
         self.scroll    = [0,0]
         self.visible   = True
@@ -135,9 +139,9 @@ class Transform:
     def anchor(self): return self._anchor
 
     @property
-    def x(self): return self._x
+    def x(self): return self._x - self._offset_x
     @property
-    def y(self): return self._y
+    def y(self): return self._y - self._offset_y
 
     @property
     def scale_x(self): return self._scale_x
@@ -161,13 +165,23 @@ class Transform:
     @property
     def rotation(self): return self._rotation
     
+    @property
+    def alpha(self): return self._alpha
+    
     # Setters
+    @alpha.setter
+    def alpha(self, value):
+        self._alpha = value
+        self._set_alpha(value)
+    
     @x.setter
     def x(self, value):
-        self._x = value
+        self._x = value + self._offset_x
+        self._set_pos(self._x,self._y)
     @y.setter
     def y(self, value):
-        self._y = value
+        self._y = value + self._offset_y
+        self._set_pos(self._x,self._y)
 
     @anchor.setter
     def anchor(self, value):
@@ -186,16 +200,27 @@ class Transform:
     def scale_x(self, value):
         if self._scale_x == value: return
         self._scale_x = value
+        self._set_scale(self.scale_x, self.scale_y)
         self._set_size(self.w, self.h)
     @scale_y.setter
     def scale_y(self, value):
         if self._scale_y == value: return
         self._scale_y = value
+        self._set_scale(self.scale_x, self.scale_y)
         self._set_size(self.w, self.h)
     @scale.setter
     def scale(self, value):
         self.scale_x, self.scale_y = value
     
+    # Visual functions.
+    def _set_pos(self,x,y):
+        pass
+    def _set_scale(self, x, y):
+        pass
+    def _set_rot(self,deg):
+        pass
+    def _set_alpha(self,deg):
+        pass
     def _set_size(self,w,h):
         # This is affected by scaling
         pass
@@ -220,7 +245,9 @@ class Transform:
     def tsize(self, value : list[int,int]): self.w,self.h = value
 
     @rotation.setter
-    def rotation(self, value): self._rotation = value
+    def rotation(self, value):
+        self._rotation = value
+        self._set_rot(value)
     
     ## Functions
     def into_screen_coords(self, window_size : list[int,int] = [480,480]):

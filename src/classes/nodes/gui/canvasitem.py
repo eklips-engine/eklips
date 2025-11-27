@@ -25,11 +25,13 @@ class CanvasItem(Node, Transform):
     """
     ## A Canvas Node.
     
-    This is a Node that has properties for transformation, and is meant for rendering items in the window.
-    For Nodes in a 2D world, use Node2D.
+    This is a Node that has properties for transformation,
+    and is meant for rendering items in the window.
 
     This has relativity only on the position.
-    (NOTE: The reason why `tsize` is called that because anytree's NodeMixin uses a size property..)
+
+    (NOTE: The reason why `tsize` is called that because
+    anytree's NodeMixin uses a size property..)
     """
     _can_check_layer = True
     _drawing_bid : int                          = 0
@@ -51,7 +53,9 @@ class CanvasItem(Node, Transform):
 
         self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_bid)
 
-        self._convert_transform_property_into_object(properties.get("transform", base_transform))
+    def _setup_properties(self):
+        super()._setup_properties()
+        self._convert_transform_property_into_object(self._properties_onready.get("transform", base_transform))
     
     def _convert_transform_property_into_object(self, value):
         self.position = value["position"]
@@ -68,11 +72,35 @@ class CanvasItem(Node, Transform):
         """Draw the Node's image. This is usually called automatically."""
         if image:
             self.w, self.h = image.width, image.height
-            self._draw(image)
+            self._draw()
 
-    def _draw(self, image):
+    def _set_pos(self, x, y):
+        if not self.sprite:
+            return
+        self.sprite.x = x
+        self.sprite.y = y
+    
+    def _set_scale(self, x, y):
+        if not self.sprite:
+            return
+        self.sprite.scale_x = x
+        self.sprite.scale_y = y
+    
+    def _set_rot(self, deg):
+        if not self.sprite:
+            return
+        self.sprite.rotation = deg
+        if deg:
+            self.sprite.image.anchor_x = self.w/4
+            self.sprite.image.anchor_y = self.h/4
+    
+    def _set_alpha(self, deg):
+        if not self.sprite:
+            return
+        self.sprite.opacity = round(deg)
+        
+    def _draw(self):
         return engine.display.blit(
-            surface   = image,
             transform = self,
             window_id = self._drawing_wid,
             sprite    = self.sprite
