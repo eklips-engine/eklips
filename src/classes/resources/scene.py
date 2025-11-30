@@ -21,7 +21,7 @@ class Scene(Object):
     """
     print(" ~ Initialize Scene")
     nodes                   = EMPTY_SCENE
-    _marked_for_disassembly = []
+    _doomed = []
     _marked_scene_chng      = ""
     _file_path              = None
     _inherited_scn          = None
@@ -176,7 +176,7 @@ class Scene(Object):
         .. nodepath:: Path of the node in the scene tree."""
         if not self.get_node_from_path(nodepath, throw_error_if_failed=False):
             return
-        self._marked_for_disassembly.append(nodepath)
+        self._doomed.append(nodepath)
     
     def _delete_node(self, nodepath):
         """Delete a Node using its path."""
@@ -218,9 +218,9 @@ class Scene(Object):
         if self._marked_scene_chng:
             self.file_path          = self._marked_scene_chng
             self._marked_scene_chng = None
-        for i in self._marked_for_disassembly:
+        for i in self._doomed:
             self._delete_node(i)
         for i in self._marked_for_creation:
             self._add_node(i)
         self._marked_for_creation.clear()
-        self._marked_for_disassembly.clear()
+        self._doomed.clear()

@@ -37,14 +37,90 @@ white = [255,255,255]
 
 # Classes
 class EklipsWindow(pg.window.Window):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        width      : int | None                   = None,
+        height     : int | None                   = None,
+        caption    : str | None                   = None,
+        resizable  : bool                         = False,
+        style      : str | None                   = None,
+        fullscreen : bool                         = False,
+        visible    : bool                         = True,
+        vsync      : bool                         = True,
+        file_drops : bool                         = False,
+        display    : pg.display.Display    | None = None,
+        screen     : pg.display.Screen     | None = None,
+        config     : Config                | None = None,
+        context    : pg.gl.Context         | None = None,
+
+        mode       : pg.display.base.ScreenMode | None = None
+        ) -> None:
+
+        # Setup variables
+        self._focused        = False
         self.closed          = True
+        self.eklips_viewport = None
         self.wid             = -1
         
-        super().__init__(*args, **kwargs)
+        # Init
+        ## Code taken from pyglet/window/base/__init__.py line 508-546
+        if not display:
+            display = pg.display.get_display()
+        if not screen:
+            screen  = display.get_default_screen()
+        if not config:
+            alpha_size = None
+            transparent_fb = False
+            if style in ('transparent', 'overlay'):
+                alpha_size = 8
+                transparent_fb = True
+            for template_config in [
+                Config(double_buffer=True, depth_size=24, major_version=3, minor_version=3,
+                       alpha_size=alpha_size, transparent_framebuffer=transparent_fb),
+                Config(double_buffer=True, depth_size=16, major_version=3, minor_version=3,
+                       alpha_size=alpha_size, transparent_framebuffer=transparent_fb),
+                None,
+            ]:
+                try:
+                    config = screen.get_best_config(template_config)
+                    break
+                except pg.window.NoSuchConfigException:
+                    pass
+            if not config:
+                raise pg.window.NoSuchConfigException('No standard config is available.')
+        else:
+            style : str
+            if style in ('transparent', 'overlay'):
+                config.alpha_size = 8
+                config.transparent_framebuffer = True
+        
+        if not context:
+            context = config.create_context(None)
 
-        self.eklips_viewport = None
-        self.closed          = False
+        super().__init__(
+            width,      height,
+            caption,    resizable,
+            style,      fullscreen,
+            visible,    vsync,
+            file_drops, display,
+            screen,     config,
+            context,    mode
+        )
+
+        # Set validity to true
+        self.closed = False
+
+    @property
+    def focused(self):
+        """If the Window is focused. Read-write."""
+        return self._focused
+    
+    @focused.setter
+    def focused(self, value):
+        if value:
+            self.activate()
+        else:
+            self.minimize()
     
     def on_close(self):
         if self.closed: return
@@ -52,7 +128,18 @@ class EklipsWindow(pg.window.Window):
         self.closed = True
         engine.display._close_window(self.wid)
     
+    def on_context_lost(self):
+        self._focused = False
+    
+    def on_activate(self):
+        self._focused = True
+    
+    def on_deactivate(self):
+        self._focused = False
+
     def on_resize(self, width, height):
+        self._focused = True
+
         self.eklips_viewport.width  = width
         self.eklips_viewport.height = height
     
@@ -61,6 +148,8 @@ class EklipsWindow(pg.window.Window):
         self.clear()
         
     def flip(self):
+        if not self.invalid:
+            return
         self.eklips_viewport.flip()
         super().flip()
     
@@ -84,6 +173,10 @@ class EklipsWindow(pg.window.Window):
     def on_key_release(self, symbol, modifiers):
         engine.keyboard.modifiers    = modifiers
         engine.keyboard.held[symbol] = False
+    
+    def on_file_drop(self, x, y, paths):
+        engine.mouse.pos   = [x, y]
+        engine.mouse.paths = paths
 
 class Viewport:
     def __init__(
@@ -105,8 +198,6 @@ class Viewport:
         self.window : EklipsWindow = None
         self._closing              = False
         self.batches               = batches
-        
-        self._make_framebuffer()
 
         self.sprites : list[pg.sprite.Sprite] = []
         self.labels  : list[pg.text.Label]    = []
@@ -115,25 +206,50 @@ class Viewport:
         self._base_img                        = engine.loader.load("root://_assets/error.png")
 
     def _make_framebuffer(self):
+        if self.window:
+            self.window.switch_to()
+        self.framebuffer  = pg.image.Framebuffer()
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST
         )
         self.depth_buffer = pg.image.buffer.Renderbuffer(self.width, self.height, GL_DEPTH_COMPONENT)
-
-        self.framebuffer  = pg.image.Framebuffer()
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
-    
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.width}x{self.height})"
-    
     def _resize_framebuffer(self):
+        if self.window:
+            self.window.switch_to()
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
+    def provide_window(self, window, master=False):
+        """
+        Provide the window `window` to the Viewport to draw to.
+
+        NOTE: This takes a while since the framebuffer has to be remade to be
+        apart of the windows context.
+
+        .. window:: Window object (engine.ui.EklipsWindow).
+        .. master:: If the Window is linked to the Viewport. Defaults to False.
+        """
+        # Set variables
+        self.window           = window
+        self._window_is_slave = master
+
+        # Remake framebuffer to be happy
+        self._delete_buffer()
+        self._make_framebuffer()
+    def _delete_buffer(self):
+        if not self.framebuffer:
+            return
+        self.framebuffer.delete()
+        self.color_buffer.delete()
+        self.depth_buffer.delete()
+    
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.width}x{self.height})"
     
     @property
     def width(self):  return int(self._width)
@@ -174,23 +290,11 @@ class Viewport:
         i              = len(self.sprites)
         self.sprites.append(sprite)
         return sprite, i
-    def _make_new_label(self, batch_id=MAIN_BATCH):
-        label         = pg.text.Label(batch = self.batches[batch_id])
-        label.visible = False
-        i             = len(self.labels)
-        self.labels.append(label)
-        return label, i
     def delete_sprite(self, sprite_id : int):
         if not sprite_id in self.sprites:
             return
         self.sprites[sprite_id].delete()
         self.sprites.pop(sprite_id)
-        gc.collect()
-    def delete_label(self, label_id : int):
-        if not label_id in self.labels:
-            return
-        self.labels[label_id].delete()
-        self.labels.pop(label_id)
         gc.collect()
     def _allocate_sprite(self, batch_id=MAIN_BATCH):
         i = 0
@@ -203,6 +307,19 @@ class Viewport:
         sprite, i = self._make_new_sprite(batch_id)
         self.used_sprites.append(i)
         return sprite, i
+
+    def _make_new_label(self, batch_id=MAIN_BATCH):
+        label         = pg.text.Label(batch = self.batches[batch_id])
+        label.visible = False
+        i             = len(self.labels)
+        self.labels.append(label)
+        return label, i
+    def delete_label(self, label_id : int):
+        if not label_id in self.labels:
+            return
+        self.labels[label_id].delete()
+        self.labels.pop(label_id)
+        gc.collect()
     def _allocate_label(self, batch_id=MAIN_BATCH):
         i = 0
         for label in self.labels:
@@ -230,7 +347,6 @@ class Viewport:
             (b+ZDE_FIX) / 255,
             (a+ZDE_FIX) / 255
         ]
-    
     def clear(self):
         for label in self.labels:
             label.visible = False
@@ -238,7 +354,6 @@ class Viewport:
             sprite.visible = False
         self.used_sprites.clear()
         self.used_labels.clear()
-    
     def flip(self):
         """
         Draw viewport contents to the window and flip it if the viewport is its master.
@@ -250,8 +365,7 @@ class Viewport:
             return
         if self.window.closed:
             return
-        
-        # Bind buffer
+
         self.window.switch_to()
         self.framebuffer.bind()
         glViewport(self.x, self.y, self.width, self.height)
@@ -259,7 +373,7 @@ class Viewport:
         if self._background[:3] != [0,0,0]:
             glClearColor(*self._background)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
+        
         # Draw batches for this Viewport and unbind buffer
         for batch in self.batches:
             batch.draw()
@@ -267,32 +381,19 @@ class Viewport:
         self.framebuffer.unbind()
         
         # Draw Viewport to Window
-        self.window.switch_to()
         self.color_buffer.blit(self.x, self.y)
-
-    def provide_window(self, window, master=False):
-        """
-        Provide the window `window` to the Viewport to draw to.
-
-        .. window:: Window object (engine.ui.EklipsWindow).
-        .. master:: If the Window is linked to the Viewport. Defaults to False.
-        """
-        self.window           = window
-        self._window_is_slave = master
     
     def close(self):
         """
-        Free the viewport.
+        Delete the framebuffer and close the Viewport.
         """
         self._closing = True
-        self.framebuffer.delete()
-        self.color_buffer.delete()
-        self.depth_buffer.delete()
+        self._delete_buffer()
         gc.collect()
     
 class Display:
     print(" ~ Initialize Display")
-    _marked_for_disassembly = []
+    _doomed = []
     windows                 = {}
     main_window_id          = None
     _fontsizecache          = {}
@@ -331,14 +432,6 @@ class Display:
         .. wid:: Create the window in a predetermined window ID if the argument is not AUTOMATICALLY_CREATE.
         .. visible:: Make the window visible if True. Defaults to True.
         """
-
-        # I don't know why, but making a new window makes
-        # the other window's rendering assume the same
-        # size. So check for other windows and pinch them.
-        for hwid in self.windows:
-            viewport        = self.get_viewport_from_window(hwid)
-            viewport.width += 1
-            viewport.width -= 1
 
         # Fix properties
         if wid == AUTOMATICALLY_CREATE:
@@ -430,9 +523,9 @@ class Display:
             window_data["viewport"].flip()
     
     def _delete_in_queue(self):
-        for wid in self._marked_for_disassembly:
+        for wid in self._doomed:
             self._close_window(wid)
-        self._marked_for_disassembly.clear()
+        self._doomed.clear()
     
     def flip_windows(self):
         """
@@ -449,7 +542,7 @@ class Display:
 
         .. wid:: ID of Window. Defaults to MAIN_WINDOW.
         """
-        self._marked_for_disassembly.append(wid)
+        self._doomed.append(wid)
     
     def _close_window(self, wid):
         """
