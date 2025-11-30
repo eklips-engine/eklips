@@ -20,13 +20,13 @@ class Scene(Object):
     (and thus the current scene) can be paused. Scenes can be loaded, switched and reloaded.
     """
     print(" ~ Initialize Scene")
-    nodes                   = EMPTY_SCENE
-    _doomed = []
-    _marked_scene_chng      = ""
-    _file_path              = None
-    _inherited_scn          = None
-    _marked_for_creation    = []
-    _temp_node_list         = []
+    nodes                   = EMPTY_SCENE # Scene tree
+    _doomed                 = []          # List of nodes that are about to be deleted
+    _marked_scene_chng      = ""          # Filepath of the scene that's about to be loaded
+    _file_path              = None        # Filepath of the scene
+    _inherited_scn          = None        # Filepath of the inherited scene
+    _blessed                = []          # List of nodes that are about to be created
+    _temp_node_list         = []          # List of nodepaths in the scene tree
 
     @property
     def file_path(self) -> str:
@@ -111,7 +111,7 @@ class Scene(Object):
         """Add a node with parameters after the scene has finished updating.
         
         .. data:: The node's properties."""
-        self._marked_for_creation.append(data)
+        self._blessed.append(data)
     
     def _add_node(self, data) -> int:
         """Add a node with parameters. Returns that Nodes ID.
@@ -220,7 +220,7 @@ class Scene(Object):
             self._marked_scene_chng = None
         for i in self._doomed:
             self._delete_node(i)
-        for i in self._marked_for_creation:
+        for i in self._blessed:
             self._add_node(i)
-        self._marked_for_creation.clear()
+        self._blessed.clear()
         self._doomed.clear()
