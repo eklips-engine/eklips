@@ -40,7 +40,9 @@ class MediaPlayer(CanvasItem):
             self.play()
     
     @export(0,    "int",   "int")
-    def loops(self) -> int: return self._loops
+    def loops(self) -> int:
+        """How many times the Media should loop. Set to -1 for infinite."""
+        return self._loops
     @loops.setter
     def loops(self, value): self._loops = value
 
@@ -83,9 +85,7 @@ class MediaPlayer(CanvasItem):
             self._video.play()
         
     def restart(self):
-        """
-        Restart the Media.
-        """
+        """Restart the Media."""
         if self._sound:
             self.channel.stop()
             self.channel.play()
@@ -93,9 +93,7 @@ class MediaPlayer(CanvasItem):
             self._video.restart()
     
     def stop(self):
-        """
-        Stop the Media.
-        """
+        """Stop the Media."""
         self._playing = False
         if self._sound:
             self.channel.stop()
@@ -103,18 +101,14 @@ class MediaPlayer(CanvasItem):
             self._video.stop()
     
     def pause(self):
-        """
-        Pause the Media.
-        """
+        """Pause the Media."""
         if self._sound:
             self.channel.pause()
         if self._video:
             self._video.pause()
     
     def resume(self):
-        """
-        Resume the Media.
-        """
+        """Resume the Media."""
         if self._sound:
             self.channel.unpause()
         if self._video:
@@ -122,9 +116,7 @@ class MediaPlayer(CanvasItem):
     
     @property
     def busy(self) -> bool:
-        """
-        True if media is playing. Read-only
-        """
+        """True if media is playing. Read-only"""
         if self._sound:
             return self.channel.get_busy()
         if self._video:
@@ -165,6 +157,7 @@ class MediaPlayer(CanvasItem):
 
     @export(1.0, "float", "float")
     def volume(self) -> int:
+        """Volume of the Media"""
         return self._volume
     @volume.setter
     def volume(self, value : int | float | None):
@@ -176,6 +169,7 @@ class MediaPlayer(CanvasItem):
     
     @export(False, "bool", "bool")
     def auto_start(self):
+        """If the Media should automatically start when created."""
         return self._autostart
     @auto_start.setter
     def auto_start(self, value):
