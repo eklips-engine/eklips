@@ -10,6 +10,9 @@ class Script:
     Please do not try initializing a Script by this Object directly. It will not do anything.
 
     Instead, set your Object's `script_path` property to the path of the Script.
+
+    Also, you can type `fun` or `fn` instead of `def`, `null` instead of None,
+    `true` instead of True, and `false` instead of False. Why? cuz why not.
     """
     file_path        = None
     source_code      = "# Empty.. Please initialize the Script in your Object."

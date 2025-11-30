@@ -90,7 +90,7 @@ class Object(metaclass=_exportmeta):
         self._script : engine.resources.Script = engine.resources.Script()
 
         self._script.file_path   = path
-        self._script.source_code = src.replace("fun", "def")
+        self._script.source_code = src.replace("fun ", "def ").replace("fn ", "def ")
         
         exec(self._script.source_code, self._script._namespace, self._script._namespace)
 
@@ -157,7 +157,7 @@ class Object(metaclass=_exportmeta):
         self._function_queue.append([function, args, is_signal])
 
     def _process(self):
-        """Run the `_process()` function on the Script. This is called every frame of the Object/Node's existence."""
+        """Run the `_process()` function on the Script and call queued functions. This is called every frame of the Object/Node's existence."""
         if not self._script:
             return
         
