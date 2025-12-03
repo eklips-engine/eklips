@@ -14,11 +14,7 @@ class Script:
     Also, you can type `fun` or `fn` instead of `def`, `null` instead of None,
     `true` instead of True, and `false` instead of False. Why? cuz why not.
     """
-    file_path        = None
-    source_code      = "# Empty.. Please initialize the Script in your Object."
     _can_init_script = False
-    _namespace       = {}
-    _function_queue  = []
 
     def __init__(self):
         self._namespace      = {"engine": engine, "null": None, "true": True, "false": False}
