@@ -32,8 +32,6 @@ For now, the features are:
 >[!WARNING]
 >There isn't any documentation yet.. as the editor is not done and initial release isn't out yet.
 
-Documentations for Eklips are at the [Wiki](https://github.com/ZeeAyZ/Eklips/wiki) tab of the Github repository.
-
 # Requirements
 All of the libraries required to run Eklips are in [here](https://github.com/ZeeAyZ/Eklips/blob/main/requirements.txt).
 <br>
