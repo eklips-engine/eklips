@@ -24,7 +24,7 @@ class Scene(Object):
     nodes                   = EMPTY_SCENE # Scene tree
     _doomed                 = []          # List of nodes that are about to be deleted
     _marked_scene_chng      = ""          # Filepath of the scene that's about to be loaded
-    _file_path              = None        # Filepath of the scene
+    _file_path              = None        # Filepath of the current scene
     _inherited_scn          = None        # Filepath of the inherited scene
     _blessed                = []          # List of nodes that are about to be created
     _temp_node_list         = []          # List of nodepaths in the scene tree

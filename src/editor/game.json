@@ -18,6 +18,13 @@
     
     "directory": "editor",
 
+    "actions": {
+        "test": {
+            "actions":  [2],
+            "holdable": true
+        }
+    },
+
     "cvars": {
         "icon_file": {
             "type":        "str",

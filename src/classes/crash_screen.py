@@ -8,7 +8,16 @@ def get_info(error : Exception):
 
 def show_error(error : Exception):
     info = get_info(error)
-    if askyesno("Eklips Engine", f"Eklips has crashed with the traceback:\n\n{info}\n\nWould you like a dump to be saved?"):
+    if askyesno(
+        "Eklips Engine", 
+        f"""
+Eklips has crashed with the traceback:
+
+{info}
+
+Would you like a dump to be saved?
+        """
+    ):
         os.makedirs("tmp", exist_ok=True)
         with open(f"tmp/{len(os.listdir('tmp'))}.log","w") as f:
             f.write(info)
