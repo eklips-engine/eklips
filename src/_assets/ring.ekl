@@ -1,15 +1,26 @@
 import classes.singleton as engine
 
 def _process(self : engine.nodes.CanvasItem, delta):
+    # Load master scene if Sprite is fully invisible or halt if not found
+    if self.alpha < 0:
+        if engine.game.master_scene:
+            engine.scene.load(engine.game.master_scene)
+        self.visible = false
+        return
+    
+    # Get Eklips Node
     try:
         eklips = engine.scene.get_node_from_path("/Eklips")
     except:
         eklips = None
+    
+    # Rotate the ring
     self.rotation += delta * 150
 
+    # Check if rotated fully, then start fading out
     if self.rotation > 351:
         self.alpha -= delta * 150
-    if self.alpha < 0:
-        engine.scene.load(engine.game.master_scene)
+    
+    # Match Eklips alpha with Ring alpha
     if eklips:
-        eklips.alpha   = self.alpha
+        eklips.alpha = self.alpha

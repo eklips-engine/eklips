@@ -10,8 +10,7 @@ def show_error(error : Exception):
     info = get_info(error)
     if askyesno(
         "Eklips Engine", 
-        f"""
-Eklips has crashed with the traceback:
+        f"""Eklips has crashed with the traceback:
 
 {info}
 

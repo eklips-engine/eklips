@@ -24,8 +24,7 @@ class Script:
             
             "Transform": Transform,
             "export":    export,
-            "GameData":  GameData,
-            "export_":   export_
+            "GameData":  GameData
         }
         self.source_code     = "# Empty.. Please initialize the Script in your Object."
         self._function_queue = []

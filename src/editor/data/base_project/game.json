@@ -13,7 +13,7 @@
         "icon_file":  "res://media/icon.png"
     },
     "scenes": {
-        "master":  "res://scenes/master.scn",
+        "master":  null,
         "loading": "root://_assets/loading.scn"
     },
     
@@ -23,7 +23,7 @@
         "autoloads":     [],
         "autoload_name": "Autoload!~X",
 
-        "antialiasing": false
+        "antialiasing":  false
     },
     "language": {
         "langs": [],
