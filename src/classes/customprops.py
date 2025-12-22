@@ -1,5 +1,5 @@
 # Import libraries & components
-import json, pyglet    as pg
+import json, pyglet    as pg, sys
 from classes.locals    import *
 from typing_extensions import *
 from typing            import *
@@ -98,19 +98,44 @@ class WindowProperties:
 
 class GameData:
     def __init__(self, settings="settings.json"):
-        # Load settings
+        #### Settings file related
+        ### Load settings
         self.file_data    = json.loads(open(settings).read())
 
-        # Get data about what project to use
+        ### Get data about what project to use
         self.metadata     = self.file_data["project"]
 
-        # Get locations of everything
+        ## Get project itself
         self.project_file = self.metadata["file"]
-        self.project_data = json.loads(open(self.project_file).read())
         self.project_dir  = self.metadata["dir"]
+        
+        # Check if arguments decide otherwise ("-file ...", "-dir ...")
+        words = sys.argv
+        wrid  = 0
+        for current in words:
+            try:
+                after  = words[wrid+1]
+                before = words[wrid-1]
+            except:
+                after  = None
+                before = None
+            
+            if current.startswith("-"):
+                if after == None:
+                    wrid += 1
+                elif current == "-dir":
+                    self.project_dir = after
+                elif current == "-file":
+                    self.project_file = after
+            
+            wrid += 1
+
+        # Actually
         if self.project_dir == USE_GAME_PARENT:
             self.project_dir = "/".join(self.project_file.split("/")[:-1])
-        
+        self.project_data = json.loads(open(self.project_file).read())
+
+        #### Project file related
         # Get basic metadata
         self.name        = self.project_data["name"]
         self.version     = self.project_data["version"]["app"]
