@@ -65,6 +65,10 @@ def load_engine():
         loader.load(path)
         pg.font.load(name)
     
+    # Load cursors
+    for i in CURSORS:
+        cursors[i] = display.get_window().get_system_mouse_cursor(i)
+    
     # Set running flag to true
     running = True
 
@@ -106,7 +110,20 @@ def handle_closing():
     savefile.save_data()
     scene.free()
 
+def set_mouse(cursor, wid = MAIN_WINDOW):
+    """Set the mouse cursor.
+    
+    .. cursor:: One of the pre-defined system mouse cursors (`MOUSE_NORMAL`, `MOUSE_POINT`...)
+    .. wid:: The ID of the Window that should have this cursor. Defaults to `MAIN_WINDOW`.
+    """
+    window = display.get_window(wid)
+    window.set_mouse_cursor(cursors[cursor])
+
+def quit():
+    display.get_window().on_close()
+    
 # Variables
+cursors   : int                    = {}
 clock     : pg.clock.Clock         = None
 display   : ui.Display             = None
 game      : GameData               = None

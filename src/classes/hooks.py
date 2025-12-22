@@ -14,9 +14,15 @@ print(" ~ Modify pyglet.eventloop._redraw_windows")
 def newrwd(dt: float) -> None:
     # Redraw all windows
     for window in pg.app.windows.copy():
+        window : pg.window.BaseWindow
+
         if not window:    continue
         if window.closed: continue
-        window.draw(dt)
+        
+        try:
+            window.draw(dt)
+        except:
+            pass
 pg.app.event_loop._redraw_windows = newrwd
 
 print(" ~ Modify subprocess.Popen")

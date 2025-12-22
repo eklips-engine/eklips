@@ -237,7 +237,7 @@ class Scene(Object):
             return {"type":"Node", "obj": None}
 
     def get_node_from_path(self, nodepath, throw_error_if_failed : bool = False) -> Node:
-        """Get a Node using its path in the scene tree. (e.g. `root://foo/bar`)
+        """Get a Node using its path in the scene tree. (e.g. `/foo/bar`)
         
         .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
         .. throw_error_if_failed:: Throw an Error if it failed getting the Node."""

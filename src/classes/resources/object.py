@@ -94,8 +94,6 @@ class Object(metaclass=_exportmeta):
         
         exec(self._script.source_code, self._script._namespace, self._script._namespace)
 
-        self._onready()
-
     # Init
     def __init__(self, properties={}):
         self._name               = self.get_class_name()
@@ -156,6 +154,14 @@ class Object(metaclass=_exportmeta):
         """Call a function/signal from the attached Script after the Script has finished its process tick."""
         self._function_queue.append([function, args, is_signal])
 
+    def getvar(self, name, default = None):
+        """Get a variable from the attached Script."""
+        return self._script._namespace.get(name, default)
+
+    def setvar(self, name, value):
+        """Set a variable from the attached Script."""
+        self._script._namespace[name] = value
+
     def _process(self):
         """Run the `_process()` function on the Script and call queued functions. This is called every frame of the Object/Node's existence."""
         if not self._script:
@@ -186,3 +192,4 @@ class Object(metaclass=_exportmeta):
             if key in ["children","parent","signals","type"]:
                 continue
             self.set(key, self._properties_onready[key])
+        self._onready()
