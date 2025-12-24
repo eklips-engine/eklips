@@ -16,9 +16,6 @@ def newrwd(dt: float) -> None:
     for window in pg.app.windows.copy():
         window : pg.window.BaseWindow
 
-        if not window:    continue
-        if window.closed: continue
-        
         try:
             window.draw(dt)
         except:

@@ -16,16 +16,17 @@ class MediaPlayer(CanvasItem):
     This is a Node that can play video and audio globally.
     """
     def __init__(self, properties={}, parent=None, children=None):
-        self._media  : str                    = ""
-        self._playcounter : int               = 0
-        self._playing : bool                  = True
-        self._ogsize : list[int]              = [320,240]
-        self._volume : float | int            = 0
-        self._sound  : Sound                  = None
-        self._video  : engine.pvd.VideoPyglet = None
-        self.channel : Channel                = None
-        self._autostart : bool                = False
-        self._loops  : int                    = 0
+        self._media       : str                    = ""
+        self._playcounter : int                    = 0
+        self._rpop        : bool                   = True
+        self._playing     : bool                   = True
+        self._ogsize      : list[int]              = [320,240]
+        self._volume      : float | int            = 0
+        self._sound       : Sound                  = None
+        self._video       : engine.pvd.VideoPyglet = None
+        self.channel      : Channel                = None
+        self._autostart   : bool                   = False
+        self._loops       : int                    = 0
 
         super().__init__(properties, parent, children)
         self._make_new_sprite()
@@ -39,14 +40,24 @@ class MediaPlayer(CanvasItem):
         if self.auto_start:
             self.play()
     
-    @export(0,    "int",   "int")
+    @export(0,     "int",   "int")
     def loops(self) -> int:
         """How many times the Media should loop. Set to -1 for infinite."""
         return self._loops
     @loops.setter
     def loops(self, value): self._loops = value
 
-    @export(None, "str",   "file_path/med")
+    @export(True, "bool",  "bool")
+    def reset_playback_on_play(self) -> bool:
+        """If the playback should restart if the `play()` function is called.
+
+        If False, `play()` will return if `busy` is true.
+        If True, the playback will restart. This may lead to noise if `play()` is spammed."""
+        return self._rpop
+    @reset_playback_on_play.setter
+    def reset_playback_on_play(self, value): self._rpop = value
+
+    @export(None,  "str",   "file_path/med")
     def media(self) -> str:
         """Filepath of the attached media file. Read-write."""
         return self._media
@@ -76,9 +87,14 @@ class MediaPlayer(CanvasItem):
 
         .. keep_play_counter:: Internal argument to decide if the Node should play the attached Media file while keeping the `self._playcounter` value and not resetting it. This is manually used by the `loops` property.
         """
+
+        if self.busy and not self.reset_playback_on_play:
+            return
+
         self._playing     = True
         if not keep_play_counter:
             self._playcounter = 0
+        
         if self._sound:
             self.channel.play(self._sound)
         if self._video:
