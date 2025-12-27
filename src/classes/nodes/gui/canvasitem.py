@@ -85,21 +85,18 @@ class CanvasItem(Node, Transform):
             return
         self.sprite.x = x
         self.sprite.y = y
-    
     def _set_scale(self, x, y):
         if not self.sprite:
             return
         self.sprite.scale_x = x
-        self.sprite.scale_y = y
-    
+        self.sprite.scale_y = y  
     def _set_rot(self, deg):
         if not self.sprite:
             return
         self.sprite.rotation = deg
         if deg:
             self.sprite.image.anchor_x = self.w/4
-            self.sprite.image.anchor_y = self.h/4
-    
+            self.sprite.image.anchor_y = self.h/4 
     def _set_alpha(self, deg):
         if not self.sprite:
             return
@@ -121,9 +118,11 @@ class CanvasItem(Node, Transform):
         )
         return viewport
     def _remove_sprite(self):
-        if not self.sprite:
+        if not self.sprite and not engine.debug.sprite_always_visible:
             return
-        self.sprite.visible = False
+        viewport = self._get_viewport()
+        viewport._deallocate_sprite(self._sprite_id)
+        self.sprite = None
     def _make_new_sprite(self):
         """Request a new Sprite from the Viewport to use."""
         if self.sprite:

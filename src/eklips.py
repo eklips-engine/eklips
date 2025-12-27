@@ -37,7 +37,7 @@ def on_draw():
         engine.keyboard.pressed.clear()
     except Exception as error:
         engine.error_handler.show_error(error)
-        main_window.on_close()
+        engine.quit()
 
 # Start the engine
 pg.app.run()

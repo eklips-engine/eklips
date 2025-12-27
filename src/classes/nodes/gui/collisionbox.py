@@ -28,11 +28,11 @@ class CollisionBox(ColorRect):
         self.rid   = self.world.add(self)
     
     def _free(self):
-        super()._free()
         self.world.delete(self.rid)
+        super()._free()
     
     def draw(self, image):
-        if engine.debug.shapes_visible and engine.debug.enabled:
+        if engine.debug.shapes_visible:
             super().draw(image)
     
     def aabb(self):

@@ -12,20 +12,29 @@ class Label(CanvasItem, Color):
     _can_check_layer       = True
     sprite : pg.text.Label = None
 
-    @export("Label","str","str")
-    def text(self) -> str: return self.sprite.text
+    @export("dolorem ipsum","str","str")
+    def text(self) -> str: return self._text
     @text.setter
-    def text(self, value): self.sprite.text = value
+    def text(self, value):
+        self._text = value
+        if self.sprite:
+            self.sprite.text = value
 
     @export(DEFAULT_FONT_NAME,"str","font")
-    def font(self) -> str: return self.sprite.font_name
+    def font(self) -> str: return self._fname
     @font.setter
-    def font(self, value): self.sprite.font_name = value
+    def font(self, value):
+        self._fname = value
+        if self.sprite:
+            self.sprite.font_name = value
 
     @export(DEFAULT_FONT_SIZE,"float/int","float/int")
-    def font_size(self) -> float | int: return self.sprite.font_size
+    def font_size(self) -> float | int: return self._fsize
     @font_size.setter
-    def font_size(self, value):         self.sprite.font_size = value
+    def font_size(self, value):
+        self._fsize = value
+        if self.sprite:
+            self.sprite.font_size = value
 
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:
@@ -39,6 +48,9 @@ class Label(CanvasItem, Color):
     
     def __init__(self, properties={}, parent=None, children=None):
         Color.__init__(self, 255,255,255)
+        self._text  = "dolorem ipsum"
+        self._fsize = DEFAULT_FONT_SIZE
+        self._fname = DEFAULT_FONT_NAME
 
         super().__init__(properties, parent, children)
         self._make_new_sprite()
@@ -62,9 +74,11 @@ class Label(CanvasItem, Color):
         )
     
     def _remove_sprite(self):
-        if not self.sprite:
+        if not self.sprite and not engine.debug.sprite_always_visible:
             return
-        self.sprite.visible = False
+        viewport = self._get_viewport()
+        viewport._deallocate_label(self._sprite_id)
+        self.sprite = None
     def _make_new_sprite(self):
         if self.sprite:
             self._remove_sprite()

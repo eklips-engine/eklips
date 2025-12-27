@@ -104,11 +104,11 @@ class Scene(Object):
         if not exclude_self:
             out.append(nodepath)
         
-        node     = self.get_node_entry_from_path(nodepath)
-        children = node.get("children",{}).keys()
-
+        children = self.get_node_entry_from_path(nodepath).get("children", {})
+        
         for child in children:
             self.get_node_paths(f"{nodepath}/{child}", False, out)
+        
         return out
         
     def load(self, path):
@@ -122,6 +122,8 @@ class Scene(Object):
         
         .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
         .. throw_error_if_failed:: Throw an Error if it failed getting the parent."""
+        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
+            nodepath = "/" + nodepath
         parts    = nodepath.split("/")
         try:
             current = self.nodes[parts[0]] # Get Root node
@@ -130,16 +132,37 @@ class Scene(Object):
                     current = current["children"][name] # Get the previous iter.'s child
                 except Exception as error:
                     raise error
-            return current # Return the parent
+            return current.get("obj", None) # Return the parent
         except Exception as error:
             if throw_error_if_failed:
                 raise SceneError(f"Tried to get node entry {nodepath}'s parent but failed")
     
-    def get_node_children(self, nodepath):
-        """Get a Nodes children. Same as `get_nodes(nodepath, exclude_self=True)`
+    def get_node_children(self, nodepath, throw_error_if_failed=False):
+        """Get a Nodes children.
         
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)"""
-        return self.get_nodes(nodepath, exclude_self=True)
+        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+        .. throw_error_if_failed:: Throw an Error if it failed getting the children."""
+        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
+            nodepath = "/" + nodepath
+        parts    = nodepath.split("/")
+        try:
+            current = self.nodes[parts[0]] # Get Root node
+            for name in parts[1:]:         # Go through the Nodes in the path
+                try:
+                    current = current["children"][name] # Get the previous iter.'s child
+                except Exception as error:
+                    raise error
+            
+            # Iter thru children
+            children_obj = []
+            children     = current.get("children", {})
+
+            for child in children:
+                children_obj.append(children[child].get("obj", None))
+            return children_obj # Return the children
+        except Exception as error:
+            if throw_error_if_failed:
+                raise SceneError(f"Tried to get node entry {nodepath}'s children but failed")
     
     def _initialize_node_entry(self, nodepath):
         node = self.get_node_entry_from_path(nodepath)
@@ -181,9 +204,11 @@ class Scene(Object):
         .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
         .. throw_error_if_failed:: Throw an Error if it failed making the Node."""
 
+        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
+            nodepath = "/" + nodepath
         parts    = nodepath.split("/")
         try:
-            current = self.nodes[parts[0]] # Get Root node
+            current = self.nodes[parts[0]]     # Get Root node
             for name in parts[1:][:-1]:    # Go through the Nodes in the path besides the one we're making
                 try:
                     current = current["children"][name] # Get the previous iter.'s child
@@ -220,10 +245,13 @@ class Scene(Object):
         .. throw_error_if_failed:: Throw an Error if it failed getting the Node."""
         if nodepath == "": return self.nodes[""]
 
+        if len(nodepath.split("/")) == 1:
+            nodepath = "/" + nodepath
+        
         parts    = nodepath.split("/")
         try:
             current = self.nodes[parts[0]] # Get Root node
-            for name in parts[1:]:         # Go through the rest
+            for name in parts[1:]:         # Go through the Nodes in the path
                 try:
                     current = current["children"][name] # Get the previous iter.'s child
                 except Exception as error:
@@ -255,25 +283,29 @@ class Scene(Object):
 
         .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
         .. throw_error_if_failed:: Throw an Error if it failed deleting the Node."""
+        if nodepath == "":
+            return print("I fear your intentions.")
         
         parts    = nodepath.split("/")
+        if len(nodepath.split("/")) == 1:
+            nodepath = "/" + nodepath
+        
         try:
-            current = self.nodes[parts[0]] # Get Root node
-            for name in parts[1:][:-1]:    # Go through the Nodes in the path besides the one we're making
+            current = self.nodes[parts[0]]         # Get Root node
+            for name in parts[1:][:-1]:        # Go through the Nodes in the path besides the one we're making
                 try:
                     current = current["children"][name] # Get the previous iter.'s child
                 except Exception as error:
-                    raise error
+                    raise error    
+            node : Label = current["children"][parts[-1]].get("obj")
             
             # Now we can delete the Node and remove it eternally
-            node : Node = current["children"][parts[-1]]
-            node.free()
-
+            if node:
+                node._free()
             current["children"].pop(parts[-1])
         except Exception as error:
             if throw_error_if_failed:
-                raise SceneError(f"Tried to make node entry {nodepath} but failed")
-            return
+                raise SceneError(f"Tried to delete node entry {nodepath} but failed")
         
         # Recompile list of nodes
         self._temp_node_list = self.get_node_paths("")
@@ -292,17 +324,20 @@ class Scene(Object):
     def update(self):
         if self.paused:
             return
+        
+        # Update nodes
         try:
             for nodepath in self._temp_node_list:
                 node = self.get_node_from_path(nodepath)
-                if not node:
-                    continue
-                if not node._runnable:
-                    self._delete_node(nodepath)
+                if not node or not node._runnable:
+                    self.delete_node(nodepath)
                     continue
                 node.update()
         except Exception as error:
             raise error
+
+        x = ""
+        for node in self._temp_node_list: x += f"{node[:6]} "
 
         ## Things you can't do in the for loop above me without causing trouble
         if self._marked_scene_chng:

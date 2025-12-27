@@ -1,6 +1,6 @@
-enabled               = False
+enabled               = True
 
-shapes_visible        = True
-fps_visible           = True
-path_visible          = True
-sprite_always_visible = True
+shapes_visible        = True and enabled
+fps_visible           = True and enabled
+path_visible          = True and enabled
+sprite_always_visible = True and enabled

@@ -9,7 +9,9 @@ import sys
 import threading
 import warnings
 import pyglet as pg
+from classes.ui import *
 
+## Pyglet event loop
 print(" ~ Modify pyglet.eventloop._redraw_windows")
 def newrwd(dt: float) -> None:
     # Redraw all windows
@@ -22,6 +24,31 @@ def newrwd(dt: float) -> None:
             pass
 pg.app.event_loop._redraw_windows = newrwd
 
+## FPS Display
+class HookFPSDisplay(pg.window.FPSDisplay):
+    def __init__(self, window : EklipsWindow, color = [255,255,255,255], samples = 240):
+        super().__init__(window, color, samples)
+
+        self.window   : EklipsWindow  = window
+        self.viewport : Viewport      = window.eklips_viewport
+        self.label, self.lbl_id       = self.viewport._allocate_label()
+
+        self.label.x, self.label.y    = 0,0
+        self.label.color              = color
+
+        self.transform                = engine.Transform()
+        self.group                    = pg.graphics.Group(order=999)
+    
+    def draw(self):
+        engine.display.blit_label(
+            self.label.text,
+            self.transform,
+            self.label,
+            self.window.wid,
+            self.group
+        )
+
+## Subprocess
 print(" ~ Modify subprocess.Popen")
 print(" | ~ Save original Popen")
 ogpopen = subprocess.Popen

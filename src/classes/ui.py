@@ -205,8 +205,8 @@ class Viewport:
 
         self.sprites : list[pg.sprite.Sprite] = []
         self.labels  : list[pg.text.Label]    = []
-        self.used_labels                      = []
-        self.used_sprites                     = []
+        self.used_labels                      = {}
+        self.used_sprites                     = {}
         self._base_img                        = engine.loader.load("root://_assets/error.png")
 
     def _make_framebuffer(self):
@@ -293,48 +293,59 @@ class Viewport:
         sprite.visible = False
         i              = len(self.sprites)
         self.sprites.append(sprite)
+        self.used_sprites[i] = False
         return sprite, i
-    def delete_sprite(self, sprite_id : int):
-        if not sprite_id in self.sprites:
-            return
-        self.sprites[sprite_id].delete()
-        self.sprites.pop(sprite_id)
-        gc.collect()
-    def _allocate_sprite(self, batch_id=MAIN_BATCH):
-        i = 0
-        for sprite in self.sprites:
-            if not i in self.used_sprites:
-                self.used_sprites.append(i)
-                return sprite, i
-            i += 1
-        
-        sprite, i = self._make_new_sprite(batch_id)
-        self.used_sprites.append(i)
-        return sprite, i
-
     def _make_new_label(self, batch_id=MAIN_BATCH):
         label         = pg.text.Label(batch = self.batches[batch_id])
         label.visible = False
         i             = len(self.labels)
         self.labels.append(label)
+        self.used_labels[i] = False
         return label, i
+
     def delete_label(self, label_id : int):
         if not label_id in self.labels:
             return
         self.labels[label_id].delete()
-        self.labels.pop(label_id)
+        self.used_labels[sprite_id] = False
         gc.collect()
+    def delete_sprite(self, sprite_id : int):
+        if not sprite_id in self.sprites:
+            return
+        self.sprites[sprite_id].delete()
+        self.used_sprites.pop(sprite_id)
+        self.used_sprites[sprite_id] = False
+        gc.collect()
+    
     def _allocate_label(self, batch_id=MAIN_BATCH):
         i = 0
         for label in self.labels:
-            if not i in self.used_labels:
-                self.used_labels.append(i)
+            if not self.used_labels[i]:
+                self.used_labels[i] = True
                 return label, i
             i += 1
         
         label, i = self._make_new_label(batch_id)
-        self.used_labels.append(i)
+        self.used_labels[i] = True
         return label, i
+    def _allocate_sprite(self, batch_id=MAIN_BATCH):
+        i = 0
+        for sprite in self.sprites:
+            if not self.used_sprites[i]:
+                self.used_sprites[i] = True
+                return sprite, i
+            i += 1
+        
+        sprite, i = self._make_new_sprite(batch_id)
+        self.used_sprites[i] = True
+        return sprite, i
+    
+    def _deallocate_sprite(self, sprite_id):
+        self.sprites[sprite_id].visible = False
+        self.used_sprites[sprite_id] = False
+    def _deallocate_label(self, label_id):
+        self.labels[label_id].visible = False
+        self.used_labels[label_id] = False
     
     def set_background(self, r=0,g=0,b=0, a=1):
         """
@@ -351,13 +362,6 @@ class Viewport:
             (b+ZDE_FIX) / 255,
             (a+ZDE_FIX) / 255
         ]
-    def clear(self):
-        for label in self.labels:
-            label.visible = False
-        for sprite in self.sprites:
-            sprite.visible = False
-        self.used_sprites.clear()
-        self.used_labels.clear()
     def flip(self):
         """
         Draw viewport contents to the window and flip it if the viewport is its master.
@@ -377,11 +381,10 @@ class Viewport:
         if self._background[:3] != [0,0,0]:
             glClearColor(*self._background)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        
+
         # Draw batches for this Viewport and unbind buffer
         for batch in self.batches:
             batch.draw()
-        self.clear()
         self.framebuffer.unbind()
         
         # Draw Viewport to Window
@@ -420,7 +423,8 @@ class Display:
         minimum_size   : None | list[int]       = [648,648],
         maximum_size   : None | list[int]       = None,
         wid            : int                    = AUTOMATICALLY_CREATE,
-        visible        : bool                   = True
+        visible        : bool                   = True,
+        fpsvisible     : bool                   = False
     ) -> int:
         """
         Add a new Window, returns its Window ID.
@@ -435,6 +439,7 @@ class Display:
         .. maximum_size:: List of the maximum size the window can be, or None if you dont want a limit.
         .. wid:: Create the window in a predetermined window ID if the argument is not AUTOMATICALLY_CREATE.
         .. visible:: Make the window visible if True. Defaults to True.
+        .. fpsvisible:: Show the FPS if True.
         """
 
         # Fix properties
@@ -475,13 +480,14 @@ class Display:
 
         # Set Window's viewport to the one we just made
         window.eklips_viewport = viewport
-
+        
         # Make the Window entry
         self.windows[wid] = {
-            "name": name,
+            "name":       name,
 
             "window":     window,
             "viewport":   viewport,
+            "fpsd":       None,
 
             "batches":    [],
             "main_batch": None
@@ -491,6 +497,12 @@ class Display:
         self.add_batch(wid)
         viewport.batches = self.windows[wid]["batches"]
 
+        # Add FPS Display
+        if fpsvisible or engine.debug.fps_visible:
+            fpsd = engine.hooks.HookFPSDisplay(window, [255,255,255,127])
+            self.windows[wid]["fpsd"] = fpsd
+
+        # Return Window ID
         return wid
     
     def clear_window(self, wid : int = MAIN_WINDOW):
