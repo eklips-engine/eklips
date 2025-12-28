@@ -4,6 +4,7 @@ import gc, types
 from classes.locals       import *
 from classes.fakes.script import _ScriptDoc
 from classes.customprops  import export, _exportmeta
+from classes.log          import *
 
 # Classes
 class ScriptError(Exception):

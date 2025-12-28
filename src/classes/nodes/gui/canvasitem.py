@@ -31,12 +31,13 @@ class CanvasItem(Node, Transform):
     (NOTE: The reason why `tsize` is called that because
     anytree's NodeMixin uses a size property..)
     """
-    _can_check_layer = True
+    _can_check_layer                            = True
     _drawing_bid : int                          = 0
     _drawing_wid : int                          = 0
     _sprite_id   : int                          = 0
     sprite       : pg.sprite.Sprite             = None
-    images       : list[pg.image.AbstractImage] = []
+    _imagesid    : int                          = 0
+    _images      : list[pg.image.AbstractImage] = []
     _image       : pg.image.AbstractImage       = None
     _ignore_size_if_drawing                     = False
 
