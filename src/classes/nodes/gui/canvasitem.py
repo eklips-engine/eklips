@@ -37,12 +37,13 @@ class CanvasItem(Node, Transform):
     _sprite_id   : int                          = 0
     sprite       : pg.sprite.Sprite             = None
     _imagesid    : int                          = 0
-    _images      : list[pg.image.AbstractImage] = []
+    _images      : dict[pg.image.AbstractImage] = {}
     _image       : pg.image.AbstractImage       = None
     _ignore_size_if_drawing                     = False
 
     @property
-    def image(self): return self._image
+    def image(self):
+        return self._image
     @image.setter
     def image(self, value):
         self._image = value
@@ -50,11 +51,11 @@ class CanvasItem(Node, Transform):
             self.sprite.image = value
     
     @export([False, False], "list", "vector2/wh")
-    def imgflip(self): return self._imgflip
-    @imgflip.setter
-    def imgflip(self, value : list):
-        self._imgflip = value
-        # XXX to be implemented because pyglet Images just don't want to have `flip_x` ARGHH
+    def flip(self):
+        return [self.flip_w, self.flip_h]
+    @flip.setter
+    def flip(self, value : list):
+        self.flip_w, self.flip_h = value
 
     def __init__(self, properties={}, parent=None, children=None):
         engine.Transform.__init__(self)
@@ -86,6 +87,8 @@ class CanvasItem(Node, Transform):
     def draw(self, image):
         """Draw the Node's image. This is usually called automatically."""
         if image:
+            if image != self.sprite.image:
+                self.sprite.image = image
             self.w, self.h = image.width, image.height
             self._draw()
 

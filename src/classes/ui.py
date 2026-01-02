@@ -2,10 +2,10 @@
 import pyglet as pg, gc, time, pygame
 
 # Import components
-import classes.singleton as engine
-from classes.locals      import *
-from classes.customprops import *
-from pyglet.gl           import *
+import classes.singleton     as engine
+from classes.locals          import *
+from classes.customprops     import *
+from pyglet.gl               import *
 
 # Functions
 def set_anti_aliasing(yn : bool):
@@ -36,7 +36,7 @@ black = [0,0,0]
 white = [255,255,255]
 
 # Classes
-class EklipsWindow(pg.window.Window):
+class EklWindow(pg.window.Window):
     def __init__(
         self,
         width      : int | None                   = None,
@@ -203,7 +203,7 @@ class Viewport:
         self.framebuffer           = None
         self.color_buffer          = None
         self.depth_buffer          = None
-        self.window : EklipsWindow = None
+        self.window : EklWindow = None
         self._closing              = False
         self.batches               = batches
 
@@ -239,8 +239,9 @@ class Viewport:
         NOTE: This takes a while since the framebuffer has to be remade to be
         apart of the windows context.
 
-        .. window:: Window object (engine.ui.EklipsWindow).
-        .. master:: If the Window is linked to the Viewport. Defaults to False.
+        Args:
+            window: Window object (engine.ui.EklWindow).
+            master: If the Window is linked to the Viewport. Defaults to False.
         """
         # Set variables
         self.window           = window
@@ -355,10 +356,11 @@ class Viewport:
         """
         Set the background color of the Viewport.
 
-        .. r:: Red value of the background color (0-255).
-        .. g:: Green value of the background color (0-255).
-        .. b:: Blue value of the background color (0-255).
-        .. a:: Alpha of the background color (0-255).
+        Args:
+            r: Red value of the background color (0-255).
+            g: Green value of the background color (0-255).
+            b: Blue value of the background color (0-255).
+            a: Alpha of the background color (0-255).
         """
         self._background = [
             (r+ZDE_FIX) / 255,
@@ -476,17 +478,18 @@ class Display:
         """
         Add a new Window, returns its Window ID.
 
-        .. name:: Title of the window.
-        .. size:: Size of the window.
-        .. viewport_size:: Size of the window's viewport. Use constant `VIEWPORT_EQUAL_WINDOW` to make the Viewport size equal the Window size.
-        .. viewport_color:: Background color of the viewport.
-        .. icon:: Image resource of the Window Icon, or None.
-        .. resizable:: Allow the window to be resizable if True.
-        .. minimum_size:: List of the minimum size the window can be, or None if you dont want a limit.
-        .. maximum_size:: List of the maximum size the window can be, or None if you dont want a limit.
-        .. wid:: Create the window in a predetermined window ID if the argument is not AUTOMATICALLY_CREATE.
-        .. visible:: Make the window visible if True. Defaults to True.
-        .. fpsvisible:: Show the FPS if True.
+        Args:
+            name: Title of the window.
+            size: Size of the window.
+            viewport_size: Size of the window's viewport. Use constant `VIEWPORT_EQUAL_WINDOW` to make the Viewport size equal the Window size.
+            viewport_color: Background color of the viewport.
+            icon: Image resource of the Window Icon, or None.
+            resizable: Allow the window to be resizable if True.
+            minimum_size: List of the minimum size the window can be, or None if you dont want a limit.
+            maximum_size: List of the maximum size the window can be, or None if you dont want a limit.
+            wid: Create the window in a predetermined window ID if the argument is not AUTOMATICALLY_CREATE.
+            visible: Make the window visible if True. Defaults to True.
+            fpsvisible: Show the FPS if True.
         """
 
         # Fix properties
@@ -501,7 +504,7 @@ class Display:
             self.main_window_id = wid
         
         # Create Window
-        window        = EklipsWindow(
+        window        = EklWindow(
             width     = size[0],
             height    = size[1],
             caption   = name,
@@ -556,7 +559,8 @@ class Display:
         """
         Clear the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         if not (self.windows and self.windows.get(wid, None)):
             return
@@ -577,7 +581,8 @@ class Display:
         """
         Flip the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         if not (self.windows and self.windows.get(wid, None)):
             return
@@ -604,7 +609,8 @@ class Display:
         """
         Close the window `wid` after updating.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         self._doomed.append(wid)
     
@@ -612,7 +618,8 @@ class Display:
         """
         Close the window `wid` immediately.
 
-        .. wid:: ID of Window.
+        Args:
+            wid: ID of Window.
         """
         if not (self.windows and self.windows.get(wid, None)):
             return
@@ -634,8 +641,9 @@ class Display:
         """
         Close all windows and their viewports.
 
-        .. forced:: If true, close the window immediately. This may cause issues.
-        .. blacklist:: List of Window IDs to NOT. CLOSE.
+        Args:
+            forced: If true, close the window immediately. This may cause issues.
+            blacklist: List of Window IDs to NOT. CLOSE.
         """
         for wid in self.windows.copy():
             if wid in blacklist:
@@ -649,7 +657,8 @@ class Display:
         """
         Dispatch the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         if not (self.windows and self.windows.get(wid, None)):
             return
@@ -664,7 +673,8 @@ class Display:
         """
         Add a batch to Window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         if not (self.windows and self.windows.get(wid, None)):
             return
@@ -677,11 +687,12 @@ class Display:
         self.windows[wid]["batches"] = window_data["batches"]
         return bid
 
-    def get_window(self, wid : int = MAIN_WINDOW) -> EklipsWindow:
+    def get_window(self, wid : int = MAIN_WINDOW) -> EklWindow:
         """
         Get the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
         """
         return self.windows.get(wid, {"window": None})["window"]
 
@@ -689,8 +700,9 @@ class Display:
         """
         Get the viewport `vid` from the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
-        .. vid:: ID of Viewport. Defaults to MAIN_VIEWPORT. (Unused since Windows can't have multiple viewports for now)
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
+            vid: ID of Viewport. Defaults to MAIN_VIEWPORT. (Unused since Windows can't have multiple viewports for now)
         """
         return self.windows.get(wid, {"viewport": None})["viewport"]
 
@@ -698,8 +710,9 @@ class Display:
         """
         Get the batch `bid` from the window `wid`.
 
-        .. wid:: ID of Window. Defaults to MAIN_WINDOW.
-        .. bid:: ID of Batch. Defaults to MAIN_BATCH.
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
+            bid: ID of Batch. Defaults to MAIN_BATCH.
         """
         return self.windows.get(wid, {"batches": {bid: None}})["batches"][bid]
     
@@ -719,10 +732,15 @@ class Display:
         
         You must also pass a Transform object, you can get this by either manually creating one yourself or running `Transform.new(...)`.
 
-        .. transform:: Transform object to tell where the image is drawn.
-        .. sprite:: Pyglet Sprite with the Batch set properly.
-        .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
-        .. group:: Pyglet Group. Defaults to None.
+        Args:
+            transform:
+                `Transform` object to tell where the image is drawn.
+            sprite:
+                `EklImage` Sprite with the Batch set properly.
+            window_id:
+                ID of Window to draw. Defaults to `MAIN_WINDOW`.
+            group:
+                Pyglet `Group`. Defaults to `None`.
         """
         if not transform.visible:
             return
@@ -744,6 +762,14 @@ class Display:
         # Get sprite's dimensions
         w,h             = transform.tsize
         scale_x,scale_y = transform.scale
+
+        # Set image's flip values properly
+        if transform.flip_w or transform.flip_h:
+            sprite.image = sprite.image.flip(transform.flip_w, transform.flip_h)
+            if transform.flip_w:
+                x += w
+            if transform.flip_h:
+                y += h
         
         # Set image's region (if it isn't None)
         if region != None:
@@ -791,13 +817,14 @@ class Display:
         
         You must also pass a Transform object, you can get this by either manually creating one yourself or running `Transform.new(...)`.
 
-        .. text:: Read the property silly
-        .. transform:: Transform object to tell where the image is drawn.
-        .. label:: Pyglet Label with the Batch set properly.
-        .. window_id:: ID of Window to draw. Defaults to MAIN_WINDOW.
-        .. group:: Pyglet Group. Defaults to None.
-        .. font_name:: Read the property silly... Defaults to DEFAULT_FONT_NAME ("Arial")
-        .. font_size:: Read the property silly... Defaults to DEFAULT_FONT_SIZE (12.5)
+        Args:
+            text: Read the property silly
+            transform: Transform object to tell where the image is drawn.
+            label: Pyglet Label with the Batch set properly.
+            window_id: ID of Window to draw. Defaults to MAIN_WINDOW.
+            group: Pyglet Group. Defaults to None.
+            font_name: Read the property silly. Defaults to DEFAULT_FONT_NAME ("Arial")
+            font_size: Read the property silly. Defaults to DEFAULT_FONT_SIZE (12.5)
         """
         if not text:
             return 0,0

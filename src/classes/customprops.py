@@ -50,9 +50,10 @@ def export(default=None, type_=None, hint=None):
     really wanna type in `export.set_metadata(..)` every time you
     wanna make an export property instead of just `@export(..)`?
     
-    .. default:: The default value to use.
-    .. type:: The name of the type that the value should be (int, str, list, bool...)
-    .. hint:: How to display this property in the editor (int, float, int/float, float/int, str, file_path/xxx, color, slider, font, bool)
+    Args:
+        default: The default value to use.
+        type: The name of the type that the value should be (int, str, list, bool...)
+        hint: How to display this property in the editor (int, float, int/float, float/int, str, file_path/xxx, color, slider, font, bool)
     """
     def wrapper(func):
         return _export(
@@ -167,6 +168,9 @@ class Transform:
         self._w = 10
         self._h = 10
 
+        self._flip_w = 0
+        self._flip_h = 0
+        
         self._offset_x = 0
         self._offset_y = 0
 
@@ -215,8 +219,18 @@ class Transform:
     
     @property
     def alpha(self): return self._alpha
-    
+
+    @property
+    def flip_w(self): return self._flip_w
+    @property
+    def flip_h(self): return self._flip_h
+
     # Setters
+    @flip_w.setter
+    def flip_w(self, val): self._flip_w = val
+    @flip_h.setter
+    def flip_h(self, val): self._flip_h = val
+    
     @alpha.setter
     def alpha(self, value):
         self._alpha = value

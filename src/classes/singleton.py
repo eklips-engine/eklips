@@ -83,10 +83,12 @@ def is_action_pressed(entry) -> bool:
             action_is_key = (not action in MOUSE_BUTTONS)
 
             if action_is_key:
-                if (action in keyboard.held and action_data["holdable"]):
+                if (
+                    (action in keyboard.held and action_data["holdable"])
+                    or
+                    (action in keyboard.pressed and not action_data["holdable"])
+                   ):
                     return keyboard.held[action]
-                if (action in keyboard.pressed and not action_data["holdable"]):
-                    return True
             else:
                 if mouse.buttons[action]: return True
     return False
@@ -114,8 +116,9 @@ def handle_closing():
 def set_mouse(cursor, wid = MAIN_WINDOW):
     """Set the mouse cursor.
     
-    .. cursor:: One of the pre-defined system mouse cursors (`MOUSE_NORMAL`, `MOUSE_POINT`...)
-    .. wid:: The ID of the Window that should have this cursor. Defaults to `MAIN_WINDOW`.
+    Args:
+        cursor: One of the pre-defined system mouse cursors (`MOUSE_NORMAL`, `MOUSE_POINT`...)
+        wid: The ID of the Window that should have this cursor. Defaults to `MAIN_WINDOW`.
     """
     window = display.get_window(wid)
     window.set_mouse_cursor(cursors[cursor])

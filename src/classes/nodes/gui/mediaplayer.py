@@ -85,7 +85,9 @@ class MediaPlayer(CanvasItem):
         """
         Play the attached Media file using the Node's properties.
 
-        .. keep_play_counter:: Internal argument to decide if the Node should play the attached Media file while keeping the `self._playcounter` value and not resetting it. This is manually used by the `loops` property.
+        Args:
+            keep_play_counter:
+                Internal argument to decide if the Node should play the attached Media file while keeping the `self._playcounter` value and not resetting it. This is manually used by the `loops` property.
         """
 
         if self.busy and not self.reset_playback_on_play:

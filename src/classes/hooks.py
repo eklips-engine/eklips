@@ -26,10 +26,10 @@ pg.app.event_loop._redraw_windows = newrwd
 
 ## FPS Display
 class HookFPSDisplay(pg.window.FPSDisplay):
-    def __init__(self, window : EklipsWindow, color = [255,255,255,255], samples = 240):
+    def __init__(self, window : EklWindow, color = [255,255,255,255], samples = 240):
         super().__init__(window, color, samples)
 
-        self.window   : EklipsWindow  = window
+        self.window   : EklWindow  = window
         self.viewport : Viewport      = window.eklips_viewport
         self.label, self.lbl_id       = self.viewport._allocate_label()
 

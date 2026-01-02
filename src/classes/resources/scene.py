@@ -96,9 +96,10 @@ class Scene(Object):
     def get_node_paths(self, nodepath, exclude_self=False, out=None):
         """Get a list of this Nodes children. (e.g. `["root://foo/bar", ...]`)
         
-        .. nodepath:: Path of the node in the scene tree.
-        .. exclude_self:: Whether to add the passed Node to the list or not.
-        .. out:: The list to place the Nodes children. Defaults to None and SHOULD be None."""
+        Args:
+            nodepath: Path of the node in the scene tree.
+            exclude_self: Whether to add the passed Node to the list or not.
+            out: The list to place the Nodes children. Defaults to None and SHOULD be None."""
 
         if out == None: out = []
         if not exclude_self:
@@ -113,15 +114,17 @@ class Scene(Object):
         
     def load(self, path):
         """Load a scene file.
-        
-        .. path:: Path of the scene in the filesystem (`res://`, `root://`, `user://`)"""
+   
+        Args:     
+            path: Path of the scene in the filesystem (`res://`, `root://`, `user://`)"""
         self._marked_scene_chng = path
     
     def get_node_parent(self, nodepath, throw_error_if_failed=False):
         """Get a Nodes parent.
-        
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed getting the parent."""
+
+        Args:
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the parent."""
         if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
             nodepath = "/" + nodepath
         parts    = nodepath.split("/")
@@ -139,9 +142,10 @@ class Scene(Object):
     
     def get_node_children(self, nodepath, throw_error_if_failed=False):
         """Get a Nodes children.
-        
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed getting the children."""
+
+        Args:     
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the children."""
         if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
             nodepath = "/" + nodepath
         parts    = nodepath.split("/")
@@ -192,17 +196,19 @@ class Scene(Object):
     def add_node(self, data, nodepath="/test", throw_error_if_failed=False):
         """Add a node with parameters after the scene has finished updating.
         
-        .. data:: The node's properties.
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed making the Node."""
+        Args:
+            data: The node's properties.
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed making the Node."""
         self._blessed.append([data, nodepath, throw_error_if_failed])
     
     def _add_node(self, data, nodepath="", throw_error_if_failed=False) -> int:
         """Add a node with parameters. Returns the Node object.
         
-        .. data:: The node's properties.
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed making the Node."""
+        Args:
+            data: The node's properties.
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed making the Node."""
 
         if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
             nodepath = "/" + nodepath
@@ -225,9 +231,10 @@ class Scene(Object):
     
     def get_nodes(self, nodepath=USE_SCENE_TREE, exclude_self=False) -> list[str]:
         """Get a list of each Node in the scene tree or a node entry. (e.g. `[Node2D(path='/'), ...]`)
-        
-        .. node:: The node to get a list of each child of using its node path.
-        .. exclude_self:: Whether to add the passed Node to the list or not."""
+     
+        Args:   
+            node: The node to get a list of each child of using its node path.
+            exclude_self: Whether to add the passed Node to the list or not."""
         if nodepath == USE_SCENE_TREE: nodepath = ""
 
         nodepaths = self.get_node_paths(nodepath, exclude_self=False)
@@ -240,9 +247,10 @@ class Scene(Object):
 
     def get_node_entry_from_path(self, nodepath : str, throw_error_if_failed : bool = False) -> dict:
         """Get a Node's data using its path in the scene tree. (e.g. `{"type": "Node2D", "transform": {...}, ...}`)
-        
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed getting the Node."""
+       
+        Args: 
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the Node."""
         if nodepath == "": return self.nodes[""]
 
         if len(nodepath.split("/")) == 1:
@@ -267,22 +275,25 @@ class Scene(Object):
     def get_node_from_path(self, nodepath, throw_error_if_failed : bool = False) -> Node:
         """Get a Node using its path in the scene tree. (e.g. `/foo/bar`)
         
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed getting the Node."""
+        Args:
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the Node."""
         return self.get_node_entry_from_path(nodepath, throw_error_if_failed).get("obj", None)
 
     def delete_node(self, nodepath, throw_error_if_failed = False):
         """Mark a Node to be deleted after the scene is updated using its path.
         
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed deleting the Node."""
+        Args:
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed deleting the Node."""
         self._doomed.append([nodepath, throw_error_if_failed])
     
     def _delete_node(self, nodepath, throw_error_if_failed = False):
         """Delete a Node using its path.
 
-        .. nodepath:: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-        .. throw_error_if_failed:: Throw an Error if it failed deleting the Node."""
+        Args:
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed deleting the Node."""
         if nodepath == "":
             return
         

@@ -10,6 +10,7 @@ print(" ~ Importing all resources")
 from classes.resources.object import *
 from classes.resources.script import *
 from classes.resources.scene  import *
+from classes.resources.image  import *
 
 # Classes
 class Loader:
@@ -21,7 +22,8 @@ class Loader:
         "sfx": ["mp3","ogg","wav"],
         "txt": ["py","txt","ekl"],
         "jsn": ["json","scn","res"],
-        "vid": ["mp4","webm","gif"],
+        "vid": ["mp4","webm"],
+        "ani": ["gif"],
         "fnt": ["ttf","otf"]
     }
 
@@ -37,7 +39,7 @@ class Loader:
         
         try:
             if ext in self.extensions["img"]:
-                return pg.image.load(actual_path)
+                return cnveklimg(pg.image.load(actual_path))
             if ext in self.extensions["sfx"]:
                 return pygame.Sound(actual_path)
             if ext in self.extensions["txt"]:
@@ -48,9 +50,9 @@ class Loader:
                 return engine.pvd.VideoPyglet(actual_path)
             if ext in self.extensions["fnt"]:
                 pg.font.add_file(actual_path)
-                return 
-        except:
-            pass
+                return
+        except Exception as error:
+            print(error)
         
         return None
     

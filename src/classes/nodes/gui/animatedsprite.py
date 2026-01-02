@@ -21,8 +21,8 @@ class AnimatedSprite(CanvasItem):
         Add a sprite by using `add_sprite_from_animation()`,
         and remove one using `remove_sprite_from_animation()`.
 
-        .. note:: `remove_sprite_from_animation()` and `_remove_sprite` are not the same."""
-        return self._images
+        .. note::`remove_sprite_from_animation()` and `_remove_sprite` are not the same."""
+        return self._images.values()
     @image_paths.setter
     def image_paths(self, paths : list):
         self._images = {}
@@ -40,11 +40,18 @@ class AnimatedSprite(CanvasItem):
     
     def __init__(self, properties={}, parent=None, children=None):
         self._imagesid  = 0
-        self._images    = []
+        self._images    = {}
 
         super().__init__(properties, parent, children)
         self._make_new_sprite()
     
+    def step(self):
+        self._imagesid    += 1
+        if self._imagesid  < 0:
+            self._imagesid = len(self._imagesid) - 1
+        if self._imagesid  > len(self._imagesid) - 1:
+            self._imagesid = 0
+
     def update(self):
         super().update()
         if self._imagesid in self._images:
