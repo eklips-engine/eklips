@@ -10,6 +10,7 @@ import threading
 import warnings
 import pyglet as pg
 from classes.ui import *
+import classes.singleton as engine
 
 ## Pyglet event loop
 print(" ~ Modify pyglet.eventloop._redraw_windows")
@@ -29,15 +30,18 @@ class HookFPSDisplay(pg.window.FPSDisplay):
     def __init__(self, window : EklWindow, color = [255,255,255,255], samples = 240):
         super().__init__(window, color, samples)
 
-        self.window   : EklWindow  = window
-        self.viewport : Viewport      = window.eklips_viewport
-        self.label, self.lbl_id       = self.viewport._allocate_label()
+        self.window   : EklWindow = window
+        self.viewport : Viewport  = window.eklips_viewport
+        self.label                = pg.text.Label(batch = self.viewport.batches[MAIN_BATCH])
+        self.label.color          = color
 
-        self.label.x, self.label.y    = 0,0
-        self.label.color              = color
-
-        self.transform                = engine.Transform()
-        self.group                    = pg.graphics.Group(order=999)
+        self.transform         = engine.Transform()
+        self.transform.x       = 5
+        self.transform.y       = 0
+        self.transform.anchor  = "top"
+        self.transform.visible = True
+        self.transform.scale   = [1,1]
+        self.group             = pg.graphics.Group(order=999)
     
     def draw(self):
         engine.display.blit_label(
@@ -45,8 +49,30 @@ class HookFPSDisplay(pg.window.FPSDisplay):
             self.transform,
             self.label,
             self.window.wid,
-            self.group
+            self.group,
+            DEFAULT_FONT_NAME,
+            DEFAULT_FONT_SIZE * 1.25
         )
+    
+    def update(self) -> None:
+        """Records a new data point at the current time.
+
+        This method is called automatically when the window buffer is flipped.
+        """
+        t = self._time()
+        delta = t - self._last_time
+        self._elapsed += delta
+        self._delta_times.append(delta)
+        self._last_time = t
+
+        if self._elapsed >= self.update_period:
+            self._elapsed = 0
+            self.label.text = f'{1 / self._mean(self._delta_times):.2f} FPS with {engine.uid} objects'
+    
+    def _hook_flip(self) -> None:
+        self.update()
+        self.draw()
+        self._window_flip()
 
 ## Subprocess
 print(" ~ Modify subprocess.Popen")

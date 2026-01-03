@@ -1,5 +1,5 @@
 # Import libraries
-import pyglet as pg, gc, time, pygame
+import pyglet as pg, gc, time, pygame, os
 
 # Import components
 import classes.singleton     as engine
@@ -109,6 +109,10 @@ class EklWindow(pg.window.Window):
 
         # Set validity to true
         self.closed = False
+
+    def toggle_fullscreen(self):
+        """Toggle fullscreen mode."""
+        self.set_fullscreen(not self.fullscreen)
 
     @property
     def focused(self):
@@ -351,6 +355,11 @@ class Viewport:
     def _deallocate_label(self, label_id):
         self.labels[label_id].visible = False
         self.used_labels[label_id] = False
+    
+    def screenshot(self):
+        """Say cheese!"""
+        os.makedirs("screenshots", exist_ok=True)
+        self.color_buffer.save(f"screenshots/Screenshot {time.strftime('%d %m %Y %H %M %S')}.png")
     
     def set_background(self, r=0,g=0,b=0, a=1):
         """

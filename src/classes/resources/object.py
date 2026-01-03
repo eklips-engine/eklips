@@ -114,6 +114,7 @@ class Object(metaclass=_exportmeta):
     
     # Memory related
     def _free(self):
+        engine.uid -= 1
         del self
         gc.collect()
     

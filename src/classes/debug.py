@@ -1,4 +1,4 @@
-enabled               = True
+enabled               = False
 
 shapes_visible        = True and enabled
 fps_visible           = True and enabled
