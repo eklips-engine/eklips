@@ -1,5 +1,5 @@
 <center>
-    <img src="img/logo.svg" alt="Eklips Engine logo">
+    <img src="img/logo.svg" width="336px" height="242px" alt="Eklips Engine logo as a vector image">
 </center>
 
 <hr>
