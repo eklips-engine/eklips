@@ -15,14 +15,13 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
 # Features
 For now, the features are:
- - 19 different Nodes (Window, 2D, GUI, etc..)
+ - Atleast 19 different Nodes, i lost track (Window, 2D, GUI, etc..)
  - Resource object support
  - Pre-built Loading
  - Custom filesystem similar to Godot (`res://`, `user://`)
  - Pre-built Saving and Settings support
  - Layering support
  - Event support
- - Pre-built console and command support
  - Pre-built keybind support
  - Python scripting support
 
