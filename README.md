@@ -1,4 +1,4 @@
-# Eklips Engine<img src="img/icon.svg" align="right" height="120"/>
+# Eklips Engine<img src="img/spinning_icon.svg" align="right" height="140"/>
 
 A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
