@@ -18,7 +18,7 @@ window_transform = {
 # Classes
 class Window(CanvasItem):
     """
-    ## A Window Node.
+    A Window Node.
     
     This Node will create a new Window with its own viewport. You can
     get this window by using `engine.display.get_window(wid)` or by 

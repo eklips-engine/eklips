@@ -1,6 +1,6 @@
 # Import classes
-from classes.resources.object import *
-from classes.nodes import *
+from classes.resources.resource import *
+from classes.nodes              import *
 
 # Variables
 EMPTY_SCENE = {"": {"type": "Node", "children": {}}}
@@ -51,7 +51,7 @@ class CollisionManager:
                 hits.append(other)
         return hits
 
-class Scene(Object):
+class Scene(Resource):
     """
     Manages the game loop via a hierarchy of nodes from a scene file.
 
@@ -63,7 +63,7 @@ class Scene(Object):
     """
     print(" ~ Initialize Scene")
     paused                           = False       # If the update() function can laze around and do nothing
-    nodes                            = EMPTY_SCENE # Scene tree
+    _nodes                           = EMPTY_SCENE # Scene tree
     _doomed                          = []          # List of nodes that are about to be deleted
     _marked_scene_chng               = ""          # Filepath of the scene that's about to be loaded
     _file_path                       = None        # Filepath of the current scene
@@ -82,13 +82,27 @@ class Scene(Object):
         self._file_path    = path
         _data              = engine.loader.load(path)
         if _data["properties"]["inherits"]:
+            self._inherited_scn = _data["properties"]["inherits"]
             self._loadscenefile(_data["properties"]["inherits"])
         self._loadscenefile(path)
     
+    @export({}, "dict", "HIDDEN")
+    def nodes(self) -> dict:
+        return self._nodes
+    @nodes.setter
+    def nodes(self, nodes : dict):
+        self.empty()
+        self._collisionman = engine.resources.CollisionManager()
+        self._nodes        = nodes
+        nodepaths          = self.get_node_paths("")
+
+        for nodepath in nodepaths:
+            self._initialize_node_entry(nodepath)
+
     def _loadscenefile(self, path):
-        _data      = engine.loader.load(path)
-        self.nodes = _data["nodes"]
-        nodepaths  = self.get_node_paths("")
+        _data       = engine.loader.load(path)
+        self._nodes = _data["nodes"]
+        nodepaths   = self.get_node_paths("")
 
         for nodepath in nodepaths:
             self._initialize_node_entry(nodepath)
@@ -111,13 +125,29 @@ class Scene(Object):
             self.get_node_paths(f"{nodepath}/{child}", False, out)
         
         return out
-        
+    
     def load(self, path):
-        """Load a scene file.
-   
-        Args:     
-            path: Path of the scene in the filesystem (`res://`, `root://`, `user://`)"""
+        """
+        Load a scene file.
+
+        .. note:: This does not return a Scene class, as this is different from `Resource.load()` and is not a classmethod. Instead, use it like this: `myscene.load(path)`
+
+        Args:
+            path: Path of the scene in the filesystem (`res://`, `root://`, `user://`)
+        """
         self._marked_scene_chng = path
+
+    @classmethod
+    def new(cls):
+        return Scene({"nodes":{"":{"type":"Node"}}})
+
+    def save(self, path):
+        with open(engine.loader._get_true_path(path), "w") as f:
+            f.write(json.dumps({
+                "nodes": self.nodes, 
+                "properties": {
+                    "inherits": self._inherited_scn
+                }}))
     
     def get_node_parent(self, nodepath, throw_error_if_failed=False):
         """Get a Nodes parent.
@@ -325,7 +355,7 @@ class Scene(Object):
         """Empty the scene."""
         for nodepath in self.get_node_paths(""):
             self._delete_node(nodepath)
-        self.nodes = EMPTY_SCENE
+        self._nodes = EMPTY_SCENE
     def _free(self):
         self.empty()
         super()._free()

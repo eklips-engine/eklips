@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class ColorRect(CanvasItem, Color):
     """
-    ## A single-color rectangle on the screen.
+    A single-color rectangle on the screen.
     
     XXX
     """

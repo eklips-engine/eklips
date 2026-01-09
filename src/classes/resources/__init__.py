@@ -58,6 +58,10 @@ class Loader:
         return None
     
     def load(self, path, force_type = None, return_identifier = False, force_new_resource = False):
+        """Load a resource from a file.
+        
+        Args:
+            path: Filepath. (eg: `res://media/load.mp3`, `root://_assets/icon.png`)"""
         rid = path.replace(":",".").replace("/",",")
         obj = None
         ext = path.split(".")[-1]

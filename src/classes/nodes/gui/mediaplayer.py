@@ -11,7 +11,7 @@ class PlayerError(Exception):
 
 class MediaPlayer(CanvasItem):
     """
-    ## A Media Player.
+    A Media Player.
 
     This is a Node that can play video and audio globally.
     """

@@ -8,7 +8,7 @@ from classes.nodes.gui.colorrect import *
 # Classes
 class CollisionBox(ColorRect):
     """
-    ## A rectangle with Collision abilities.
+    A rectangle with Collision abilities.
 
     This Node uses the `CollisionManager` class, and
     as soon as it is initialized, it adds itself to the

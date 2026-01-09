@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class Body(CanvasItem):
     """
-    ## An entity controller.
+    An entity controller.
 
     XXX
     """

@@ -5,7 +5,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class Label(CanvasItem, Color):
     """
-    ## A Label.
+    A Label.
     
     XXX
     """

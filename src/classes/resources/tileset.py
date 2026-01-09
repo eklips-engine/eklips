@@ -1,12 +1,12 @@
 # Import singleton
 import pyglet as pg
-from classes.resources.object import *
-from classes.customprops      import *
+from classes.resources.resource import *
+from classes.customprops        import *
 
 # Classes
-class Tileset(Object):
+class Tileset(Resource):
     """
-    ## Tileset
+    Tileset
     
     XXX
     """

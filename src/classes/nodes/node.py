@@ -7,7 +7,7 @@ from typing import Any
 # Classes
 class Node(Object, NodeMixin):
     """
-    ## An empty Node.
+    An empty Node.
 
     Nodes are the building block of Eklips (well, Eklips 4+ atleast). Every Node is inherited off this node class.
     A tree of Nodes make a Scene, A scene is stored as `engine.scene`.

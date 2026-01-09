@@ -8,7 +8,7 @@ from classes.nodes.gui.sprite import *
 # Classes
 class Parallax(Sprite):
     """
-    ## A 2D scrolling Sprite.
+    A 2D scrolling Sprite.
     
     XXX
     """

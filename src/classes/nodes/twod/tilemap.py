@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class Tilemap(CanvasItem):
     """
-    ## A grid of tiles placed together to make a map.
+    A grid of tiles placed together to make a map.
 
     XXX
     """

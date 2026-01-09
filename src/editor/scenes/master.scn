@@ -179,7 +179,6 @@
         }
     },
     "properties": {
-        "inherited": false,
-        "inherits":  null
+        "inherits": null
     }
 }

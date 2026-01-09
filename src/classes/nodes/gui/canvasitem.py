@@ -23,7 +23,7 @@ base_transform = {
 # Classes
 class CanvasItem(Node, Transform):
     """
-    ## A Canvas Node.
+    A Canvas Node.
     
     This is a Node that has properties for transformation,
     and is meant for rendering items in the window.

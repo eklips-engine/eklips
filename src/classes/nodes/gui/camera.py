@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class Camera(CanvasItem):
     """
-    ## A 2D Camera.
+    A 2D Camera.
     
     XXX
     """

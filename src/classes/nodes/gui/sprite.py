@@ -8,7 +8,7 @@ from classes.nodes.gui.canvasitem import *
 # Classes
 class Sprite(CanvasItem):
     """
-    ## A 2D Sprite.
+    A 2D Sprite.
     
     XXX
     """
