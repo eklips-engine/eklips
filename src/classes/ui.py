@@ -129,7 +129,8 @@ class EklWindow(pg.window.Window):
     
     def on_close(self):
         if self.closed: return
-        self.eklips_viewport.close()
+        for viewport in self.viewports:
+            viewport.close()
         self.closed = True
         engine.display._close_window(self.wid)
     
