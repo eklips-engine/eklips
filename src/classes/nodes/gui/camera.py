@@ -16,13 +16,13 @@ class Camera(CanvasItem):
 
     @export(1, "int/float", "slider")
     def zoom(self):
-        return self._get_viewport().camzoom
+        return self._get_viewport().cam.zoom
     @zoom.setter
     def zoom(self, value):
         viewport         = self._get_viewport()
-        viewport.camzoom = value
+        viewport.cam.zoom = value
 
     def _set_pos(self, x, y):
         viewport      = self._get_viewport()
-        viewport.camx = x
-        viewport.camy = y
+        viewport.cam.x = x
+        viewport.cam.y = y

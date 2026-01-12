@@ -71,8 +71,8 @@ class HookFPSDisplay(pg.window.FPSDisplay):
                 self.label.text = f'{1 / self._mean(self._delta_times):.2f} FPS with {engine.spronscr} visible sprites'
             else:
                 self.label.text = f'{1 / self._mean(self._delta_times):.2f} FPS with {engine.uid} objects'
-        self.transform.x = self.viewport.camx+5
-        self.transform.y = -self.viewport.camy
+        self.transform.x = self.viewport.cam.x+5
+        self.transform.y = -self.viewport.cam.y
     
     def _hook_flip(self) -> None:
         self.update()

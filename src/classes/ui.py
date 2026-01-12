@@ -192,6 +192,16 @@ class EklWindow(pg.window.Window):
         engine.mouse.pos   = [x, y]
         engine.mouse.paths = paths
 
+class CameraTransform(Transform):
+    def __init__(self):
+        super().__init__()
+        self._zoom = 1
+    
+    @property
+    def zoom(self):      return self._zoom
+    @zoom.setter
+    def zoom(self, val): self._zoom = val
+
 class Viewport:
     def __init__(
             self,
@@ -201,22 +211,20 @@ class Viewport:
             position : list[int,int] = [0,0]
         ):
         self.id               = id
+        self.cam              = CameraTransform()
         self._width           = size[1]
         self._height          = size[0]
-        self.camx             = 0
-        self.camy             = 0
-        self.camzoom          = 1
         self._x               = position[0]
         self._y               = position[1]
         self._background      = [0,0,0,1]
         self._window_is_slave = False
 
-        self.framebuffer           = None
-        self.color_buffer          = None
-        self.depth_buffer          = None
+        self.framebuffer        = None
+        self.color_buffer       = None
+        self.depth_buffer       = None
         self.window : EklWindow = None
-        self._closing              = False
-        self.batches               = batches
+        self._closing           = False
+        self.batches            = batches
 
         self.sprites : list[pg.sprite.Sprite] = []
         self.labels  : list[pg.text.Label]    = []
@@ -226,7 +234,7 @@ class Viewport:
 
     def get_screen_pos(self, transform : Transform):
         x,y = transform.into_screen_coords(self.size)
-        return x - self.camx, y - self.camy
+        return x - self.cam.x, y - self.cam.y
     
     def is_onscreen(self, transform : Transform):
         if engine.debug.sprite_always_visible:
@@ -234,10 +242,10 @@ class Viewport:
         
         x,y = transform.into_screen_coords(self.size)
         if not (
-            (x - self.camx) + transform.w < 0           or
-            (x - self.camx)               > self.width  or
-            (y - self.camy) + transform.h < 0           or
-            (y - self.camy)               > self.height
+            ((x - self.cam.x) * self.cam.zoom) + (transform.w * self.cam.zoom) < 0 or
+            ((x - self.cam.x) * self.cam.zoom) > self.width                       or
+            ((y - self.cam.y) * self.cam.zoom) + (transform.h * self.cam.zoom) < 0 or
+            ((y - self.cam.y) * self.cam.zoom) > self.height
         ):  
             if engine.debug.track_visible_sprites:
                 engine.spronscr += 1
@@ -273,7 +281,7 @@ class Viewport:
         """
         Provide the window `window` to the Viewport to draw to.
 
-        NOTE: This takes a while since the framebuffer has to be remade to be
+        .. note:: This takes a while since the framebuffer has to be remade to be
         apart of the windows context.
 
         Args:
@@ -450,35 +458,34 @@ class Viewport:
     def _reset_camera(self):
         view_matrix = self.window.view.scale(
             (
-                1 / self.camzoom,
-                1 / self.camzoom,
+                1 / self.cam.zoom,
+                1 / self.cam.zoom,
                 1
             )
         )
         view_matrix = view_matrix.translate(
             (
-                self.camx,
-                self.camy,
+                self.cam.x * self.cam.zoom,
+                self.cam.y * self.cam.zoom,
                 0
             )
         )
         self.window.view = view_matrix
     def _move_camera(self):
-        view_matrix = self.window.view.scale(
+        view_matrix = self.window.view.translate(
             (
-                self.camzoom,
-                self.camzoom,
-                1
-            )
-        )
-        view_matrix = view_matrix.translate(
-            (
-                -self.camx,
-                -self.camy,
+                -self.cam.x * self.cam.zoom,
+                -self.cam.y * self.cam.zoom,
                 0
             )
         )
-
+        view_matrix = view_matrix.scale(
+            (
+                self.cam.zoom,
+                self.cam.zoom,
+                1
+            )
+        )
         self.window.view = view_matrix
     
     def close(self):
