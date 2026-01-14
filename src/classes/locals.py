@@ -18,6 +18,7 @@ DETECT               = 2
 MAIN_WINDOW           = 0
 MAIN_BATCH            = 0
 MAIN_VIEWPORT         = 0
+UI_VIEWPORT           = 1
 DEFAULT_NAME          = "Window"
 VIEWPORT_EQUAL_WINDOW = 8346
 NO_CLEAR_BACKGROUND   = 641

@@ -65,12 +65,13 @@ class Label(CanvasItem, Color):
     
     def _draw(self):
         return engine.display.blit_label(
-            text      = self.text,
-            transform = self,
-            window_id = self._drawing_wid,
-            label     = self.sprite,
-            font_name = self.font,
-            font_size = self.font_size  
+            text        = self.text,
+            transform   = self,
+            window_id   = self._drawing_wid,
+            viewport_id = self._drawing_vid,
+            label       = self.sprite,
+            font_name   = self.font,
+            font_size   = self.font_size  
         )
     
     def _remove_sprite(self):

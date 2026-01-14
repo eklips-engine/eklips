@@ -164,6 +164,7 @@ class MediaPlayer(CanvasItem):
             surface        = image,
             transform      = self,
             window_id      = self._drawing_wid,
+            viewport_id    = self._drawing_vid,
             sprite         = self.sprite,
             ignore_scaling = True
         )

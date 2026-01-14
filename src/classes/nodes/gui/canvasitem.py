@@ -65,10 +65,43 @@ class CanvasItem(Node, Transform):
             self._drawing_wid = self.parent._drawing_wid
         else:
             self._drawing_wid = MAIN_WINDOW
+        if self.parent:
+            self._drawing_vid = self.parent._drawing_vid
+        else:
+            self._drawing_vid = MAIN_VIEWPORT
+        if self.parent:
+            self._drawing_bid = self.parent._drawing_bid
+        else:
+            self._drawing_bid = MAIN_BATCH
+        
+        self.debugisfirstvalue = 0
         self._imgflip         = [False, False]
-        self._drawing_bid     = MAIN_BATCH
 
-        self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_bid)
+        self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
+
+    @export(MAIN_VIEWPORT, "int", "viewportid")
+    def viewport_id(self):
+        """ID of the viewport to draw to."""
+        return self._drawing_vid
+    @viewport_id.setter
+    def viewport_id(self, value):
+        self._drawing_vid = value
+        if self.sprite:
+            self._remove_sprite()
+        self._make_new_sprite()
+        self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
+    
+    @export(MAIN_VIEWPORT, "int", "batchid")
+    def batch_id(self):
+        """ID of the batch in `viewport_id` to use."""
+        return self._drawing_vid
+    @batch_id.setter
+    def batch_id(self, value):
+        self._drawing_bid = value
+        if self.sprite:
+            self._remove_sprite()
+        self._make_new_sprite()
+        self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
 
     def _setup_properties(self):
         super()._setup_properties()
@@ -115,9 +148,10 @@ class CanvasItem(Node, Transform):
     def _draw(self):
         """Draw the Sprite"""
         return engine.display.blit(
-            transform = self,
-            window_id = self._drawing_wid,
-            sprite    = self.sprite
+            transform   = self,
+            window_id   = self._drawing_wid,
+            viewport_id = self._drawing_vid,
+            sprite      = self.sprite
         )
 
     def _get_viewport(self) -> ui.Viewport:

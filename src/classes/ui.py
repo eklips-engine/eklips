@@ -13,30 +13,16 @@ def set_anti_aliasing(yn : bool):
     else:  value = GL_NEAREST
     pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = value
 
+glEnable(GL_BLEND)
 glEnable(GL_CULL_FACE)
 
 # Colors
-_r    = [0,0,0]
-_rs   = [1,1,1]
-def rainbow():
-    global _rs
-    _r[0] += 15.5  * _rs[0]
-    _r[1] += 7.75  * _rs[1]
-    _r[2] += 3.875 * _rs[2]
-    if _r[0] > 255 or _r[0] < 0:
-        _rs[0] = -_rs[0]
-    if _r[1] > 255 or _r[2] < 0:
-        _rs[1] = -_rs[2]
-    if _r[2] > 255 or _r[2] < 0:
-        _rs[2] = -_rs[2]
-    return _r
-
-red   = [255,0,0]
-green = [255,0,0]
-blue  = [0,0,255]
-black = [0,0,0]
-white = [255,255,255]
-f = 1
+red         = [255, 0,   0     ]
+green       = [255, 0,   0     ]
+blue        = [0,   0,   255   ]
+black       = [0,   0,   0     ]
+white       = [255, 255, 255   ]
+transparent = [0,   0,   0,   0]
 
 # Classes
 class EklWindow(pg.window.Window):
@@ -269,7 +255,8 @@ class Viewport:
         self.framebuffer  = pg.image.Framebuffer()
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
-            min_filter=GL_NEAREST, mag_filter=GL_NEAREST
+            min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
+            internalformat=GL_RGBA
         )
         self.depth_buffer = pg.image.buffer.Renderbuffer(self.width, self.height, GL_DEPTH_COMPONENT)
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
@@ -279,7 +266,8 @@ class Viewport:
             self.window.switch_to()
         self.color_buffer = pg.image.Texture.create(
             self.width, self.height,
-            min_filter=GL_NEAREST, mag_filter=GL_NEAREST
+            min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
+            internalformat=GL_RGBA
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
     def provide_window(self, window, master=False):
@@ -394,9 +382,13 @@ class Viewport:
         return sprite, i
     
     def _deallocate_sprite(self, sprite_id):
+        if not sprite_id in self.sprites:
+            return
         self.sprites[sprite_id].visible = False
         self.used_sprites[sprite_id] = False
     def _deallocate_label(self, label_id):
+        if not label_id in self.labels:
+            return
         self.labels[label_id].visible = False
         self.used_labels[label_id] = False
     
@@ -436,10 +428,11 @@ class Viewport:
             return
         
         # Init viewport
+        glDisable(GL_BLEND)
         self.window.switch_to()
         self.framebuffer.bind()
         if self._background[:3] != [0,0,0] and not NO_CLEAR_BACKGROUND in self.flags:
-            glClearColor(*self._background)
+            glClearColor(self._background[0], self._background[1], self._background[2], self._background[3])
         if not NO_CLEAR in self.flags:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
@@ -457,6 +450,8 @@ class Viewport:
         self._reset_camera()
 
         # Draw Viewport to Window
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         self.color_buffer.blit(self.x, self.y, self.id)
     
     def _reset_camera(self):
@@ -587,8 +582,10 @@ class Display:
             "fpsd":       None
         }
         
-        # Set Window's viewport to the one we just made
+        # Set Window's main viewport to the one we just made
         window.viewports.append(viewport)
+
+        self.add_viewport(viewport_color=transparent, flags=[VIEWPORT_EQUAL_WINDOW])
 
         # Add FPS Display
         if fpsvisible or engine.debug.fps_visible:
@@ -614,7 +611,8 @@ class Display:
         wid            : int             = MAIN_WINDOW,
         viewport_size  : list[int] | int = VIEWPORT_EQUAL_WINDOW,
         viewport_color                   = black,
-        flags          : int             = 0
+        flags          : int             = 0,
+        pos            : list[int]       = [0,0]
     ):
         """
         Add a viewport to Window `wid`. Returns its ID.
@@ -623,7 +621,8 @@ class Display:
             wid: ID of Window. Defaults to MAIN_WINDOW.
             viewport_size: Size of the window's viewport. Use constant `VIEWPORT_EQUAL_WINDOW` to make the Viewport size equal the Window size.
             viewport_color: Background color of the viewport.
-            flags: Viewport flags. Ex (`NO_CLEAR | NO_CLEAR_BACKGROUND`..)
+            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
+            pos: Viewport position.
         """
 
         window   = self.get_window(wid)
@@ -633,7 +632,7 @@ class Display:
 
         vid = len(window.viewports)
 
-        viewport = Viewport(vid, flags, [], viewport_size, [0,0])
+        viewport = Viewport(vid, flags, [], viewport_size, pos)
         viewport.set_background(*viewport_color)
         viewport.provide_window(window)
         viewport.add_batch()
@@ -784,6 +783,7 @@ class Display:
         transform      : Transform,
         sprite         : pg.sprite.Sprite,
         window_id      : int               = MAIN_WINDOW,
+        viewport_id    : int               = MAIN_VIEWPORT,
         group          : pg.graphics.Group = None,
         region         : list | None       = None
     ) -> None:
@@ -803,6 +803,8 @@ class Display:
                 `EklImage` Sprite with the Batch set properly.
             window_id:
                 ID of Window to draw. Defaults to `MAIN_WINDOW`.
+            viewport_id:
+                ID of Viewport. Used for information about viewport width and height, etc. Defaults to `MAIN_VIEWPORT`.
             group:
                 Pyglet `Group`. Defaults to `None`.
         """
@@ -820,7 +822,7 @@ class Display:
         if not window.visible:
             return
         
-        viewport : Viewport = self.get_viewport_from_window(window_id)
+        viewport : Viewport = self.get_viewport_from_window(window_id, viewport_id)
         if not viewport:
             return
 
@@ -871,6 +873,7 @@ class Display:
         transform      : Transform,
         label          : pg.text.Label,
         window_id      : int               = MAIN_WINDOW,
+        viewport_id    : int               = MAIN_VIEWPORT,
         group          : pg.graphics.Group = None,
         font_name      : str               = DEFAULT_FONT_NAME,
         font_size      : int               = DEFAULT_FONT_SIZE
@@ -888,6 +891,7 @@ class Display:
             transform: Transform object to tell where the image is drawn.
             label: Pyglet Label with the Batch set properly.
             window_id: ID of Window to draw. Defaults to MAIN_WINDOW.
+            viewport_id: ID of Viewport. Used for information about viewport width and height, etc. Defaults to `MAIN_VIEWPORT`.
             group: Pyglet Group. Defaults to None.
             font_name: Read the property silly. Defaults to DEFAULT_FONT_NAME ("Arial")
             font_size: Read the property silly. Defaults to DEFAULT_FONT_SIZE (12.5)
@@ -908,7 +912,7 @@ class Display:
         if not window.visible:
             return 0,0
         
-        viewport : Viewport = self.get_viewport_from_window(window_id)
+        viewport : Viewport = self.get_viewport_from_window(window_id, viewport_id)
         if not viewport:
             return 0,0
         

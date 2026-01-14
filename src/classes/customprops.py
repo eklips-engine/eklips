@@ -324,6 +324,8 @@ class Transform:
             x = self.x
         if "top" in anchor:
             y = window_size[1] - self.h - self.y
+        else:
+            y = self.y
         if "centerx"    in anchor:
             x = (window_size[0]/2) - (self.w/2) + self.x
         if "centery"    in anchor:

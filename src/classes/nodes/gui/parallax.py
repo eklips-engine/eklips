@@ -34,16 +34,21 @@ class Parallax(Sprite):
     @speed.setter
     def speed(self, value): self._speed = value
 
+    def update(self):
+        self._imgoffsetx += engine.delta
+        super().update()
+    
     def _draw(self):
         # Draw the Sprite
         self.sprite.image = self.image
 
         return engine.display.blit(
-            transform = self,
-            window_id = self._drawing_wid,
-            sprite    = self.sprite,
-            region    = [
-                (engine.uptime * self.speed) % self.image.width, # X
+            transform   = self,
+            window_id   = self._drawing_wid,
+            viewport_id = self._drawing_vid,
+            sprite      = self.sprite,
+            region      = [
+                self._imgoffsetx % self.image.width, # X
                 0,                                               # Y
                 self.image.width,                                # W
                 self.image.height                                # H
