@@ -432,7 +432,9 @@ class Viewport:
             return
         if self.window.closed:
             return
-
+        if not self.window.visible:
+            return
+        
         # Init viewport
         self.window.switch_to()
         self.framebuffer.bind()
@@ -725,12 +727,7 @@ class Display:
         
         window_data = self.windows[wid]
         window_data["window"].close()
-        
         window_data["window"]     = None
-        window_data["viewport"]   = None
-        window_data["batches"]    = None
-        window_data["main_batch"] = None
-
         if wid == self.main_window_id:
             self.main_window_id = None
         self.windows.pop(wid)
@@ -815,9 +812,12 @@ class Display:
             return
         if not sprite:
             return
-        if not (self.windows and self.windows.get(window_id, None)):
+        window = self.get_window(window_id)
+        if not window:
             return
-        if self.get_window(window_id).closed:
+        if window.closed:
+            return
+        if not window.visible:
             return
         
         viewport : Viewport = self.get_viewport_from_window(window_id)
@@ -900,9 +900,12 @@ class Display:
             return 0,0
         if not label:
             return 0,0
-        if not (self.windows and self.windows.get(window_id, None)):
+        window = self.get_window(window_id)
+        if not window:
             return 0,0
-        if self.get_window(window_id).closed:
+        if window.closed:
+            return 0,0
+        if not window.visible:
             return 0,0
         
         viewport : Viewport = self.get_viewport_from_window(window_id)

@@ -356,8 +356,8 @@ class Transform:
 class Mouse:
     pos      = [0,0]
     dpos     = [0,0]
-    buttons  = [0,0,0]
-    paths    = []      # List of filepaths
+    buttons  = [0,0,0,0,0] # Index 0 is ignored
+    paths    = []          # List of filepaths
 
 class Keyboard:
     modifiers = 0

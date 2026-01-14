@@ -21,10 +21,9 @@ def make_new_project(name, directory):
 
 def make_new_project_interface(self):
     # This provides an interface to this function above me.
-    # The main window cannot be interacted with untill this window gets removed.
-    window       = engine.scene.get_node_from_path("/make_new_project_window")
-    window.title = engine.lang.get("pe_titlenewprj")
-    window.popup()
+    window         = engine.scene.get_node_from_path("/make_new_project_window")
+    window.title   = engine.lang.get("pe_titlenewprj")
+    window.visible = True
 
 def select_project_file(self): return askopenfilename(
         filetypes = [
@@ -64,10 +63,6 @@ def close_project(self):
 
 def open_editor_settings(self):
     # This provides an interface to modify editor settings.
-    # The main window cannot be interacted with untill this window gets removed.
-    window       = engine.scene.get_node_from_path("/settings_window")
-    window.title = engine.lang.get("pe_titlesetting")
-    window.popup()
-    
-    btnok        = engine.scene.get_node_from_path("/settings_window/window_settings_ok")
-    btnclose     = engine.scene.get_node_from_path("/settings_window/window_settings_no")
+    window         = engine.scene.get_node_from_path("/settings_window")
+    window.title   = engine.lang.get("pe_titlesetting")
+    window.visible = True

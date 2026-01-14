@@ -116,7 +116,7 @@
                         "rotation": 0,
                         "alpha":    255,
                         "anchor":   "",
-                        "visible":  true,
+                        "visible":  false,
                         "skew":     0
                     }
                 },
@@ -133,7 +133,7 @@
                         "rotation": 0,
                         "alpha":    255,
                         "anchor":   "",
-                        "visible":  true,
+                        "visible":  false,
                         "skew":     0
                     },
                     "children": {

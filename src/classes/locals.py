@@ -4,10 +4,10 @@ USE_GAME_PARENT = "UseFileParent"
 USE_GAME_CV_DIR = "UseFileCVar"
 
 NAME         = "Eklips Engine"
-BDATE        = [3, 12, 2025] # DMY
-MAJOR        = "5"           # Major [5].0 A 
-MINOR        = "0"           # Minor  5.[0]A 
-HOTFIX       = "A"           # Hotfix 5. 0[A]
+BDATE        = [14, 1, 2026]  # DMY
+MAJOR        = "5"            # Major [5].0 A 
+MINOR        = "0"            # Minor  5.[0]A 
+HOTFIX       = "A"            # Hotfix 5. 0[A]
 VERSION      = f"{MAJOR}.{MINOR}{HOTFIX}"
 VERSION_FULL = f"v{VERSION} ({BDATE[0]}/{BDATE[1]}/{BDATE[2]})"
 print(f"{NAME} {VERSION_FULL}")
@@ -34,7 +34,7 @@ EKL_ICON   = "_assets/icon.png"
 
 MOUSE_LEFT    = 1
 MOUSE_MIDDLE  = 2
-MOUSE_RIGHT   = 3
+MOUSE_RIGHT   = 4
 MOUSE_BUTTONS = [MOUSE_LEFT, MOUSE_MIDDLE, MOUSE_RIGHT]
 
 MOUSE_POINT   = pg.window.Window.CURSOR_HAND
