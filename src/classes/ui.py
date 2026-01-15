@@ -843,10 +843,10 @@ class Display:
         
         # Set sprite's properites
         if transform.rotation:
-            sprite.image.anchor_x = w / 4
-            sprite.image.anchor_y = h / 4
-            x += w / 2
-            y += h / 2
+            sprite.image.anchor_x = sprite.image.width  // 2
+            sprite.image.anchor_y = sprite.image.height // 2
+            x += (sprite.image.anchor_x) * scale_x
+            y += (sprite.image.anchor_y) * scale_y
         else:
             sprite.image.anchor_x = 0
             sprite.image.anchor_y = 0

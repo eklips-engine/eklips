@@ -16,6 +16,7 @@ def _process(self : engine.nodes.CanvasItem, delta):
     
     # Rotate the ring
     self.rotation   += delta * 150
+    eklips.rotation += delta * 15
 
     # Check if rotated fully, then start fading out
     if self.rotation > 351:

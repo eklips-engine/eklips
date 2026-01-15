@@ -39,7 +39,7 @@ class ColorRect(CanvasItem, Color):
         if rh == 0: rh = 1
 
         # Make the image
-        self.image = pg.image.ImageData(rw,rh,'RGB',bytes(self.rgb[:3]*rw*rh))
+        self.image = engine.resources.EklImage(rw,rh,'RGB',bytes(self.rgb[:3]*rw*rh))
     
     def update(self):
         super().update()
