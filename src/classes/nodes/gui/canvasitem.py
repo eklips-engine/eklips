@@ -32,6 +32,7 @@ class CanvasItem(Node, Transform):
     anytree's NodeMixin uses a size property..)
     """
     _can_check_layer                            = True
+    _iswindoworviewportlikeobject               = False
     _drawing_bid : int                          = 0
     _drawing_vid : int                          = 0
     _drawing_wid : int                          = 0
@@ -76,45 +77,54 @@ class CanvasItem(Node, Transform):
 
     @export(base_transform, "dict", "transform")
     def transform(self):
-        return TRANSFORM_WARNING_EDITOR
+        return self._turn_object_into_transform_property()
     @transform.setter
     def transform(self, value):
         self._convert_transform_property_into_object(value)
 
+    @export(MAIN_WINDOW,   "int", "windowid")
+    def window_id(self):
+        """ID of the Window `window_id` to draw to."""
+        return self._drawing_wid
+    @window_id.setter
+    def window_id(self, value):
+        if self._iswindoworviewportlikeobject:
+            return
+        if self.sprite:
+            self._remove_sprite()
+        self._drawing_wid = value
+        self._refresh_sprite()
     @export(MAIN_VIEWPORT, "int", "viewportid")
     def viewport_id(self):
-        """ID of the viewport to draw to."""
+        """ID of the viewport in Window `window_id` to draw to."""
         return self._drawing_vid
     @viewport_id.setter
     def viewport_id(self, value):
+        if self._iswindoworviewportlikeobject:
+            return
         if self.sprite:
             self._remove_sprite()
         self._drawing_vid = value
-        self._make_new_sprite()
-        self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
+        self._refresh_sprite()
     
-    @export(MAIN_VIEWPORT, "int", "batchid")
+    @export(MAIN_BATCH,    "int", "batchid")
     def batch_id(self):
-        """ID of the batch in `viewport_id` to use."""
+        """ID of the batch in Viewport `viewport_id` to use."""
         return self._drawing_vid
     @batch_id.setter
     def batch_id(self, value):
+        if self._iswindoworviewportlikeobject:
+            return
+        if self.sprite:
+            self._remove_sprite()
         self._drawing_bid = value
+        self._refresh_sprite()
+
+    def _refresh_sprite(self):
         if self.sprite:
             self._remove_sprite()
         self._make_new_sprite()
         self.batch = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
-
-    def _convert_transform_property_into_object(self, value):
-        self.position = value["position"]
-        self.scale    = value["scale"]
-        self.alpha    = value["alpha"]
-        self.skew     = value["skew"]
-        self.rotation = value["rotation"]
-        self.anchor   = value["anchor"]
-        self.scroll   = value["scroll"]
-        self.visible  = value["visible"]
-        self.tsize    = value["tsize"]
     
     def draw(self, image):
         """Draw the Node's image. This is usually called automatically."""
@@ -189,7 +199,7 @@ class CanvasItem(Node, Transform):
         viewport = self._get_viewport()
         if not viewport:
             return
-        x,y    = self.into_screen_coords(viewport.size)
+        x,y    = self.into_screen_coords(viewport.tsize)
         is_it  = (
             mpos[0] >= ((x - viewport.cam.x) * viewport.cam.zoom)                                and
             mpos[0] <= ((x - viewport.cam.x) * viewport.cam.zoom) + (self.w * viewport.cam.zoom) and

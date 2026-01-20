@@ -4,7 +4,7 @@
             "type":     "Node",
             "children": {
                 "panel_obj": {
-                    "type":        "ColorRect",
+                    "type":        "ExtraViewport",
                     "script_path": "res://data/workflow.ekl",
 
                     "children": {},
@@ -103,7 +103,7 @@
                     }
                 },
                 "make_new_project_window": {
-                    "type": "Window",
+                    "type": "ExtraWindow",
                     "title": "make_new_project_window",
                     "children": {},
                     
@@ -121,7 +121,7 @@
                     }
                 },
                 "settings_window": {
-                    "type": "Window",
+                    "type": "ExtraWindow",
                     "title": "settings_window",
                     
                     "transform": {

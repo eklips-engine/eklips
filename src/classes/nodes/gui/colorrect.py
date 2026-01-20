@@ -22,7 +22,7 @@ class ColorRect(CanvasItem, Color):
     
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:
-        """RGBA Color value of the Label. Modifying a single item will do nothing."""
+        """RGBA Color value of the ColorRect. Modifying a single item will do nothing."""
         return self.color_as_tuple()
     @color.setter
     def color(self, rgb : list[int]):

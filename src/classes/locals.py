@@ -4,7 +4,7 @@ USE_GAME_PARENT = "UseFileParent"
 USE_GAME_CV_DIR = "UseFileCVar"
 
 NAME         = "Eklips Engine"
-BDATE        = [14, 1, 2026]  # DMY
+BDATE        = [20, 1, 2026]  # DMY
 MAJOR        = "5"            # Major [5].0 A 
 MINOR        = "0"            # Minor  5.[0]A 
 HOTFIX       = "A"            # Hotfix 5. 0[A]

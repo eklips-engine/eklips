@@ -19,13 +19,15 @@ class Loader:
     resource_tree = {}
     use_binary    = False
     extensions    = {
-        "img": ["png","jpg","jpeg","bmp","gif","dds","tif","tiff"],
-        "sfx": ["mp3","ogg","wav"],
-        "txt": ["py","txt","ekl"],
-        "jsn": ["json","scn","res"],
-        "vid": ["mp4","webm"],
-        "ani": ["gif"],
-        "fnt": ["ttf","otf"]
+        "img": ["png","jpg","jpeg","bmp","gif","dds","tif","tiff"], # Image
+        "sfx": ["mp3","ogg","wav"],                                 # Sound
+        "txt": ["py","txt","ekl"],                                  # TXT file
+        "jsn": ["json"],                                            # JSON
+        "vid": ["mp4","webm"],                                      # Video
+        "ani": ["gif"],                                             # pyglet.image.Animation
+        "fnt": ["ttf","otf"],                                       # Fonts
+        "scn": ["scn","tscn"],                                      # Scene
+        "res": ["res","rc"]                                         # Ekl Resource
     }
 
     def _get_true_path(self, path : str):
@@ -49,13 +51,22 @@ class Loader:
                 return open(actual_path).read()
             if ext in self.extensions["jsn"]:
                 return json.loads(open(actual_path).read())
+            if ext in self.extensions["scn"]:
+                return json.loads(open(actual_path).read())
+            if ext in self.extensions["res"]:
+                data     = json.loads(open(actual_path).read())
+                classobj = globals().get(data["type"])
+                obj      = classobj.__new__(classobj)
+                obj.__init__(data)
+                obj._setup_properties()
+                return obj
             if ext in self.extensions["vid"]:
                 return engine.pvd.VideoPyglet(actual_path)
             if ext in self.extensions["fnt"]:
                 pg.font.add_file(actual_path)
                 return
         except Exception as error:
-            print(error)
+            engine.error_handler.show_error(error)
         
         return None
     
@@ -63,7 +74,10 @@ class Loader:
         """Load a resource from a file.
         
         Args:
-            path: Filepath. (eg: `res://media/load.mp3`, `root://_assets/icon.png`)"""
+            path: Filepath. (eg: `res://media/load.mp3`, `root://_assets/icon.png`)
+            force_type: If not None, what extension should `path` be treated as.
+            return_identifier: If True, return resource and its ID.
+            force_new_resource: If True, don't cache resource and always load new ones. Might be useful for things like Scripts."""
         rid = path.replace(":",".").replace("/",",")
         obj = None
         ext = path.split(".")[-1]

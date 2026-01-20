@@ -16,9 +16,11 @@ class Object(metaclass=_exportmeta):
     This class is the ancestor for classes that can be programmable and interacts with the Engine's libraries, components, etc..
     Each class may define new properties, methods or signals, which are available to all inheriting classes. For example, a Sprite instance is able to call Object.call_deferred() because it inherits from Object.
 
-    You can create new instances, using `Object()`.
+    You can create new instances, using `Object(properties)`.
     To delete an Object instance, call `free()`. This is necessary for most classes inheriting Object, because they do not manage memory on their own, and will otherwise cause memory leaks when no longer used.
     Objects can have a `Script` resource attached to them. Once the Script is instantiated, it effectively acts as an extension to the base class, allowing it to define and inherit new properties, methods and signals.
+    
+    If you are setting up an Object, don't forget to call `_setup_properties()` after initializing the Object.
     """
     _runnable        = True
     _script_path     = None
@@ -96,6 +98,7 @@ class Object(metaclass=_exportmeta):
     
     # Memory related
     def _free(self):
+        self._runnable = False
         engine.uid -= 1
         del self
         gc.collect()

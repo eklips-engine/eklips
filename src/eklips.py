@@ -10,7 +10,6 @@ import classes.singleton as engine
 _old_delta     = time.time()
 _current_delta = None
 main_window    = engine.display.get_window()
-main_viewport  = engine.display.get_viewport_from_window()
 
 # Create event loop
 @main_window.event
@@ -38,13 +37,13 @@ def on_draw():
         if engine.keyboard.pressed.get(pg.window.key.F11):
             main_window.toggle_fullscreen()
         if engine.keyboard.pressed.get(pg.window.key.F12):
-            main_viewport.screenshot()
+            main_window.screenshot()
 
         # Clear the list of pressed keys
         engine.keyboard.pressed.clear()
     except Exception as error:
-        engine.error_handler.show_error(error)
         engine.quit()
+        engine.error_handler.show_error(error)
 
 # Start the engine
 pg.app.run()

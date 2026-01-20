@@ -314,9 +314,34 @@ class Transform:
         self._set_rot(value)
     
     ## Functions
+    def _turn_object_into_transform_property(self):
+        transprop = {
+            "position": self.position,
+            "scale":    self.scale,
+            "alpha":    self.alpha,
+            "skew":     self.skew,
+            "rotation": self.rotation,
+            "anchor":   self.anchor,
+            "scroll":   self.scroll,
+            "visible":  self.visible,
+            "tsize":    self.tsize
+        }
+        return transprop
+    
+    def _convert_transform_property_into_object(self, value):
+        self.position = value["position"]
+        self.scale    = value["scale"]
+        self.alpha    = value["alpha"]
+        self.skew     = value["skew"]
+        self.rotation = value["rotation"]
+        self.anchor   = value["anchor"]
+        self.scroll   = value["scroll"]
+        self.visible  = value["visible"]
+        self.tsize    = value["tsize"]
+    
     def into_screen_coords(self, window_size : list[int,int] = [480,480]):
         anchor = self.anchor
-        cid    = f"{self.position}{window_size}{self.w};{self.h}{anchor}"
+        cid    = f"{self.position}{window_size}{self.tsize}{anchor}"
         if cid in _screenc_cache:
             return _screenc_cache[cid]
         x        = 0
@@ -396,7 +421,7 @@ class Language:
         return self.entries.get(entry, entry)
 
 class Color:
-    def __init__(self, r=0,g=0,b=0, a=0):
+    def __init__(self, r=0,g=0,b=0,a=255):
         self._r = r
         self._g = g
         self._b = b
@@ -441,7 +466,7 @@ class Color:
         return self.color_as_list()
     @rgb.setter
     def rgb(self, rgbv):
-        self.r, self.g, self.b = rgbv
-        
+        self._r, self._g, self._b = rgbv
         if len(rgbv) > 3:
-            self.a = rgbv[3]
+            self._a = rgbv[3]
+        self._update_color(*self.color_as_list())

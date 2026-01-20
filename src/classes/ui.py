@@ -17,12 +17,12 @@ glEnable(GL_BLEND)
 glEnable(GL_CULL_FACE)
 
 # Colors
-red         = [255, 0,   0     ]
-green       = [255, 0,   0     ]
-blue        = [0,   0,   255   ]
-black       = [0,   0,   0     ]
-white       = [255, 255, 255   ]
-transparent = [0,   0,   0,   0]
+red         = [255, 0,   0,   255]
+green       = [255, 0,   0,   255]
+blue        = [0,   0,   255, 255]
+black       = [0,   0,   0,   255]
+white       = [255, 255, 255, 255]
+transparent = [0,   0,   0,     1]
 
 # Classes
 class EklWindow(pg.window.Window):
@@ -115,6 +115,13 @@ class EklWindow(pg.window.Window):
         else:
             self.minimize()
     
+    def screenshot(self):
+        """Say cheese! (Pieces)"""
+        dirc = f"screenshots/{time.strftime('%d %m %Y %H %M %S')}"
+        os.makedirs(dirc, exist_ok=True)
+        for i in self.viewports:
+            i.color_buffer.save(f"{dirc}/{i.id}.png")
+    
     def on_close(self):
         if self.closed: return
         for viewport in self.viewports:
@@ -140,8 +147,8 @@ class EklWindow(pg.window.Window):
 
         for viewport in self.viewports:
             if VIEWPORT_EQUAL_WINDOW in viewport.flags:
-                viewport.width  = width
-                viewport.height = height
+                viewport.w = width
+                viewport.h = height
     
     def on_draw(self):
         self.switch_to()
@@ -192,22 +199,23 @@ class CameraTransform(Transform):
     @zoom.setter
     def zoom(self, val): self._zoom = val
 
-class Viewport:
+class Viewport(Transform):
     def __init__(
             self,
-            vid,
-            flags    : list          = [],
-            batches  : list          = [],
-            size     : list[int,int] = [640,480],
-            position : list[int,int] = [0,0]
+            vid       : int,
+            flags     : list          = [],
+            batches   : list          = [],
+            size      : list[int,int] = [640,480],
+            position  : list[int,int] = [0,0]
         ):
+        Transform.__init__(self)
+
+        self._w, self._h = size
+        self._x, self._y = position
+
         self.flags            = flags
         self.id               = vid
         self.cam              = CameraTransform()
-        self._width           = size[1]
-        self._height          = size[0]
-        self._x               = position[0]
-        self._y               = position[1]
         self._background      = [0,0,0,1]
 
         self.framebuffer        = None
@@ -231,12 +239,12 @@ class Viewport:
         if engine.debug.sprite_always_visible:
             return True
         
-        x,y = transform.into_screen_coords(self.size)
+        x,y = transform.into_screen_coords(self.tsize)
         if not (
             ((x - self.cam.x) * self.cam.zoom) + (transform.w * self.cam.zoom) < 0 or
-            ((x - self.cam.x) * self.cam.zoom) > self.width                       or
+            ((x - self.cam.x) * self.cam.zoom) > self.w                       or
             ((y - self.cam.y) * self.cam.zoom) + (transform.h * self.cam.zoom) < 0 or
-            ((y - self.cam.y) * self.cam.zoom) > self.height
+            ((y - self.cam.y) * self.cam.zoom) > self.h
         ):  
             if engine.debug.track_visible_sprites:
                 engine.spronscr += 1
@@ -254,28 +262,28 @@ class Viewport:
             self.window.switch_to()
         self.framebuffer  = pg.image.Framebuffer()
         self.color_buffer = pg.image.Texture.create(
-            self.width, self.height,
+            self.w, self.h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA
         )
-        self.depth_buffer = pg.image.buffer.Renderbuffer(self.width, self.height, GL_DEPTH_COMPONENT)
+        self.depth_buffer = pg.image.buffer.Renderbuffer(self.w, self.h, GL_DEPTH_COMPONENT)
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
+        
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
         self.color_buffer = pg.image.Texture.create(
-            self.width, self.height,
+            self.w, self.h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-    def provide_window(self, window, master=False):
+    def provide_window(self, window):
         """
         Provide the window `window` to the Viewport to draw to.
 
-        .. note:: This takes a while since the framebuffer has to be remade to be
-        apart of the windows context.
+        .. note:: This takes a while since the framebuffer has to be remade to be apart of the windows context.
 
         Args:
             window: Window object (engine.ui.EklWindow).
@@ -294,39 +302,9 @@ class Viewport:
         self.depth_buffer.delete()
     
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.width}x{self.height})"
+        return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"
     
-    @property
-    def width(self):  return int(self._width)
-    @property
-    def height(self): return int(self._height)
-    
-    @property
-    def x(self): return int(self._x)
-    @property
-    def y(self): return int(self._y)
-
-    @property
-    def size(self): return [self.width,self.height]
-
-    @size.setter
-    def size(self, value):
-        self._width  = int(value[0])
-        self._height = int(value[1])
-        self._resize_framebuffer()
-
-    @x.setter
-    def x(self, value): self._x = int(value)
-    @y.setter
-    def y(self, value): self._y = int(value)
-    
-    @width.setter
-    def width(self, value):
-        self._width = int(value)
-        self._resize_framebuffer()
-    @height.setter
-    def height(self, value):
-        self._height = int(value)
+    def _set_size(self, w, h):
         self._resize_framebuffer()
 
     def _make_new_sprite(self, batch_id=MAIN_BATCH):
@@ -378,12 +356,7 @@ class Viewport:
         self.labels[label_id].visible = False
         self.used_labels[label_id] = False
     
-    def screenshot(self):
-        """Say cheese!"""
-        os.makedirs("screenshots", exist_ok=True)
-        self.color_buffer.save(f"screenshots/Screenshot {time.strftime('%d %m %Y %H %M %S')}.png")
-    
-    def set_background(self, r=0,g=0,b=0, a=1):
+    def set_background(self, r=0,g=0,b=0,a=255):
         """
         Set the background color of the Viewport.
 
@@ -417,15 +390,15 @@ class Viewport:
         glDisable(GL_BLEND)
         self.window.switch_to()
         self.framebuffer.bind()
-        if self._background[:3] != [0,0,0] and not NO_CLEAR_BACKGROUND in self.flags:
-            glClearColor(self._background[0], self._background[1], self._background[2], self._background[3])
+        if not NO_CLEAR_BACKGROUND in self.flags:
+            glClearColor(*self._background)
         if not NO_CLEAR in self.flags:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
         # Move camera
         self._move_camera()
 
-        # Draw batches for this Viewport and unbind buffer
+        # Draw batches for this Viewport
         for batch in self.batches:
             batch.draw()
         
@@ -438,7 +411,8 @@ class Viewport:
         # Draw Viewport to Window
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        self.color_buffer.blit(self.x, self.y, self.id)
+        x, y = self.into_screen_coords(self.window.size)
+        self.color_buffer.blit(x, y, self.id)
     
     def _reset_camera(self):
         view_matrix = self.window.view.scale(
@@ -496,6 +470,15 @@ class Display:
         """Returns the size of the screen in pixels."""
         return pygame.display.get_desktop_sizes()[0]
 
+    def _create_window_entry(self):
+        wid = len(self.windows)
+        self.windows[wid] = {
+            "name":   None,
+            "window": None,
+            "fpsd":   None
+        }
+        return wid
+
     def add_window(self,
         name           : str                    = DEFAULT_NAME,
         size           : list[int]              = [640,480],
@@ -506,7 +489,6 @@ class Display:
         resizable      : bool                   = True,
         minimum_size   : None | list[int]       = [648,648],
         maximum_size   : None | list[int]       = None,
-        wid            : int                    = AUTOMATICALLY_CREATE,
         visible        : bool                   = True,
         fpsvisible     : bool                   = False
     ) -> int:
@@ -534,15 +516,14 @@ class Display:
         """
 
         # Fix properties
-        if wid == AUTOMATICALLY_CREATE:
-            wid = len(self.windows)
-
         print(f" ~ Initialize Window '{name}'")
 
         if viewport_size == VIEWPORT_EQUAL_WINDOW:
             viewport_flags.append(VIEWPORT_EQUAL_WINDOW)
             viewport_size = size
         
+        # Reserve window slot
+        wid = self._create_window_entry()
         if self.main_window_id == None:
             self.main_window_id = wid
         
@@ -555,22 +536,20 @@ class Display:
             visible   = False
         )
 
+        # Fill in information for the Window slot
+        self.windows[wid]["window"] = window
+        self.windows[wid]["name"]   = name
+
         # Create viewport
         viewport = Viewport(MAIN_VIEWPORT, viewport_flags, [], viewport_size, [0,0])
         viewport.set_background(*viewport_color)
         viewport.provide_window(window)
         viewport.add_batch()
         
-        # Make the Window entry
-        self.windows[wid] = {
-            "name":       name,
-            "window":     window,
-            "fpsd":       None
-        }
-        
         # Set Window's main viewport to the one we just made
         window.viewports.append(viewport)
 
+        # Add another viewport for UI
         self.add_viewport(viewport_color=transparent, flags=[VIEWPORT_EQUAL_WINDOW])
 
         # Add FPS Display
@@ -711,8 +690,9 @@ class Display:
             return
         
         window_data = self.windows[wid]
-        window_data["window"].close()
-        window_data["window"]     = None
+        if window_data["window"]:
+            window_data["window"].close()
+        
         if wid == self.main_window_id:
             self.main_window_id = None
         self.windows.pop(wid)
@@ -812,7 +792,7 @@ class Display:
         if not viewport:
             return
 
-        x, y = transform.into_screen_coords(viewport.size)
+        x, y = transform.into_screen_coords(viewport.tsize)
         
         # Get sprite's dimensions
         w,h             = transform.tsize
@@ -918,7 +898,7 @@ class Display:
         transform.h = h
         
         # | Get XY position
-        x,y = transform.into_screen_coords(viewport.size)
+        x,y = transform.into_screen_coords(viewport.tsize)
 
         # | Set the others
         if label.rotation != transform.rotation:

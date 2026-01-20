@@ -1,6 +1,6 @@
 # Import libraries
 import pyglet as pg
-from pygame import Sound, Channel
+from pygame import mixer
 
 # Import inherited
 from classes.nodes.gui.canvasitem import *
@@ -22,18 +22,17 @@ class MediaPlayer(CanvasItem):
         self._playing     : bool                   = True
         self._ogsize      : list[int]              = [320,240]
         self._volume      : float | int            = 0
-        self._sound       : Sound                  = None
+        self._sound       : mixer.Sound            = None
         self._video       : engine.pvd.VideoPyglet = None
-        self.channel      : Channel                = None
+        self.channel      : mixer.Channel          = None
         self._autostart   : bool                   = False
         self._loops       : int                    = 0
 
         super().__init__(properties, parent, children)
         self._make_new_sprite()
         
-        self.media_id = engine.sid
-        engine.sid   += 1
-        self.channel  = Channel(self.media_id)
+        self.media_id = mixer.get_num_channels() - 1
+        self.channel  = mixer.Channel(self.media_id)
     
     def _setup_properties(self, scene=None):
         super()._setup_properties(scene)
