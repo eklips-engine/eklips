@@ -10,6 +10,7 @@ import threading
 import warnings
 import pyglet as pg
 from classes.ui import *
+from classes.locals import *
 import classes.singleton as engine
 
 ## Pyglet event loop
@@ -69,9 +70,9 @@ class HookFPSDisplay(pg.window.FPSDisplay):
         if self._elapsed >= self.update_period:
             self._elapsed = 0
             if engine.debug.track_visible_sprites:
-                self.label.text = f'{1 / self._mean(self._delta_times):.2f} FPS with {engine.spronscr} visible sprites'
+                self.label.text = f'{round(1 / self._mean(self._delta_times))} FPS with {engine.spronscr} visible sprites'
             else:
-                self.label.text = f'{1 / self._mean(self._delta_times):.2f} FPS with {engine.uid} objects'
+                self.label.text = f'{round(1 / self._mean(self._delta_times))} FPS with {engine.uid} objects'
     
     def _hook_flip(self) -> None:
         self.update()

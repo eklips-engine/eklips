@@ -385,6 +385,7 @@ class Transform:
 class Mouse:
     pos      = [0,0]
     dpos     = [0,0]
+    scroll   = 0           # 1 is up, -1 is down
     buttons  = [0,0,0,0,0] # Index 0 is ignored
     paths    = []          # List of filepaths
 

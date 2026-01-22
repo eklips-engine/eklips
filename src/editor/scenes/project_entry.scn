@@ -1,0 +1,82 @@
+{
+    "nodes": {
+        "": {
+            "type":        "ColorRect",
+            "script_path": "res://data/project_entry.ekl",
+
+            "viewport_id": 2,
+
+            "color":       [35,35,45],
+            "transform":   {
+                "position": [10,10],
+                "tsize":    [5, 61],
+                "scale":    [1,  1],
+                "scroll":   [0,  0],
+
+                "rotation": 0,
+                "alpha":    255,
+                "anchor":   "top left",
+                "visible":  true,
+                "skew":     0
+            },
+
+            "children":    {
+                "nlbl": {
+                    "type":  "Label",
+                    "color": [255,255,255],
+                    
+                    "font_size": 19,
+
+                    "transform":   {
+                        "position": [25,10],
+                        "tsize":    [1,  1],
+                        "scale":    [1,  1],
+                        "scroll":   [0,  0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "top left",
+                        "visible":  true,
+                        "skew":     0
+                    }
+                },
+                "htbx": {
+                    "type":  "CanvasItem",
+
+                    "transform":   {
+                        "position": [10,10],
+                        "tsize":    [1, 61],
+                        "scale":    [1,  1],
+                        "scroll":   [0,  0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "top left",
+                        "visible":  true,
+                        "skew":     0
+                    }
+                },
+                "vlbl": {
+                    "type":  "Label",
+                    "color": [255,255,255],
+
+                    "transform":   {
+                        "position": [25,40],
+                        "tsize":    [1,  1],
+                        "scale":    [1,  1],
+                        "scroll":   [0,  0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "top left",
+                        "visible":  true,
+                        "skew":     0
+                    }
+                }
+            }
+        }
+    },
+    "properties": {
+        "inherits": null
+    }
+}

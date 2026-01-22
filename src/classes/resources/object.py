@@ -116,12 +116,17 @@ class Object(metaclass=_exportmeta):
         if not self._script._namespace:
             return
         if not function in self._script._namespace:
+            return
             raise ScriptError(f"The Script {self._script.file_path} tried to call '{function}{tuple(args)}' but failed as the function doesn't exist in the Script.")
         mobj = types.MethodType(self._script._namespace[function], self)
-        if len(args) == 0:
-            return mobj() 
-        else:
-            return mobj(*args)
+        try:
+            if len(args) == 0:
+                return mobj() 
+            else:
+                return mobj(*args)
+        except:
+            if engine.debug.avoid_error_mercy:
+                raise ScriptError(f"The Script {self._script.file_path} tried to call '{function}{tuple(args)}' but it failed horribly")
     
     def call_signal(self, signal_name, *args):
         """Call an attached signal from the attached Script, if it exists."""
@@ -132,10 +137,14 @@ class Object(metaclass=_exportmeta):
         if not self.signals.get(signal_name, None) in self._script._namespace:
             return
         mobj = types.MethodType(self._script._namespace[self.signals[signal_name]], self)
-        if len(args) == 0:
-            return mobj() 
-        else:
-            return mobj(*args)
+        try:
+            if len(args) == 0:
+                return mobj() 
+            else:
+                return mobj(*args)
+        except:
+            if engine.debug.avoid_error_mercy:
+                raise ScriptError(f"The Script {self._script.file_path} tried to call '{signal_name}{tuple(args)}' but it failed horribly")
     
     def call_deferred(self, function, *args, is_signal = False) -> None:
         """Call a function/signal from the attached Script after the Script has finished its process tick."""
@@ -156,7 +165,7 @@ class Object(metaclass=_exportmeta):
         
         try:
             self.call("_process", engine.delta)
-        except:
+        except Exception as err:
             pass
 
         for info in self._script._function_queue:
@@ -170,7 +179,7 @@ class Object(metaclass=_exportmeta):
         """Run the `_onready()` function on the Script. This should only be called after the Object/Node is ready."""
         try:
             self.call("_onready")
-        except:
+        except Exception as err:
             pass
     
     def _setup_properties(self):

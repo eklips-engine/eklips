@@ -41,6 +41,7 @@ def on_draw():
 
         # Clear the list of pressed keys
         engine.keyboard.pressed.clear()
+        engine.mouse.scroll = 0
     except Exception as error:
         engine.quit()
         engine.error_handler.show_error(error)

@@ -1,11 +1,11 @@
 # Import libraries
 import pygame, pyglet as pg, json, gc
-import pyvidplayer2   as pvd
+import pyvidplayer2   as pvd, time
 
 # Import components
 from classes             import hooks, ui, resources, nodes
 from classes             import crash_screen as error_handler, debug
-from classes             import saving
+from classes             import saving, networking
 from classes.customprops import *
 from classes.locals      import *
 
@@ -13,6 +13,9 @@ from classes.locals      import *
 pygame.mixer.init()
 
 # Functions
+def get_date():
+    return time.strftime('%d %m %Y %H %M %S')
+
 def load_engine():
     global running,game,display,mouse,loader,keyboard,scene,savefile,lang,icon,clock
 

@@ -1,11 +1,13 @@
-import classes.singleton as engine
-import tkinter           as tk, os, shutil
-from tkinter             import ttk
-from tkinter.messagebox  import *
-from tkinter.filedialog  import *
-from classes.ui          import *
-from classes.customprops import *
-from classes.nodes       import *
+## Spaghetti code
+import classes.singleton       as engine
+import tkinter                 as tk, os, shutil
+from tkinter                   import ttk
+from tkinter.messagebox        import *
+from tkinter.filedialog        import *
+from classes.ui                import *
+from classes.customprops       import *
+from classes.nodes             import *
+from classes.nodes.packedscene import *
 
 window_created = False
 
@@ -17,6 +19,8 @@ def populate_frame(self : ColorRect):
     # project_list: ['editor/game.json', ...]
     project_list = engine.savefile.get("projects", [])
     print(f" ~ [editor] Populate Panel with projects")
+    pid = 0
+    x   = 10
     for project in project_list:
         gamedata = GameData({
             "project": {
@@ -25,9 +29,34 @@ def populate_frame(self : ColorRect):
             },
             "name": "Eklips 5.0A"
         }, is_file=False)
-
         engine.projects[project] = gamedata
+
+        btnps : PackedScene = engine.scene._add_node({
+            "type":      "PackedScene",
+            "file_path": "res://scenes/project_entry.scn",
+            "projectid": project,
+            "pid":       pid,
+        }, f"/panel_obj/{gamedata.name}")
+        nlbl : Label      = btnps.get_node_from_path("/nlbl")
+        vlbl : Label      = btnps.get_node_from_path("/vlbl")
+        htbx : CanvasItem = btnps.get_node_from_path("/htbx")
+        rnod : ColorRect  = btnps.get_node_from_path("")
+
+        nlbl.text = gamedata.name
+        vlbl.text = f"v{gamedata.version}"
+ 
+        nlbl.draw()
+        vlbl.draw()
+        rnod.x = x
+        if vlbl.w > nlbl.w:
+            w = 15 + vlbl.w
+        else:
+            w = 15 + nlbl.w
+        x     += w + 10
+        htbx.w = w
+
         print(f" |~ {gamedata.name} v{gamedata.version}")
+        pid += 1
 
 def make_new_project(name, directory):
     # This makes a new project.

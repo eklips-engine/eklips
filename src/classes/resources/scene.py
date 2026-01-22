@@ -82,7 +82,7 @@ class Scene(Resource):
         self.empty()
         self._collisionman = engine.resources.CollisionManager()
         self._file_path    = path
-        _data              = engine.loader.load(path)
+        _data              = engine.loader.load(path, force_new_resource=True)
         if _data["properties"]["inherits"]:
             self._inherited_scn = _data["properties"]["inherits"]
             self._loadscenefile(_data["properties"]["inherits"])
@@ -102,7 +102,7 @@ class Scene(Resource):
             self._initialize_node_entry(nodepath)
 
     def _loadscenefile(self, path):
-        _data       = engine.loader.load(path)
+        _data       = engine.loader.load(path, force_new_resource=True)
         self._nodes = _data["nodes"]
         nodepaths   = self.get_node_paths("")
 
@@ -378,9 +378,6 @@ class Scene(Resource):
                 node.update()
         except Exception as error:
             raise error
-
-        x = ""
-        for node in self._temp_node_list: x += f"{node[:6]} "
 
         ## Things you can't do in the for loop above me without causing trouble
         if self._marked_scene_chng:

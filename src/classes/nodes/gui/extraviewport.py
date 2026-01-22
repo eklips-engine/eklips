@@ -78,6 +78,28 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
         """
         Viewport.flip(self)
 
-    def _free(self):
+    def get_if_mouse_hovering(self):
+        mpos     = engine.mouse.pos
+        viewport = self._get_viewport()
+        if not viewport:
+            return
+        x,y    = self.into_screen_coords(self.window.size)
+        is_it  = (
+            mpos[0] >= x          and
+            mpos[0] <= x + self.w and
+            mpos[1] >= y          and
+            mpos[1] <= y + self.h
+        )
+        
+        return is_it
+    
+    def _make_new_sprite(self, batch_id=MAIN_BATCH):
+        sprite         = pg.sprite.Sprite(self._base_img, batch = self.batches[batch_id])
+        sprite.visible = False
+        i              = len(self.sprites)
+        self.sprites.append(sprite)
+        self.used_sprites[i] = False
+        return sprite, i
+    
+    def _remove_sprite(self):
         self.close()
-        super()._free()

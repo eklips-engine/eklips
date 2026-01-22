@@ -116,11 +116,9 @@ class EklWindow(pg.window.Window):
             self.minimize()
     
     def screenshot(self):
-        """Say cheese! (Pieces)"""
-        dirc = f"screenshots/{time.strftime('%d %m %Y %H %M %S')}"
-        os.makedirs(dirc, exist_ok=True)
-        for i in self.viewports:
-            i.color_buffer.save(f"{dirc}/{i.id}.png")
+        """Say cheese!"""
+        os.makedirs("screenshots", exist_ok=True)
+        pg.image.get_buffer_manager().get_color_buffer().save(f"screenshots/{engine.get_date()}.png")
     
     def on_close(self):
         if self.closed: return
@@ -166,6 +164,11 @@ class EklWindow(pg.window.Window):
     def on_mouse_motion(self, x, y, dx, dy):
         engine.mouse.pos  = [x, y]
         engine.mouse.dpos = [dx,dy]
+    
+    def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+        # Who gives a fuck about some "Apple Mighty Mouse" like just put the fries in the bag cuh
+        engine.mouse.pos    = [x, y]
+        engine.mouse.scroll = scroll_y
     
     def on_mouse_press(self, x, y, button, modifiers):
         engine.mouse.pos             = [x, y]
@@ -300,6 +303,11 @@ class Viewport(Transform):
         self.framebuffer.delete()
         self.color_buffer.delete()
         self.depth_buffer.delete()
+    
+    def screenshot(self):
+        """Say cheese!"""
+        os.makedirs("screenshots", exist_ok=True)
+        self.color_buffer.save(f"screenshots/VP{self.id} {engine.get_date()}.png")
     
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"

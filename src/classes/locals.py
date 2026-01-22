@@ -1,4 +1,4 @@
-import pyglet as pg
+import pyglet as pg, socket as sock, math
 
 USE_GAME_PARENT = "UseFileParent"
 USE_GAME_CV_DIR = "UseFileCVar"
@@ -46,11 +46,14 @@ MOUSE_WAIT    = pg.window.Window.CURSOR_WAIT
 MOUSE_NORMAL  = pg.window.Window.CURSOR_DEFAULT
 CURSORS       = [MOUSE_POINT, MOUSE_HELP, MOUSE_CROSS, MOUSE_NO, MOUSE_WAIT, MOUSE_NORMAL]
 
-INTERNET_ABORTED   = 10
-INTERNET_CONNECTED = 11
-INTERNET_IP        = "localhost"
+INTERNET_ABORTED   = 253132
+INTERNET_CONNECTED = 253133
+INTERNET_SERVER    = 253123
+INTERNET_CLIENT    = 253122
+INTERNET_IP        = sock.gethostname()
 INTERNET_PORT      = 9283
 INTERNET_ADDRESS   = (INTERNET_IP, INTERNET_PORT)
-PACKET_BASIC       = "hBas"
+PACKET_BASIC       = "hB"
 
-TRANSFORM_WARNING_EDITOR = "This property is used only for the editor to recognize this property is a CanvasItem-like object. To get the transform of a CanvasItem, use `self.x`, `self.y`, etc... However, you can set this property and it will actually work."
+inf = math.inf
+pi  = math.pi

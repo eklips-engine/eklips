@@ -1,7 +1,7 @@
 {
-    "name":    "Eklips Engine",
+    "name":    "Eklips Editor",
     "version": {
-        "app": "1.0",
+        "app": "5.0A",
         "ekl": "5.0A"
     },
     "viewport": {

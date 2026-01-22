@@ -6,10 +6,15 @@
         "pe_pjfl":  "Eklips Project File",
         "pe_evfl":  "Everything else..",
 
-        "pe_title": "Eklips Engine - Project Editor",
-        "pe_titlesetting": "Eklips Engine - Settings",
-        "pe_titlenewprj": "Eklips Engine - New Project",
-        "pe_titleselprj": "Eklips Engine - Select Project File",
+        "pe_title": "Eklips Editor - Project Editor",
+        "pe_titlesetting": "Eklips Editor - Settings",
+        "pe_titlenewprj": "Eklips Editor - New Project",
+        "pe_titleselprj": "Eklips Editor - Select Project File",
+        
+        "ee_title": "Eklips Editor",
+        "pe_warngotoprj": "Going to this project will do absolutely nothing, press OK to carry on",
+        "pe_warngotoprj2": "See? I told you nothing will happen.",
+        "pe_warngotoprj3": "Why even bother",
         
         "pe_lang":  "Language:"
     },

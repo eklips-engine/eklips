@@ -35,7 +35,7 @@ class Parallax(Sprite):
     def speed(self, value): self._speed = value
 
     def update(self):
-        self._imgoffsetx += engine.delta
+        self._imgoffsetx += engine.delta * self.speed
         super().update()
     
     def _draw(self):

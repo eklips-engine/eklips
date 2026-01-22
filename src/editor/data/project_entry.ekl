@@ -1,0 +1,46 @@
+import classes.singleton as engine
+import tkinter           as tk, os, shutil
+from tkinter             import ttk
+from tkinter.messagebox  import *
+from tkinter.filedialog  import *
+from classes.ui          import *
+from classes.customprops import *
+from classes.nodes       import *
+
+gjsp : str      = ""
+lid  : str      = ""
+gid  : int      = 0
+gmdt : GameData = None
+
+ready : bool = False
+
+nlbl : Label      = None
+vlbl : Label      = None
+htbx : CanvasItem = None
+
+def scnready(self : ColorRect):
+    global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid
+    gjsp = self.scene.projectid
+    gid  = self.scene.pid
+    gmdt = engine.projects[gjsp]
+
+    nlbl = self.scene.get_node_from_path("/nlbl")
+    vlbl = self.scene.get_node_from_path("/vlbl")
+    htbx = self.scene.get_node_from_path("/htbx")
+
+    nlbl.text = gmdt.name
+    vlbl.text = f"v{gmdt.version}"
+    
+    htbx.x = self.x
+    nlbl.x = self.x + 15
+    vlbl.x = nlbl.x
+    ready  = True
+
+def _process(self : ColorRect, delta : float):
+    global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid
+    if not ready:
+        scnready(self)
+    if engine.mouse.buttons[MOUSE_LEFT] and htbx.get_if_mouse_hovering():
+        askokcancel(engine.lang.get("ee_title"), engine.lang.get(f"pe_warngotoprj{lid}"))
+        if lid == "":  lid = "2"
+        if lid == "2": lid = "3"

@@ -4,8 +4,9 @@
             "type":     "Node",
             "children": {
                 "panel_obj": {
-                    "type":        "ExtraViewport",
-                    "script_path": "res://data/workflow.ekl",
+                    "type":          "ScrollingViewport",
+                    "left_to_right": true,
+                    "script_path":   "res://data/workflow.ekl",
 
                     "children": {},
 
