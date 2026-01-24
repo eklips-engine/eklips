@@ -70,6 +70,10 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
         self.provide_window(window)
         window.viewports.append(self)
     
+    def draw(self):
+        # Alias
+        self.flip()
+    
     def flip(self):
         """
         Draw viewport contents to the window. For some reason
@@ -80,7 +84,7 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
 
     def get_if_mouse_hovering(self):
         mpos   = engine.mouse.pos
-        x,y    = self.into_screen_coords(self.window.size)
+        x,y    = self.into_screen_coords()
         is_it  = (
             mpos[0] >= x          and
             mpos[0] <= x + self.w and

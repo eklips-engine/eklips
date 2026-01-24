@@ -11,12 +11,11 @@
         "pe_titlesetting": "Eklips Editeur - Paramèters",
         "pe_titlenewprj": "Eklips Editeur - Nouveau Projet",
         "pe_titleselprj": "Eklips Editeur - Choisir un Projet Fichier",
+        "pe_titleeditor": "Eklips Editeur - %",
         
         "ee_title": "Eklips Editeur",
-        "pe_warngotoprj": "Accéder à ce projet ne changera absolument rien, appuyez sur OK pour continuer.",
-        "pe_warngotoprj2": "Vous voyez? Je vous avais dit que rien ne se passerait.",
-        "pe_warngotoprj3": "Pourquoi..............",
-        
+        "pe_warnleaveprj": "Êtes-vous sûr de vouloir partir? Votre progression sera sauvegardée trust me bro",
+
         "pe_lang":  "Langue:"
     },
     "properties": {

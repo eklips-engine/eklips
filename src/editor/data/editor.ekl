@@ -6,6 +6,32 @@ from tkinter.filedialog        import *
 from classes.customprops       import *
 from classes.nodes             import *
 
+backbtn : Sprite = None
+settbtn : Sprite = None
+playbtn : Sprite = None
+nlbl    : Label  = None
+vlbl    : Label  = None
+
 def _process(self : Node, delta : float):
+    global backbtn, settbtn, playbtn, nlbl, vlbl
+
+    gmdt : GameData = engine.projects[engine.selected_project]
+
+    if not backbtn:
+        backbtn = engine.scene.get_node_from_path("/backico")
+        playbtn = engine.scene.get_node_from_path("/playico")
+        settbtn = engine.scene.get_node_from_path("/settico")
+        nlbl    = engine.scene.get_node_from_path("/nlbl")
+        vlbl    = engine.scene.get_node_from_path("/vlbl")
+
+        nlbl.text = gmdt.name
+        nlbl.draw()
+        vlbl.text = f"v{gmdt.version}"
+        vlbl.x    = nlbl.x + nlbl.w + 10
+    
+    if backbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
+        if askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_warnleaveprj")):
+            engine.scene.load("res://scenes/master.scn")
+    
     window        = engine.display.get_window(MAIN_WINDOW)
     window.width += round((1152 - window.width) / 10)

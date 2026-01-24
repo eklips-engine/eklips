@@ -40,7 +40,8 @@ def _process(self : ColorRect, delta : float):
     global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid
     if not ready:
         scnready(self)
-    if engine.mouse.buttons[MOUSE_LEFT] and htbx.get_if_mouse_hovering():
-        askokcancel(engine.lang.get("ee_title"), engine.lang.get(f"pe_warngotoprj{lid}"))
-        if   lid == "":  lid = "2"
-        elif lid == "2": lid = "3"
+    if htbx.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
+        engine.selected_project = gjsp
+        window                  = engine.display.get_window(MAIN_WINDOW)
+        window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))
+        engine.scene.load("res://scenes/editor.scn")

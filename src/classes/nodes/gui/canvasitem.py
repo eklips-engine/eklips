@@ -199,12 +199,13 @@ class CanvasItem(Node, Transform):
         viewport = self._get_viewport()
         if not viewport:
             return
-        x,y    = self.into_screen_coords(viewport.tsize)
+        x,  y    = self.into_screen_coords(viewport.tsize)
+        vx, vy   = viewport.into_screen_coords()
         is_it  = (
-            mpos[0] >= ((x - viewport.cam.x) * viewport.cam.zoom)                                and
-            mpos[0] <= ((x - viewport.cam.x) * viewport.cam.zoom) + (self.w * viewport.cam.zoom) and
-            mpos[1] >= ((y - viewport.cam.y) * viewport.cam.zoom)                                and
-            mpos[1] <= ((y - viewport.cam.y) * viewport.cam.zoom) + (self.h * viewport.cam.zoom)
+            mpos[0] >= ((x + vx - viewport.cam.x) * viewport.cam.zoom)                                and
+            mpos[0] <= ((x + vx - viewport.cam.x) * viewport.cam.zoom) + (self.w * viewport.cam.zoom) and
+            mpos[1] >= ((y + vy - viewport.cam.y) * viewport.cam.zoom)                                and
+            mpos[1] <= ((y + vy - viewport.cam.y) * viewport.cam.zoom) + (self.h * viewport.cam.zoom)
         )
-        
+            
         return is_it

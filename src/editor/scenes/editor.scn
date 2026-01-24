@@ -235,6 +235,7 @@
         }
     },
     "properties": {
-        "inherits": null
+        "inherits": null,
+        "version":  1
     }
 }

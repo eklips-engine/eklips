@@ -258,6 +258,9 @@ class Viewport(Transform):
             return True
         return False
     
+    def into_screen_coords(self):
+        return super().into_screen_coords(self.window.size)
+
     def add_batch(self):
         bid      = len(self.batches)
         batch    = pg.graphics.Batch()
@@ -425,7 +428,7 @@ class Viewport(Transform):
         # Draw Viewport to Window
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        x, y = self.into_screen_coords(self.window.size)
+        x, y = self.into_screen_coords()
         self.color_buffer.blit(x, y, self.id)
     
     def _reset_camera(self):

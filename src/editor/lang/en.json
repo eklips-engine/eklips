@@ -10,11 +10,10 @@
         "pe_titlesetting": "Eklips Editor - Settings",
         "pe_titlenewprj": "Eklips Editor - New Project",
         "pe_titleselprj": "Eklips Editor - Select Project File",
+        "pe_titleeditor": "Eklips Editor - %",
         
         "ee_title": "Eklips Editor",
-        "pe_warngotoprj": "Going to this project will do absolutely nothing, press OK to carry on",
-        "pe_warngotoprj2": "See? I told you nothing will happen.",
-        "pe_warngotoprj3": "Why even bother",
+        "pe_warnleaveprj": "Are you sure you want to leave? Your progress will be saved. Totally.",
         
         "pe_lang":  "Language:"
     },
