@@ -1,5 +1,5 @@
 # Import libraries
-import pyglet as pg, gc, time, pygame, os
+import pyglet as pg, os
 
 # Import components
 import classes.singleton     as engine
@@ -25,46 +25,30 @@ white       = [255, 255, 255, 255]
 transparent = [0,   0,   0,     1]
 
 # Classes
-class EklWinBase:
-    def __init__(self) -> None:
-        # Setup variables
-        self._focused  = False
-        self.closed    = False
-        self.viewports = []
-        self.wid       = -1
-    
-    @property
-    def focused(self):
-        """If the Window is focused. Read-only."""
-        return self._focused
-
-    def toggle_fullscreen(self):
-        """Toggle fullscreen mode."""
-    
-    def screenshot(self):
-        """Say cheese!"""
-
-class EklWindow(pg.window.Window, EklWinBase):
+class EklWindow(pg.window.Window):
     def __init__(
         self,
-        width      : int | None                   = None,
-        height     : int | None                   = None,
-        caption    : str | None                   = None,
-        resizable  : bool                         = False,
-        style      : str | None                   = None,
-        fullscreen : bool                         = False,
-        visible    : bool                         = True,
-        vsync      : bool                         = True,
-        file_drops : bool                         = False,
-        display    : pg.display.Display    | None = None,
-        screen     : pg.display.Screen     | None = None,
-        config     : Config                | None = None,
-        context    : pg.gl.Context         | None = None,
-
-        mode       : pg.display.base.ScreenMode | None = None
+        wid        : int,
+        
+        width      : int | None                        = None,
+        height     : int | None                        = None,
+        caption    : str | None                        = None,
+        resizable  : bool                              = False,
+        style      : str | None                        = None,
+        fullscreen : bool                              = False,
+        visible    : bool                              = True,
+        vsync      : bool                              = True,
+        file_drops : bool                              = False,
+        display    : pg.display.Display         | None = None,
+        screen     : pg.display.Screen          | None = None,
+        config     : Config                     | None = None,
+        context    : pg.gl.Context              | None = None,
+        mode       : pg.display.base.ScreenMode | None = None,
     ) -> None:
-        # Init Base
-        EklWinBase.__init__(self)
+        # Setup variables
+        self.closed     = False
+        self.viewports  = {}
+        self.id         = wid
         
         # Init
         ## Code taken from pyglet/window/base/__init__.py line 508-546
@@ -111,138 +95,165 @@ class EklWindow(pg.window.Window, EklWinBase):
             context,    mode
         )
 
-    def toggle_fullscreen(self):
-        """Toggle fullscreen mode."""
-        self.set_fullscreen(not self.fullscreen)
-    
     def __repr__(self):
         return f"{self.__class__.__name__}(size={self.width}x{self.height}, id={self.id})"
 
+    ## Say cheese!
     def screenshot(self):
         """Say cheese!"""
         os.makedirs("screenshots", exist_ok=True)
         pg.image.get_buffer_manager().get_color_buffer().save(f"screenshots/{engine.get_date()}.png")
     
+    ## Closing the window
     def on_close(self):
+        engine.display.remove_window(self.id) 
+    def close(self):
         if self.closed:
             return
         self.closed = True
-        for viewport in self.viewports:
+        for vid in self.viewports.copy():
+            viewport = self.viewports[vid]
             viewport.close()
-        engine.display._close_window(self.wid)
-    
-    def close(self):
-        self.closed = True
         super().close()
-    
-    def on_context_lost(self):
-        self._focused = False
-    
-    def on_activate(self):
-        self._focused = True
-    
-    def on_deactivate(self):
-        self._focused = False
 
+    ## Size related    
+    def toggle_fullscreen(self):
+        """Toggle fullscreen mode."""
+        self.set_fullscreen(not self.fullscreen)
     def on_resize(self, width, height):
-        self._focused = True
-
-        for viewport in self.viewports:
+        for vid in self.viewports:
+            viewport = self.viewports[vid]
             if VIEWPORT_EQUAL_WINDOW in viewport.flags:
                 viewport.w = width
                 viewport.h = height
     
+    ## Drawing
     def on_draw(self):
         self.switch_to()
         self.clear()
-        
     def flip(self):
-        if not self.invalid:
+        if self.closed:
             return
 
-        for viewport in self.viewports:
-            viewport.flip()
+        for vid in self.viewports:
+            viewport    = self.viewports[vid]
+            viewport.draw()
         engine.spronscr = 0
         super().flip()
     
+    ## Mouse Events
     def on_mouse_motion(self, x, y, dx, dy):
         engine.mouse.pos  = [x, y]
         engine.mouse.dpos = [dx,dy]
-    
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
         # Who gives a fuck about some "Apple Mighty Mouse" like just put the fries in the bag cuh
         engine.mouse.pos    = [x, y]
         engine.mouse.scroll = scroll_y
-    
     def on_mouse_press(self, x, y, button, modifiers):
         engine.mouse.pos             = [x, y]
         engine.mouse.buttons[button] = True
-
     def on_mouse_release(self, x, y, button, modifiers):
         engine.mouse.pos             = [x, y]
         engine.mouse.buttons[button] = False
     
+    ## Keyboard Events
     def on_key_press(self, symbol, modifiers):
         engine.keyboard.modifiers       = modifiers
         engine.keyboard.held[symbol]    = True
-        engine.keyboard.pressed[symbol] = True
-        
+        engine.keyboard.pressed[symbol] = True     
     def on_key_release(self, symbol, modifiers):
         engine.keyboard.modifiers       = modifiers
         engine.keyboard.held[symbol]    = False
         engine.keyboard.pressed[symbol] = False
     
+    ## Misc. Events
     def on_file_drop(self, x, y, paths):
         engine.mouse.pos   = [x, y]
         engine.mouse.paths = paths
 
-class CameraTransform(Transform):
-    def __init__(self):
-        super().__init__()
-        self._zoom = 1
-    
-    @property
-    def zoom(self):      return self._zoom
-    @zoom.setter
-    def zoom(self, val): self._zoom = val
+    ## Add Viewport
+    def add_viewport(
+        self,
+        size  : list[int] = [640,480],
+        color : list[int] = black,
+        flags : list[int] = [VIEWPORT_EQUAL_WINDOW],
+        pos   : list[int] = [0,0]
+    ):
+        """
+        Add a viewport to Window `wid`. Returns its ID.
+
+        Args:
+            size: Size of the window's viewport. Using the flag `VIEWPORT_EQUAL_WINDOW` nullifies this.
+            color: Background color of the viewport.
+            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
+            pos: Viewport position.
+        """
+
+        vid = len(self.viewports)
+
+        viewport          = Viewport(vid, self, flags)
+        viewport.position = pos
+        viewport.tsize    = size
+        viewport.set_background(*color)
+        viewport.add_batch()
+
+        self.viewports[vid] = viewport
+
+        return vid
 
 class Viewport(Transform):
-    def __init__(
-            self,
-            vid       : int,
-            flags     : list          = [],
-            batches   : list          = [],
-            size      : list[int,int] = [640,480],
-            position  : list[int,int] = [0,0]
-        ):
-        Transform.__init__(self)
+    """A class to manage a portion of a Window."""
+    def __init__(self, vid : int, window : EklWindow, flags : list = []):
+        """Initialize a Viewport.
+        
+        Args:
+            vid: ID of the Viewport.
+            window: Window that the Viewport is attached to.
+            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)"""
+        super().__init__()
+        
+        self.cam         = CameraTransform()
+        self._background = [0,0,0,1]
 
-        self._w, self._h = size
-        self._x, self._y = position
+        self.flags = flags
 
-        self.flags            = flags
-        self.id               = vid
-        self.cam              = CameraTransform()
-        self._background      = [0,0,0,1]
+        self.batches      = []
+        self.framebuffer  = None
+        self.color_buffer = None
+        self.depth_buffer = None
 
-        self.framebuffer        = None
-        self.color_buffer       = None
-        self.depth_buffer       = None
-        self.window : EklWindow = None
-        self._closing           = False
-        self.batches            = batches
+        self._closing = False
 
-        self.sprites : list[pg.sprite.Sprite] = []
-        self.labels  : list[pg.text.Label]    = []
-        self.used_labels                      = {}
-        self.used_sprites                     = {}
-        self._base_img                        = engine.loader.load("root://_assets/error.png")
+        self.id = vid
 
-    def get_screen_pos(self, transform : Transform):
+        self.window                = window
+        self.window.viewports[vid] = self
+
+        self._make_framebuffer()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"
+    
+    ## def get_screen_pos(self, transform : Transform):
         x,y = transform.into_screen_coords(self.size)
         return x - self.cam.x, y - self.cam.y
     
+    ## Add Batch
+    def add_batch(self):
+        """Add a batch to Window `wid`. Returns its ID."""
+        bid      = len(self.batches)
+        batch    = pg.graphics.Batch()
+
+        self.batches.append(batch)
+        return bid
+
+    ## Convenience functions
+    def get_screen_pos(self, transform : Transform):
+        """Get the position of a Transform in the Window."""
+        x,y = transform.into_screen_coords(self.size)
+        return x - self.cam.x, y - self.cam.y
     def is_onscreen(self, transform : Transform):
+        """Get if a Transform is visible in the Viewport."""
         if engine.debug.sprite_always_visible:
             return True
         
@@ -258,15 +269,7 @@ class Viewport(Transform):
             return True
         return False
     
-    def into_screen_coords(self):
-        return super().into_screen_coords(self.window.size)
-
-    def add_batch(self):
-        bid      = len(self.batches)
-        batch    = pg.graphics.Batch()
-
-        self.batches.append(batch)
-        return bid
+    ## Framebuffer related
     def _make_framebuffer(self):
         if self.window:
             self.window.switch_to()
@@ -279,32 +282,15 @@ class Viewport(Transform):
         self.depth_buffer = pg.image.buffer.Renderbuffer(self.w, self.h, GL_DEPTH_COMPONENT)
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
-    
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
-        self.framebuffer = pg.image.Framebuffer()
         self.color_buffer = pg.image.Texture.create(
             self.w, self.h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA8
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-    def provide_window(self, window):
-        """
-        Provide the window `window` to the Viewport to draw to.
-
-        .. note:: This takes a while since the framebuffer has to be remade to be apart of the windows context.
-
-        Args:
-            window: Window object (engine.ui.EklWindow).
-        """
-        # Set variables
-        self.window           = window
-
-        # Remake framebuffer to be happy
-        self._delete_buffer()
-        self._make_framebuffer()
     def _delete_buffer(self):
         if not self.framebuffer:
             return
@@ -314,66 +300,13 @@ class Viewport(Transform):
         self.color_buffer.delete()
         self.depth_buffer.delete()
     
-    def screenshot(self):
-        """Say cheese!"""
-        os.makedirs("screenshots", exist_ok=True)
-        self.color_buffer.save(f"screenshots/VP{self.id} {engine.get_date()}.png")
-    
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"
-    
+    ## Transform related
+    def into_screen_coords(self):
+        return super().into_screen_coords(self.window.size)
     def _set_size(self, w, h):
-        self._resize_framebuffer()
-
-    def _make_new_sprite(self, batch_id=MAIN_BATCH):
-        sprite         = pg.sprite.Sprite(self._base_img, batch = self.batches[batch_id])
-        sprite.visible = False
-        i              = len(self.sprites)
-        self.sprites.append(sprite)
-        self.used_sprites[i] = False
-        return sprite, i
-    def _make_new_label(self, batch_id=MAIN_BATCH):
-        label         = pg.text.Label(batch = self.batches[batch_id])
-        label.visible = False
-        i             = len(self.labels)
-        self.labels.append(label)
-        self.used_labels[i] = False
-        return label, i
- 
-    def _allocate_label(self, batch_id=MAIN_BATCH):
-        i = 0
-        for label in self.labels:
-            if not self.used_labels[i]:
-                self.used_labels[i] = True
-                return label, i
-            i += 1
-        
-        label, i = self._make_new_label(batch_id)
-        self.used_labels[i] = True
-        return label, i
-    def _allocate_sprite(self, batch_id=MAIN_BATCH):
-        i = 0
-        for sprite in self.sprites:
-            if not self.used_sprites[i]:
-                self.used_sprites[i] = True
-                return sprite, i
-            i += 1
-        
-        sprite, i = self._make_new_sprite(batch_id)
-        self.used_sprites[i] = True
-        return sprite, i
+        self._resize_framebuffer()    
     
-    def _deallocate_sprite(self, sprite_id):
-        if not sprite_id in self.used_sprites:
-            raise ValueError(f"Tried to deallocate but Sprite of ID {sprite_id} does not exist.")
-        self.sprites[sprite_id].visible = False
-        self.used_sprites[sprite_id] = False
-    def _deallocate_label(self, label_id):
-        if not label_id in self.used_labels:
-            raise ValueError(f"Tried to deallocate but Label of ID {label_id} does not exist.")
-        self.labels[label_id].visible = False
-        self.used_labels[label_id] = False
-    
+    ## Drawing related
     def set_background(self, r=0,g=0,b=0,a=255):
         """
         Set the background color of the Viewport.
@@ -390,7 +323,7 @@ class Viewport(Transform):
             b / 255,
             a / 255
         ]
-    def flip(self):
+    def draw(self):
         """
         Draw viewport contents to the window.
         """
@@ -431,6 +364,7 @@ class Viewport(Transform):
         x, y = self.into_screen_coords()
         self.color_buffer.blit(x, y, self.id)
     
+    ## Camera functions    
     def _reset_camera(self):
         view_matrix = self.window.view.scale(
             (
@@ -464,311 +398,21 @@ class Viewport(Transform):
         )
         self.window.view = view_matrix
     
+    ## Closing
     def close(self):
         """
         Delete the framebuffer and close the Viewport.
         """
         self._closing = True
         self._delete_buffer()
-        gc.collect()
-    
+        self.window.viewports.pop(self.id)
+
 class Display:
-    print(" ~ Initialize Display")
-    _doomed = []
-    windows                 = {}
-    main_window_id          = None
-    _fontsizecache          = {}
-    display_id              = 0
-    
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(display_id={self.display_id})"
+    """A class to manage `EklWindow`'s."""
+    windows        = {}
+    main_window_id = None
 
-    def get_size(self):
-        """Returns the size of the screen in pixels."""
-        return pygame.display.get_desktop_sizes()[0]
-
-    def _create_window_entry(self):
-        wid = len(self.windows)
-        self.windows[wid] = {
-            "name":   None,
-            "window": None,
-            "fpsd":   None
-        }
-        return wid
-
-    def add_window(self,
-        name           : str                    = DEFAULT_NAME,
-        size           : list[int]              = [640,480],
-        viewport_flags : list                   = [],
-        viewport_size  : list[int] | int        = VIEWPORT_EQUAL_WINDOW,
-        viewport_color                          = black,
-        icon           : pg.image.AbstractImage = None,
-        resizable      : bool                   = True,
-        minimum_size   : None | list[int]       = [648,648],
-        maximum_size   : None | list[int]       = None,
-        visible        : bool                   = True,
-        fpsvisible     : bool                   = False,
-        wid            : None | int             = None
-    ) -> int:
-        """
-        Add a new Window, returns its Window ID.
-
-        Args:
-            name: Title of the window.
-            size: Size of the window.
-            viewport_size: Size of the window's viewport. This can be replaced with the flag `VIEWPORT_EQUAL_WINDOW`.
-            viewport_flags: Flags to be passed to the viewport.
-            viewport_color: Background color of the viewport.
-            icon: Image resource of the Window Icon, or None.
-            resizable: Allow the window to be resizable if True.
-            minimum_size: List of the minimum size the window can be, or None if you dont want a limit.
-            maximum_size: List of the maximum size the window can be, or None if you dont want a limit.
-            visible: Make the window visible if True. Defaults to True.
-            fpsvisible: Show the FPS if True.
-            wid: Create the window in a predetermined window ID if the argument is not None.
-        
-        Flags:
-            VIEWPORT_EQUAL_WINDOW: Used to make the Viewport size equal the Window size.
-            NO_CLEAR: Do not clear the Viewport before rendering.
-            NO_CLEAR_BACKGROUND: Ignore the set background color.
-        """
-
-        # Fix properties
-        print(f" ~ Initialize Window '{name}'")
-
-        if viewport_size == VIEWPORT_EQUAL_WINDOW:
-            viewport_flags.append(VIEWPORT_EQUAL_WINDOW)
-            viewport_size = size
-        
-        # Reserve window slot
-        if wid == None:
-            wid = self._create_window_entry()
-        if self.main_window_id == None:
-            self.main_window_id = wid
-        
-        # Create Window
-        window        = EklWindow(
-            width     = size[0],
-            height    = size[1],
-            caption   = name,
-            resizable = resizable,
-            visible   = False
-        )
-        window.wid    = wid
-
-        # Fill in information for the Window slot
-        self.windows[wid]["window"] = window
-        self.windows[wid]["name"]   = name
-
-        # Create viewports
-        self.add_viewport(wid, viewport_size, viewport_color, viewport_flags, [0,0])            # Main
-        self.add_viewport(wid = wid, viewport_color=transparent, flags=[VIEWPORT_EQUAL_WINDOW]) # For UI
-
-        # Add FPS Display
-        if fpsvisible or engine.debug.fps_visible:
-            fpsd = engine.hooks.HookFPSDisplay(window, [255,255,255,127])
-            self.windows[wid]["fpsd"] = fpsd
-
-        # Set Window properties
-        if minimum_size:
-            window.set_minimum_size(*minimum_size)
-        if maximum_size:
-            window.set_maximum_size(*maximum_size)
-        if icon:
-            window.set_icon(icon)
-        if visible:
-            window.set_visible()
-
-        # Return Window ID
-        return wid
-    
-    def add_viewport(
-        self,
-        wid            : int             = MAIN_WINDOW,
-        viewport_size  : list[int] | int = VIEWPORT_EQUAL_WINDOW,
-        viewport_color                   = black,
-        flags          : list            = [],
-        pos            : list[int]       = [0,0]
-    ):
-        """
-        Add a viewport to Window `wid`. Returns its ID.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-            viewport_size: Size of the window's viewport. Use constant `VIEWPORT_EQUAL_WINDOW` to make the Viewport size equal the Window size.
-            viewport_color: Background color of the viewport.
-            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
-            pos: Viewport position.
-        """
-
-        window   = self.get_window(wid)
-        if viewport_size == VIEWPORT_EQUAL_WINDOW:
-            flags.append(VIEWPORT_EQUAL_WINDOW)
-            viewport_size = window.size
-
-        vid = len(window.viewports)
-
-        viewport = Viewport(vid, flags, [], viewport_size, pos)
-        viewport.set_background(*viewport_color)
-        viewport.provide_window(window)
-        viewport.add_batch()
-
-        window.viewports.append(viewport)
-
-        return vid
-
-    def add_batch(self, wid : int = MAIN_WINDOW, vid : int = MAIN_VIEWPORT):
-        """
-        Add a batch to Window `wid`. Returns its ID.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-            vid: ID of Window's viewport. Defaults to MAIN_VIEWPORT.
-        """
-        if not (self.windows and self.windows.get(wid, None)):
-            return
-        
-        viewport = self.get_viewport_from_window(wid, vid)
-        return viewport.add_batch()
-
-    def clear_window(self, wid : int = MAIN_WINDOW):
-        """
-        Clear the window `wid`.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-        """
-        if not (self.windows and self.windows.get(wid, None)):
-            return
-        
-        window_data           = self.windows[wid]
-        if window_data.get("viewport",None):
-            window_data["viewport"].clear()
-    
-    def clear_windows(self):
-        """
-        Clear all windows and their viewports.
-        """
-        self._delete_in_queue()
-        for wid in self.windows.copy():
-            self.clear_window(wid)
-        
-    def flip_window(self, wid : int = MAIN_WINDOW):
-        """
-        Flip the window `wid`.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-        """
-        if not (self.windows and self.windows.get(wid, None)):
-            return
-        
-        window_data           = self.windows[wid]
-        if window_data.get("viewport",None):
-            window_data["viewport"].flip()
-    
-    def _delete_in_queue(self):
-        for wid in self._doomed:
-            self._close_window(wid)
-        self._doomed.clear()
-    
-    def flip_windows(self):
-        """
-        Flip all windows and their viewports.
-        """
-        self._delete_in_queue()
-        for wid in self.windows.copy():
-            self.flip_window(wid)
-        self._delete_in_queue()
-    
-    def close_window(self, wid : int = MAIN_WINDOW):
-        """
-        Close the window `wid` after updating.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-        """
-        self._doomed.append(wid)
-    
-    def _close_window(self, wid, only_remove=False, dont_remove=False):
-        """
-        Close the window `wid` immediately.
-
-        Args:
-            wid: ID of Window.
-            only_remove: If True, only remove the Window.
-            dont_remove: If True, don't remove the Window entry.
-        """
-        if not (self.windows and self.windows.get(wid, None)):
-            return
-        
-        window_data = self.windows[wid]
-        if window_data["window"] and not only_remove:
-            window_data["window"].close()
-        if wid == self.main_window_id:
-            self.main_window_id = None
-        if not dont_remove:
-            self.windows.pop(wid)
-        gc.collect()
-    
-    def close_windows(self, forced : bool = False, blacklist : list = []):
-        """
-        Close all windows and their viewports.
-
-        Args:
-            forced: If true, close the window immediately. This may cause issues.
-            blacklist: List of Window IDs to NOT. CLOSE.
-        """
-        for wid in self.windows.copy():
-            if wid in blacklist:
-                continue
-            if forced:
-                self._close_window(wid)
-            else:
-                self.close_window(wid)
-
-    def get_window(self, wid : int = MAIN_WINDOW) -> EklWindow:
-        """
-        Get the window `wid`.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-        """
-        return self.windows.get(wid, {"window": None})["window"]
-
-    def get_viewport_from_window(self, wid : int = MAIN_WINDOW, vid : int = MAIN_VIEWPORT) -> Viewport:
-        """
-        Get the viewport `vid` from the window `wid`.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-            vid: ID of Viewport. Defaults to MAIN_VIEWPORT.
-        """
-        if not wid in self.windows:
-            return
-
-        try:
-            return self.get_window(wid).viewports[vid]
-        except:
-            return
-
-    def get_batch_from_window(self, wid : int = MAIN_WINDOW, vid: int = MAIN_VIEWPORT, bid : int = MAIN_BATCH) -> pg.graphics.Batch:
-        """
-        Get the batch `bid` from the viewport `vid` which is from the window `wid`.
-
-        Args:
-            wid: ID of Window. Defaults to MAIN_WINDOW.
-            vid: ID of Window's viewport. Defaults to MAIN_VIEWPORT.
-            bid: ID of Batch from viewport. Defaults to MAIN_BATCH.
-        """
-        if not wid in self.windows:
-            return
-        
-        try:
-            return self.get_viewport_from_window(wid, vid).batches[bid]
-        except:
-            return
-    
+    ## Spoof. To be removed
     def blit(
         self,
         transform      : Transform,
@@ -776,9 +420,9 @@ class Display:
         window_id      : int               = MAIN_WINDOW,
         viewport_id    : int               = MAIN_VIEWPORT,
         group          : pg.graphics.Group = None,
-        region         : list | None       = None
+        region         : list | None       = None,
+        ignore_scaling : bool              = False,
     ) -> None:
-        global f
         """
         Draw a Sprite to a Window's main viewport.
         
@@ -791,13 +435,15 @@ class Display:
             transform:
                 `Transform` object to tell where the image is drawn.
             sprite:
-                `EklImage` Sprite with the Batch set properly.
+                Sprite with the Batch set properly and `EklImage` for the image.
             window_id:
                 ID of Window to draw. Defaults to `MAIN_WINDOW`.
             viewport_id:
                 ID of Viewport. Used for information about viewport width and height, etc. Defaults to `MAIN_VIEWPORT`.
             group:
                 Pyglet `Group`. Defaults to `None`.
+            ignore_scaling:
+                Read, silly.
         """
         if not transform.visible:
             return
@@ -817,11 +463,17 @@ class Display:
         if not viewport:
             return
 
-        x, y = transform.into_screen_coords(viewport.tsize)
-        
-        # Get sprite's dimensions
-        w,h             = transform.tsize
+        # Fix dimensions
+        transform.w = sprite.image.width
+        transform.h = sprite.image.height
+
+        # Get sprite's scaling
         scale_x,scale_y = transform.scale
+        if ignore_scaling:
+            scale_x,scale_y=1,1
+
+        # Get XY position
+        x, y = transform.into_screen_coords(viewport.tsize)
 
         # Set image's flip values properly
         if transform.flip_w or transform.flip_h:
@@ -857,7 +509,6 @@ class Display:
         if sprite.opacity != transform.alpha:
             sprite.opacity = transform.alpha
         sprite.visible = viewport.is_onscreen(transform)
-    
     def blit_label(
         self,
         text           : str,
@@ -938,3 +589,139 @@ class Display:
             label.opacity = transform.alpha
         label.visible = viewport.is_onscreen(transform)
         return w,h
+
+    ## Add/Remove
+    def _add_window_entry(self):
+        wid               = len(self.windows)
+        self.windows[wid] = None
+        return wid
+    def add_window(self,
+        name           : str                    = DEFAULT_NAME,
+        size           : list[int]              = [640,480],
+        viewport_flags : list                   = [],
+        viewport_size  : list[int] | int        = [640,480],
+        viewport_color                          = black,
+        icon           : pg.image.AbstractImage = None,
+        resizable      : bool                   = True,
+        minimum_size   : None | list[int]       = [640,480],
+        maximum_size   : None | list[int]       = None,
+        visible        : bool                   = True,
+        fpsvisible     : bool                   = False,
+        wid            : None | int             = None
+    ) -> int:
+        """
+        Add a new Window, returns its Window ID.
+
+        Args:
+            name: Title of the window.
+            size: Size of the window.
+            viewport_size: Size of the window's viewport. Using the flag `VIEWPORT_EQUAL_WINDOW` nullifies this.
+            viewport_flags: Flags to be passed to the viewport.
+            viewport_color: Background color of the viewport.
+            icon: Image resource of the Window Icon, or None.
+            resizable: Allow the window to be resizable if True.
+            minimum_size: List of the minimum size the window can be, or None if you dont want a limit.
+            maximum_size: List of the maximum size the window can be, or None if you dont want a limit.
+            visible: Make the window visible if True. Defaults to True.
+            fpsvisible: Show the FPS if True.
+            wid: Create the window in a predetermined window ID if the argument is not None.
+        
+        Flags:
+            VIEWPORT_EQUAL_WINDOW: Used to make the Viewport size equal the Window size.
+            NO_CLEAR: Do not clear the Viewport before rendering.
+            NO_CLEAR_BACKGROUND: Ignore the set background color.
+        """
+        print(f" ~ Initialize Window '{name}'")
+        
+        # Reserve window slot
+        if wid == None:
+            wid = self._add_window_entry()
+        if self.main_window_id == None:
+            self.main_window_id = wid
+        
+        # Create Window
+        window        = EklWindow(
+            wid       = wid,
+
+            width     = size[0],
+            height    = size[1],
+            caption   = name,
+            resizable = resizable
+        )
+
+        # Set Window properties
+        if minimum_size:
+            window.set_minimum_size(*minimum_size)
+        if maximum_size:
+            window.set_maximum_size(*maximum_size)
+        if icon:
+            window.set_icon(icon)
+        
+        # Fill in information for the Window slot
+        self.windows[wid] = window
+
+        # Create viewports
+        window.add_viewport(color=viewport_color, flags=viewport_flags, size=viewport_size) # MAIN_VIEWPORT
+        window.add_viewport(color=transparent,    flags=[VIEWPORT_EQUAL_WINDOW])            # UI_VIEWPORT
+
+        # Add FPS Display
+        if fpsvisible or engine.debug.fps_visible:
+            fpsd = engine.hooks.HookFPSDisplay(window, [255,255,255,127])
+
+        # Return Window ID
+        return wid
+    def remove_window(self, wid=MAIN_WINDOW):
+        """Close and remove a Window from the Display.
+        
+        Args:
+            wid: ID of the Window."""
+        window = self.get_window(wid)
+        
+        window.close()
+        self.windows.pop(wid)
+    
+    ## Close
+    def close_windows(self):
+        for wid in self.windows:
+            window = self.get_window(wid)
+            if window:
+                window.close()
+    
+    ## Get
+    def get_window(self, wid=MAIN_WINDOW) -> EklWindow:
+        """Get a Window from the Display.
+        
+        Args:
+            wid: ID of the Window."""
+        return self.windows[wid]  
+    def get_viewport_from_window(self, wid : int = MAIN_WINDOW, vid : int = MAIN_VIEWPORT) -> Viewport:
+        """
+        Get the viewport `vid` from the window `wid`.
+
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
+            vid: ID of Viewport. Defaults to MAIN_VIEWPORT.
+        """
+        if not wid in self.windows:
+            return
+        
+        try:
+            return self.get_window(wid).viewports.get(vid)
+        except:
+            return
+    def get_batch_from_window(self, wid : int = MAIN_WINDOW, vid: int = MAIN_VIEWPORT, bid : int = MAIN_BATCH) -> pg.graphics.Batch:
+        """
+        Get the batch `bid` from the viewport `vid` which is from the window `wid`.
+
+        Args:
+            wid: ID of Window. Defaults to MAIN_WINDOW.
+            vid: ID of Window's viewport. Defaults to MAIN_VIEWPORT.
+            bid: ID of Batch from viewport. Defaults to MAIN_BATCH.
+        """
+        if not wid in self.windows:
+            return
+        
+        try:
+            return self.get_viewport_from_window(wid, vid).batches[bid]
+        except:
+            return

@@ -43,5 +43,6 @@ def _process(self : ColorRect, delta : float):
     if htbx.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         engine.selected_project = gjsp
         window                  = engine.display.get_window(MAIN_WINDOW)
+        window.width            = 1152
         window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))
         engine.scene.load("res://scenes/editor.scn")

@@ -27,9 +27,11 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
     """
     _isdisplayobject = True
 
+    ## CanvasItem stuff
     def _get_viewport(self):
         return self
     
+    ## Exports
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:
         """RGBA Color value of the Viewport. Modifying a single item will do nothing."""
@@ -38,6 +40,7 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
     def color(self, rgb : list[int]):
         self.rgb = rgb
     
+    ## Transform related
     def _set_alpha(self, deg):
         # Viewport objects don't have an alpha property yet
         return
@@ -50,9 +53,10 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
     def _update_color(self, r, g, b, a):
         self.set_background(r,g,b,a)
     
-    def __init__(self, properties={}, parent=None, children=None):
+    ## Init
+    def __init__(self, properties={}, parent=None):
         ## Setup CanvasItem
-        super().__init__(properties, parent, children)
+        super().__init__(properties, parent)
 
         ## Setup BG color
         Color.__init__(self)
@@ -63,25 +67,16 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
         self._drawing_vid = len(window.viewports)
 
         # Init Viewport
-        Viewport.__init__(self, self._drawing_vid)
+        Viewport.__init__(self, self.viewport_id, window, [])
 
         # Add a batch and add viewport to window
         self.add_batch()
-        self.provide_window(window)
-        window.viewports.append(self)
+        window.viewports[self.viewport_id] = self
     
+    ## Rewrites
     def draw(self):
-        # Alias
-        self.flip()
-    
-    def flip(self):
-        """
-        Draw viewport contents to the window. For some reason
-        this has to be here as inheriting Viewport doesn't
-        add this function for god knows why.
-        """
-        Viewport.flip(self)
-
+        """Draw the Viewport. This should be called automatically by the `EklWindow`."""
+        Viewport.draw(self)
     def get_if_mouse_hovering(self):
         mpos   = engine.mouse.pos
         x,y    = self.into_screen_coords()
@@ -93,9 +88,5 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
         )
         
         return is_it
-    
-    def _make_new_sprite(self, batch_id=MAIN_BATCH):
-        return Viewport._make_new_sprite(self, batch_id)
-    
-    def _remove_sprite(self):
+    def _remove_item(self):
         self.close()

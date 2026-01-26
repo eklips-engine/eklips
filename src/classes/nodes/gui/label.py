@@ -10,31 +10,32 @@ class Label(CanvasItem, Color):
     XXX
     """
     _can_check_layer       = True
-    sprite : pg.text.Label = None
+    citem  : pg.text.Label = None
+    _isblittable           = True
 
     @export("dolorem ipsum","str","str")
     def text(self) -> str: return self._text
     @text.setter
     def text(self, value):
         self._text = value
-        if self.sprite:
-            self.sprite.text = value
+        if self.citem:
+            self.citem.text = value
 
     @export(DEFAULT_FONT_NAME,"str","font")
     def font(self) -> str: return self._fname
     @font.setter
     def font(self, value):
         self._fname = value
-        if self.sprite:
-            self.sprite.font_name = value
+        if self.citem:
+            self.citem.font_name = value
 
     @export(DEFAULT_FONT_SIZE,"float/int","float/int")
     def font_size(self) -> float | int: return self._fsize
     @font_size.setter
     def font_size(self, value):
         self._fsize = value
-        if self.sprite:
-            self.sprite.font_size = value
+        if self.citem:
+            self.citem.font_size = value
 
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:
@@ -44,16 +45,17 @@ class Label(CanvasItem, Color):
     def color(self, rgb : tuple[int, int, int] | list[int]):
         self.rgb = rgb
     def _update_color(self, r, g, b, a):
-        self.sprite.color = (r,g,b,a)
+        if not self.citem:
+            return
+        self.citem.color = (r,g,b,a)
     
-    def __init__(self, properties={}, parent=None, children=None):
+    def __init__(self, properties={}, parent=None):
         Color.__init__(self, 255,255,255)
         self._text  = "dolorem ipsum"
         self._fsize = DEFAULT_FONT_SIZE
         self._fname = DEFAULT_FONT_NAME
 
-        super().__init__(properties, parent, children)
-        self._make_new_sprite()
+        super().__init__(properties, parent)
     
     def update(self):
         super().update()
@@ -61,27 +63,37 @@ class Label(CanvasItem, Color):
     
     def draw(self):
         """Draw the label. This is usually called automatically."""
+        if not len(self.text.split()):
+            return
         self._draw()
-    
     def _draw(self):
         return engine.display.blit_label(
             text        = self.text,
             transform   = self,
             window_id   = self._drawing_wid,
             viewport_id = self._drawing_vid,
-            label       = self.sprite,
+            label       = self.citem,
             font_name   = self.font,
             font_size   = self.font_size  
         )
-    
-    def _remove_sprite(self):
-        if not self.sprite and not engine.debug.sprite_always_visible:
+
+    ## CItem managing
+    def _remove_item(self):
+        if not self.citem:
             return
-        viewport = self._get_viewport()
-        viewport._deallocate_label(self._sprite_id)
-        self.sprite = None
-    def _make_new_sprite(self):
-        if self.sprite:
-            self._remove_sprite()
-        viewport = self._get_viewport()
-        self.sprite, self._sprite_id = viewport._allocate_label(self._drawing_bid)
+        self.citem.delete()
+        self.citem = None
+    def _make_new_item(self):
+        if self.citem:
+            self._remove_item()
+        self.batch = engine.display.get_batch_from_window(self.window_id, self.viewport_id, self.batch_id)
+        self.citem = pg.text.Label(batch=self.batch)
+        
+        self.citem.color     = self.color
+        self.citem.text      = self.text
+        self.citem.font_name = self.font
+        self.citem.font_size = self.font_size
+        self.citem.visible   = False
+    def _setup_properties(self, scene=None):
+        super()._setup_properties(scene)
+        self._make_new_item()

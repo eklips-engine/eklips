@@ -13,12 +13,11 @@ class ColorRect(CanvasItem, Color):
     XXX
     """
     _can_check_layer = True
+    _isblittable     = True
 
-    def __init__(self, properties={}, parent=None, children=None):
+    def __init__(self, properties={}, parent=None):
         Color.__init__(self, 255,255,255)
-
-        super().__init__(properties, parent, children)
-        self._make_new_sprite()
+        super().__init__(properties, parent)
     
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:

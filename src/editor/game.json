@@ -5,11 +5,11 @@
         "ekl": "5.0A"
     },
     "viewport": {
-        "size":       [650,   648],
+        "size":       [648,   648],
         "color":      [35, 35, 50],
         "minsize":    [648,   648],
         "maxsize":    [1152,  648],
-        "resizable":  true,
+        "resizable":  false,
         "icon_file":  "res://media/icon.png"
     },
     "scenes": {

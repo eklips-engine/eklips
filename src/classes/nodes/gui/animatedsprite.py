@@ -13,15 +13,16 @@ class AnimatedSprite(CanvasItem):
     XXX
     """
     _can_check_layer = True
+    _isblittable     = True
 
-    @export(None,"list","file_paths/image")
+    @export(["root://_assets/error.png"],"list","file_paths/img")
     def image_paths(self):
         """List of filepaths of the attached Images.
         
         Add a sprite by using `add_sprite_from_animation()`,
         and remove one using `remove_sprite_from_animation()`.
 
-        .. note::`remove_sprite_from_animation()` and `_remove_sprite` are not the same."""
+        .. note:: `remove_sprite_from_animation()` and `_remove_item` are not the same."""
         return self._images.values()
     @image_paths.setter
     def image_paths(self, paths : list):
@@ -38,12 +39,11 @@ class AnimatedSprite(CanvasItem):
     def remove_sprite_from_animation(self, img_id):
         self._images.pop(img_id)
     
-    def __init__(self, properties={}, parent=None, children=None):
+    def __init__(self, properties={}, parent=None):
         self._imagesid  = 0
         self._images    = {}
 
-        super().__init__(properties, parent, children)
-        self._make_new_sprite()
+        super().__init__(properties, parent)
     
     def step(self):
         self._imagesid    += 1

@@ -2,9 +2,6 @@
 from classes.resources.resource import *
 from classes.nodes              import *
 
-# Variables
-EMPTY_SCENE = {"": {"type": "Node", "children": {}}}
-
 # Classes
 class SceneError(Warning):
     pass
@@ -51,7 +48,19 @@ class CollisionManager:
                 hits.append(other)
         return hits
 
-class Scene(Resource):
+class SceneLike:
+    def __init__(self):
+        self.paused                           = False       # If the update() function can laze around and do nothing
+        self._nodes                           = EMPTY_SCENE # Scene tree
+        self._doomed                          = []          # List of nodes that are about to be deleted
+        self._marked_scene_chng               = None        # Filepath of the scene that's about to be loaded
+        self._file_path                       = None        # Filepath of the current scene
+        self._inherited_scn                   = None        # Filepath of the inherited scene
+        self._blessed                         = []          # List of nodes that are about to be created
+        self._temp_node_list                  = []          # List of nodepaths in the scene tree
+        self._collisionman : CollisionManager = None        # Collision Manager
+
+class Scene(Resource, SceneLike):
     """
     Manages the game loop via a hierarchy of nodes from a scene file.
 
@@ -63,17 +72,12 @@ class Scene(Resource):
 
     The scene class also contains a CollisionManager.
     """
-    print(" ~ Initialize Scene")
-    paused                           = False       # If the update() function can laze around and do nothing
-    _nodes                           = EMPTY_SCENE # Scene tree
-    _doomed                          = []          # List of nodes that are about to be deleted
-    _marked_scene_chng               = ""          # Filepath of the scene that's about to be loaded
-    _file_path                       = None        # Filepath of the current scene
-    _inherited_scn                   = None        # Filepath of the inherited scene
-    _blessed                         = []          # List of nodes that are about to be created
-    _temp_node_list                  = []          # List of nodepaths in the scene tree
-    _collisionman : CollisionManager = None        # Collision Manager
 
+    def __init__(self, properties={}):
+        super().__init__(properties)
+        SceneLike.__init__(self)
+
+    ## Resource related
     @export(None, "str", "file_path/scn")
     def file_path(self) -> str:
         return self._file_path
@@ -87,7 +91,6 @@ class Scene(Resource):
             self._inherited_scn = _data["properties"]["inherits"]
             self._loadscenefile(_data["properties"]["inherits"])
         self._loadscenefile(path)
-    
     @export({}, "dict", "HIDDEN")
     def nodes(self) -> dict:
         return self._nodes
@@ -100,7 +103,6 @@ class Scene(Resource):
 
         for nodepath in nodepaths:
             self._initialize_node_entry(nodepath)
-
     def _loadscenefile(self, path):
         _data       = engine.loader.load(path, force_new_resource=True)
         self._nodes = _data["nodes"]
@@ -108,26 +110,6 @@ class Scene(Resource):
 
         for nodepath in nodepaths:
             self._initialize_node_entry(nodepath)
-
-    def get_node_paths(self, nodepath, exclude_self=False, out=None):
-        """Get a list of this Nodes children. (e.g. `["root://foo/bar", ...]`)
-        
-        Args:
-            nodepath: Path of the node in the scene tree.
-            exclude_self: Whether to add the passed Node to the list or not.
-            out: The list to place the Nodes children. Defaults to None and SHOULD be None."""
-
-        if out == None: out = []
-        if not exclude_self:
-            out.append(nodepath)
-        
-        children = self.get_node_entry_from_path(nodepath).get("children", {})
-        
-        for child in children:
-            self.get_node_paths(f"{nodepath}/{child}", False, out)
-        
-        return out
-    
     def load(self, path):
         """
         Load a scene file.
@@ -138,11 +120,9 @@ class Scene(Resource):
             path: Path of the scene in the filesystem (`res://`, `root://`, `user://`)
         """
         self._marked_scene_chng = path
-
     @classmethod
     def new(cls):
         return Scene({"nodes":{"":{"type":"Node"}}})
-
     def save(self, path):
         with open(engine.loader._get_true_path(path), "w") as f:
             f.write(json.dumps({
@@ -151,80 +131,30 @@ class Scene(Resource):
                     "inherits": self._inherited_scn
                 }}))
     
-    def get_node_parent(self, nodepath, throw_error_if_failed=False):
-        """Get a Nodes parent.
-
-        Args:
-            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-            throw_error_if_failed: Throw an Error if it failed getting the parent."""
-        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
-            nodepath = "/" + nodepath
-        parts    = nodepath.split("/")
-        try:
-            current = self.nodes[parts[0]] # Get Root node
-            for name in parts[1:][:-1]:    # Go through the Node's parents
-                try:
-                    current = current["children"][name] # Get the previous iter.'s child
-                except Exception as error:
-                    raise error
-            return current.get("obj", None) # Return the parent
-        except Exception as error:
-            if throw_error_if_failed:
-                raise SceneError(f"Tried to get node entry {nodepath}'s parent but failed")
-    
-    def get_node_children(self, nodepath, throw_error_if_failed=False):
-        """Get a Nodes children.
-
-        Args:     
-            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
-            throw_error_if_failed: Throw an Error if it failed getting the children."""
-        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
-            nodepath = "/" + nodepath
-        parts    = nodepath.split("/")
-        try:
-            current = self.nodes[parts[0]] # Get Root node
-            for name in parts[1:]:         # Go through the Nodes in the path
-                try:
-                    current = current["children"][name] # Get the previous iter.'s child
-                except Exception as error:
-                    raise error
-            
-            # Iter thru children
-            children_obj = []
-            children     = current.get("children", {})
-
-            for child in children:
-                children_obj.append(children[child].get("obj", None))
-            return children_obj # Return the children
-        except Exception as error:
-            if throw_error_if_failed:
-                raise SceneError(f"Tried to get node entry {nodepath}'s children but failed")
-    
+    ## Add node
     def _initialize_node_entry(self, nodepath):
         node = self.get_node_entry_from_path(nodepath)
 
         # Get node's parent
-        parent   = self.get_node_parent(nodepath)
-        children = self.get_node_children(nodepath)
+        parent = self.get_node_parent(nodepath)
 
         # Make Node
         classobj                = globals().get(node["type"])
         obj : engine.nodes.Node = classobj.__new__(classobj)
+        
+        # Set obj parameter to Node
+        node["obj"] = obj
 
         # Init object and export values
         obj.__init__(node, parent)
         obj.name = nodepath.split("/")[-1]
         obj._setup_properties(scene=self)
 
-        # Set obj parameter to Node
-        node["obj"] = obj
-
         # Recompile list of nodes
-        self._temp_node_list = self.get_node_paths("")
+        self._temp_node_list.append(nodepath)
 
         # Return Node if needed
         return obj
-    
     def add_node(self, data, nodepath="/test", throw_error_if_failed=False):
         """Add a node with parameters after the scene has finished updating.
         
@@ -233,7 +163,6 @@ class Scene(Resource):
             nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
             throw_error_if_failed: Throw an Error if it failed making the Node."""
         self._blessed.append([data, nodepath, throw_error_if_failed])
-    
     def _add_node(self, data, nodepath="", throw_error_if_failed=False) -> int:
         """Add a node with parameters. Returns the Node object.
         
@@ -261,7 +190,26 @@ class Scene(Resource):
         # Initialize Node object and recompile Node list
         return self._initialize_node_entry(nodepath)
     
-    def get_nodes(self, nodepath=USE_SCENE_TREE, exclude_self=False) -> list[str]:
+    ## Get node
+    def get_node_paths(self, nodepath, exclude_self=False, out=None) -> list[str]:
+        """Get a list of this Nodes children. (e.g. `["root://foo/bar", ...]`)
+        
+        Args:
+            nodepath: Path of the node in the scene tree.
+            exclude_self: Whether to add the passed Node to the list or not.
+            out: The list to place the Nodes children. Defaults to None and SHOULD be None."""
+
+        if out == None: out = []
+        if not exclude_self:
+            out.append(nodepath)
+        
+        children = self.get_node_entry_from_path(nodepath).get("children", {})
+        
+        for child in children:
+            self.get_node_paths(f"{nodepath}/{child}", False, out)
+        
+        return out
+    def get_nodes(self, nodepath=USE_SCENE_TREE, exclude_self=False) -> list[Node]:
         """Get a list of each Node in the scene tree or a node entry. (e.g. `[Node2D(path='/'), ...]`)
      
         Args:   
@@ -276,7 +224,6 @@ class Scene(Resource):
             nodes.append(self.get_node_from_path(_nodepath))
         
         return nodes
-
     def get_node_entry_from_path(self, nodepath : str, throw_error_if_failed : bool = False) -> dict:
         """Get a Node's data using its path in the scene tree. (e.g. `{"type": "Node2D", "transform": {...}, ...}`)
        
@@ -303,7 +250,6 @@ class Scene(Resource):
             if throw_error_if_failed:
                 raise SceneError(f"Tried to get node entry {nodepath} from Scene but failed")
             return {"type":"Node", "obj": None}
-
     def get_node_from_path(self, nodepath, throw_error_if_failed : bool = False) -> Node:
         """Get a Node using its path in the scene tree. (e.g. `/foo/bar`)
         
@@ -311,7 +257,55 @@ class Scene(Resource):
             nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
             throw_error_if_failed: Throw an Error if it failed getting the Node."""
         return self.get_node_entry_from_path(nodepath, throw_error_if_failed).get("obj", None)
+    def get_node_parent(self, nodepath, throw_error_if_failed=False) -> Node:
+        """Get a Nodes parent.
 
+        Args:
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the parent."""
+        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
+            nodepath = "/" + nodepath
+        parts    = nodepath.split("/")
+        try:
+            current = self.nodes[parts[0]] # Get Root node
+            for name in parts[1:][:-1]:    # Go through the Node's parents
+                try:
+                    current = current["children"][name] # Get the previous iter.'s child
+                except Exception as error:
+                    raise error
+            return current["obj"] # Return the parent
+        except Exception as error:
+            if throw_error_if_failed:
+                raise SceneError(f"Tried to get node entry {nodepath}'s parent but failed")
+    def get_node_children(self, nodepath, throw_error_if_failed=False) -> list[Node]:
+        """Get a Nodes children.
+
+        Args:     
+            nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
+            throw_error_if_failed: Throw an Error if it failed getting the children."""
+        if len(nodepath.split("/")) == 1 and nodepath.split("/")[0] != "":
+            nodepath = "/" + nodepath
+        parts    = nodepath.split("/")
+        try:
+            current = self.nodes[parts[0]] # Get Root node
+            for name in parts[1:]:         # Go through the Nodes in the path
+                try:
+                    current = current["children"][name] # Get the previous iter.'s child
+                except Exception as error:
+                    raise error
+            
+            # Iter thru children
+            children_obj = []
+            children     = current.get("children", {})
+
+            for child in children:
+                children_obj.append(children[child].get("obj", None))
+            return children_obj # Return the children
+        except Exception as error:
+            if throw_error_if_failed:
+                raise SceneError(f"Tried to get node entry {nodepath}'s children but failed")
+    
+    ## Delete related
     def delete_node(self, nodepath, throw_error_if_failed = False):
         """Mark a Node to be deleted after the scene is updated using its path.
         
@@ -319,7 +313,6 @@ class Scene(Resource):
             nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
             throw_error_if_failed: Throw an Error if it failed deleting the Node."""
         self._doomed.append([nodepath, throw_error_if_failed])
-    
     def _delete_node(self, nodepath, throw_error_if_failed = False):
         """Delete a Node using its path.
 
@@ -327,6 +320,9 @@ class Scene(Resource):
             nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
             throw_error_if_failed: Throw an Error if it failed deleting the Node."""
         if nodepath == "":
+            node = self.nodes[""].get("obj")
+            if node:
+                node._free()
             return
         
         parts    = nodepath.split("/")
@@ -352,16 +348,18 @@ class Scene(Resource):
         
         # Recompile list of nodes
         self._temp_node_list = self.get_node_paths("")
-    
     def empty(self):
         """Empty the scene."""
-        for nodepath in self.get_node_paths(""):
-            self._delete_node(nodepath)
-        self._nodes = EMPTY_SCENE
+        root = self.nodes[""].get("obj")
+        if root:
+            root._free()
+        self._nodes          = EMPTY_SCENE
+        self._temp_node_list = []
     def _free(self):
         self.empty()
         super()._free()
     
+    ## Update
     def pause(self):  self.paused = True
     def resume(self): self.paused = False
     def update(self):

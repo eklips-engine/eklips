@@ -3,7 +3,7 @@ import pygame, pyglet as pg, json, gc
 import pyvidplayer2   as pvd, time
 
 # Import components
-from classes             import hooks, ui, resources, nodes
+from classes             import hooks, resources, nodes, ui
 from classes             import crash_screen as error_handler, debug
 from classes             import saving, networking
 from classes.customprops import *
@@ -72,7 +72,7 @@ def load_engine():
     # Load cursors
     for i in CURSORS:
         cursors[i] = display.get_window().get_system_mouse_cursor(i)
-    
+
     # Set running flag to true
     running = True
 

@@ -10,7 +10,7 @@ class Timer(Node):
             parent     : NodeMixin       | None = None,
             children   : list[NodeMixin] | None = None
         ):
-        super().__init__(properties, parent, children)
+        super().__init__(properties, parent)
         self._start_time : int   = 0
         self._duration   : float = 0.0
         self._timespan   : float = 0.0

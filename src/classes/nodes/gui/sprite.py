@@ -13,8 +13,9 @@ class Sprite(CanvasItem):
     XXX
     """
     _can_check_layer = True
+    _isblittable     = True
 
-    @export(None,"str","file_path/image")
+    @export("root://_assets/error.png","str","file_path/img")
     def image_path(self):
         """Filepath of the attached Image. Setting this value loads and sets the imagepath as the Sprite's image."""
         return self._imagepath
@@ -24,11 +25,9 @@ class Sprite(CanvasItem):
         self._imagepath = value
         self.image      = engine.loader.load(value)
     
-    def __init__(self, properties={}, parent=None, children=None):
-        self._imagepath = None
-
-        super().__init__(properties, parent, children)
-        self._make_new_sprite()
+    def __init__(self, properties={}, parent=None):
+        self._imagepath = "root://_assets/error.png"
+        super().__init__(properties, parent)
     
     def update(self):
         super().update()

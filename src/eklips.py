@@ -15,7 +15,7 @@ main_window    = engine.display.get_window()
 @main_window.event
 def on_close():
     engine.handle_closing()
-    engine.display.close_windows(forced=True)
+    engine.display.close_windows()
 
 @main_window.event
 def on_draw():
@@ -34,7 +34,7 @@ def on_draw():
         engine.scene.update()
 
         # Check if fullscreen is wanted
-        if engine.keyboard.pressed.get(pg.window.key.F11):
+        if engine.keyboard.pressed.get(pg.window.key.F11) and engine.game.win.resizable:
             main_window.toggle_fullscreen()
         if engine.keyboard.pressed.get(pg.window.key.F12):
             main_window.screenshot()
@@ -43,8 +43,8 @@ def on_draw():
         engine.keyboard.pressed.clear()
         engine.mouse.scroll = 0
     except Exception as error:
-        engine.quit()
         engine.error_handler.show_error(error)
+        engine.quit()
 
 # Start the engine
 pg.app.run()

@@ -15,7 +15,8 @@ class MediaPlayer(CanvasItem):
 
     This is a Node that can play video and audio globally.
     """
-    def __init__(self, properties={}, parent=None, children=None):
+    
+    def __init__(self, properties={}, parent=None):
         self._media       : str                    = ""
         self._playcounter : int                    = 0
         self._rpop        : bool                   = True
@@ -28,8 +29,7 @@ class MediaPlayer(CanvasItem):
         self._autostart   : bool                   = False
         self._loops       : int                    = 0
 
-        super().__init__(properties, parent, children)
-        self._make_new_sprite()
+        super().__init__(properties, parent)
         
         self.media_id = mixer.get_num_channels() - 1
         self.channel  = mixer.Channel(self.media_id)
@@ -100,6 +100,8 @@ class MediaPlayer(CanvasItem):
             self.channel.play(self._sound)
         if self._video:
             self._video.play()
+            if not self.citem:
+                self._make_new_item()
         
     def restart(self):
         """Restart the attached Media file."""
@@ -154,22 +156,21 @@ class MediaPlayer(CanvasItem):
     
     def draw(self):
         if self._video.frame_surf:
-            self.w, self.h    = self._ogsize
-            self.sprite.image = self._video.frame_surf
+            self.w, self.h   = self._ogsize
+            self.citem.image = self._video.frame_surf
             self._draw()
-    
-    def _draw(self, image):
+            
+    def _draw(self):
         return engine.display.blit(
-            surface        = image,
             transform      = self,
-            window_id      = self._drawing_wid,
-            viewport_id    = self._drawing_vid,
-            sprite         = self.sprite,
+            window_id      = self.window_id,
+            viewport_id    = self.viewport_id,
+            sprite         = self.citem,
             ignore_scaling = True
         )
     
     def _set_size(self,w,h):
-        size = [round(w),round(h)]
+        size = [round(self._ogsize[0]*self.scale_x),round(self._ogsize[1]*self.scale_x)]
         if self._video:
             self._video.resize(size)
 

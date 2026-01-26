@@ -53,10 +53,10 @@ class ScrollingViewport(ExtraViewport):
     def left_to_right(self, value):
         self._left_to_right = value
     
-    def __init__(self, properties={}, parent=None, children=None):
+    def __init__(self, properties={}, parent=None):
         self._speed         = 1200.0
         self._left_to_right = False
-        super().__init__(properties, parent, children)
+        super().__init__(properties, parent)
     
     def update(self):
         super().update()

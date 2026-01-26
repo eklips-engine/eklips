@@ -13,8 +13,8 @@ class Parallax(Sprite):
     XXX
     """
 
-    def __init__(self, properties=..., parent=None, children=None):
-        super().__init__(properties, parent, children)
+    def __init__(self, properties=..., parent=None):
+        super().__init__(properties, parent)
 
         self._speed      = 150.0
         self._imgoffsetx = 0 # How many pixels to offset the image, it's named this for
@@ -39,12 +39,11 @@ class Parallax(Sprite):
         super().update()
     
     def _draw(self):
-        # Draw the Sprite
         return engine.display.blit(
             transform   = self,
             window_id   = self._drawing_wid,
             viewport_id = self._drawing_vid,
-            sprite      = self.sprite,
+            sprite      = self.citem,
             region      = [
                 self._imgoffsetx % self.image.width, # X
                 0,                                               # Y

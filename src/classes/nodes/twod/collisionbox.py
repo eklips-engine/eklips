@@ -22,8 +22,8 @@ class CollisionBox(ColorRect):
     debug hitbox if `engine.debug.shapes_visible` is on.
     """
 
-    def __init__(self, properties={}, parent=None, children=None):
-        super().__init__(properties, parent, children)
+    def __init__(self, properties={}, parent=None):
+        super().__init__(properties, parent)
         self.world = engine.scene._collisionman
         self.rid   = self.world.add(self)
     

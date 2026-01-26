@@ -1,6 +1,7 @@
 ## Hook Subprocess.Popen as i am too lazy to hook every single call in pyvidplayer2
 ## and also hook Pyglet to not commit suicide when a new window is made at runtime
 ## You can use this code in any project if you want :D
+# Subprocess related
 import subprocess
 import errno
 import io
@@ -8,9 +9,11 @@ import os
 import sys
 import threading
 import warnings
-import pyglet as pg
-from classes.ui import *
-from classes.locals import *
+
+# Engine related
+import pyglet            as pg
+from classes.ui          import *
+from classes.locals      import *
 import classes.singleton as engine
 
 ## Pyglet event loop
@@ -49,7 +52,7 @@ class HookFPSDisplay(pg.window.FPSDisplay):
             self.label.text,
             self.transform,
             self.label,
-            self.window.wid,
+            self.window.id,
             UI_VIEWPORT,
             self.group,
             DEFAULT_FONT_NAME,

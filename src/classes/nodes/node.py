@@ -21,39 +21,37 @@ class Node(Object, NodeMixin):
 
     There is nothing to do with this Node. The only useful thing to do with it is run a script with it, and no more.
     """
-
+    ## Init
     def __init__(
             self,
-            properties : dict                   = {}, 
-            parent     : NodeMixin       | None = None,
-            children   : list[NodeMixin] | None = None
+            properties : dict             = {}, 
+            parent     : NodeMixin | None = None
         ):
         super().__init__(properties)
-
-        # Set up family tree
         self.parent = parent
-        if children:
-            self.children = children
-        
-        # Setup Scene property
         self._scene = None
 
+    ## Property related
     @property
     def scene(self):
         """The scene the Node is located in as multiple scenes can exist thanks to the PackedScene node."""
         return self._scene
+    def _setup_properties(self, scene=None):
+        self._scene = scene
+        super()._setup_properties()
 
-    # Update code
+    ## Update code
     def update(self):
         # Check if i have to be freed
         if not self._runnable:
+            print("Run")
             self._free()
             return
 
         # Run process function
         self._process()
     
-    # Memory related
+    ## Memory related
     def _free(self):
         # Free children
         self._runnable = False
@@ -62,11 +60,6 @@ class Node(Object, NodeMixin):
         
         # Free self
         super()._free()
-    
-    def _setup_properties(self, scene=None):
-        self._scene = scene
-        super()._setup_properties()
-    
     def free(self):
         """Free the Node from memory.
         

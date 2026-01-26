@@ -20,7 +20,7 @@ class Tileset(Resource):
         self._image   = img
         self.refresh_tiles()
     
-    @export(None,"str","file_path/image")
+    @export(None,"str","file_path/img")
     def image_path(self):
         """Filepath of the attached Image. Setting this value loads and sets the imagepath as the Tileset's image."""
         return self._imagepath

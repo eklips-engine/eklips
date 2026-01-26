@@ -20,41 +20,45 @@ def populate_frame(self : ColorRect):
     pid = 0
     x   = 10
     for project in project_list:
-        gamedata = GameData({
-            "project": {
-                "file": project,
-                "dir":  "UseFileParent"
-            },
-            "name": "Eklips 5.0A"
-        }, is_file=False)
-        engine.projects[project] = gamedata
+        try:
+            gamedata = GameData({
+                "project": {
+                    "file": project,
+                    "dir":  "UseFileParent"
+                },
+                "name": "Eklips 5.0A"
+            }, is_file=False)
+            engine.projects[project] = gamedata
 
-        btnps : PackedScene = engine.scene._add_node({
-            "type":      "PackedScene",
-            "file_path": "res://scenes/project_entry.scn",
-            "projectid": project,
-            "pid":       pid,
-        }, f"/panel_obj/{gamedata.name}")
-        nlbl : Label      = btnps.get_node_from_path("/nlbl")
-        vlbl : Label      = btnps.get_node_from_path("/vlbl")
-        htbx : CanvasItem = btnps.get_node_from_path("/htbx")
-        rnod : ColorRect  = btnps.get_node_from_path("")
+            btnps : PackedScene = engine.scene._add_node({
+                "type":      "PackedScene",
+                "file_path": "res://scenes/project_entry.scn",
+                "projectid": project,
+                "pid":       pid,
+            }, f"/panel_obj/{gamedata.name}")
+            nlbl : Label      = btnps.get_node_from_path("/nlbl")
+            vlbl : Label      = btnps.get_node_from_path("/vlbl")
+            htbx : CanvasItem = btnps.get_node_from_path("/htbx")
+            rnod : ColorRect  = btnps.get_node_from_path("")
 
-        nlbl.text = gamedata.name
-        vlbl.text = f"v{gamedata.version}"
- 
-        nlbl.draw()
-        vlbl.draw()
-        rnod.x = x
-        if vlbl.w > nlbl.w:
-            w = 20 + vlbl.w
-        else:
-            w = 20 + nlbl.w
-        x     += w + 5
-        htbx.w = w
+            nlbl.text = gamedata.name
+            vlbl.text = f"v{gamedata.version}"
 
-        print(f" |~ {gamedata.name} v{gamedata.version} {htbx.w}")
-        pid += 1
+            nlbl.draw()
+            vlbl.draw()
+            rnod.x = x
+            if vlbl.w > nlbl.w:
+                w = 20 + vlbl.w
+            else:
+                w = 20 + nlbl.w
+            x     += w + 5
+            htbx.w = w
+
+            print(f" |~ {gamedata.name} v{gamedata.version}")
+            pid += 1
+        except Exception as err:
+            print(err)
+            engine.error_handler.show_error(err)
 
 def make_new_project(name, directory):
     # This makes a new project.
@@ -77,14 +81,14 @@ def select_project_file(self): return askopenfilename(
 def _onready(self):
     if self.name == "panel_obj":
         engine.projects = {}
-        win = engine.display.get_window()
+        win             = engine.display.get_window()
         win.set_caption(engine.lang.get("pe_title"))
         populate_frame(self)
 
 def _process(self, delta):
     if self.name  == "panel_obj":
         self.w = engine.display.get_window().width  - 20
-        self.h = engine.display.get_window().height - 83 - (self.scene.get_node_from_path("/version_str").sprite.content_height)
+        self.h = engine.display.get_window().height - 83 - (self.scene.get_node_from_path("/version_str").h)
     if self.name  == "version_str":
         self.text = engine.VERSION_FULL
 

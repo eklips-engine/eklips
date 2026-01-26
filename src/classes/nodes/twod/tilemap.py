@@ -22,9 +22,9 @@ class Tilemap(CanvasItem):
         for i in value: # TileID, GridX, GridY
             self.place_tile(*i)
     
-    def __init__(self, properties={}, parent=None, children=None):
+    def __init__(self, properties={}, parent=None):
         self._tiles = {}
-        super().__init__(properties, parent, children)
+        super().__init__(properties, parent)
 
-        self.batch_id = self._get_viewport().add_batch()
-        self.batch    = self._get_viewport().batches[self.batch_id]
+        self.batch_id = self.viewport.add_batch()
+        self.batch    = self.viewport.batches[self.batch_id]

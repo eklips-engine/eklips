@@ -53,7 +53,7 @@ def export(default=None, type_=None, hint=None):
     Args:
         default: The default value to use.
         type: The name of the type that the value should be (int, str, list, bool...)
-        hint: How to display this property in the editor (int, float, int/float, float/int, str, file_path/xxx, color, slider, font, bool)
+        hint: How to display this property in the editor (int, float, int/float, float/int, str, file_path/type, color, slider, font, bool, time, file_paths/type, vector2/ab, transform, windowid, viewportid, batchid)
     """
     def wrapper(func):
         return _export(
@@ -280,7 +280,8 @@ class Transform:
         self._set_size(self.w, self.h)
     @scale.setter
     def scale(self, value):
-        self.scale_x, self.scale_y = value
+        self._scale_x = value[0]
+        self.scale_y  = value[1]
     
     # Visual functions.
     def _set_visible(self, val):
@@ -310,11 +311,16 @@ class Transform:
     
     @rect.setter
     def rect(self, value : list[int,int,int,int]):
-        self.x,self.y,self.w,self.h = value
+        self.position = [value[0], value[1]]
+        self.tsize    = [value[2], value[3]]
     @position.setter
-    def position(self, value : list[int,int]): self.x,self.y = value
+    def position(self, value : list[int,int]):
+        self._x = value[0] + self._offset_x
+        self.y  = value[1]
     @tsize.setter
-    def tsize(self, value : list[int,int]): self.w,self.h = value
+    def tsize(self, value : list[int,int]):
+        self._w = value[0]
+        self.h  = value[1]
 
     @rotation.setter
     def rotation(self, value):
@@ -428,6 +434,16 @@ class Language:
     
     def get(self, entry):
         return self.entries.get(entry, entry)
+
+class CameraTransform(Transform):
+    def __init__(self):
+        super().__init__()
+        self._zoom = 1
+    
+    @property
+    def zoom(self):      return self._zoom
+    @zoom.setter
+    def zoom(self, val): self._zoom = val
 
 class Color:
     def __init__(self, r=0,g=0,b=0,a=255):
