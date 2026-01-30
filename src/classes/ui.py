@@ -481,8 +481,7 @@ class Display:
         
         # Set image's region (if it isn't None)
         if region != None:
-            cropped      = sprite.image.get_region(*region)
-            sprite.image = cropped
+            sprite.image = sprite.image.get_region(*region)
         
         # Set sprite's properites
         if transform.rotation:
@@ -539,24 +538,24 @@ class Display:
             font_size: Read the property silly. Defaults to DEFAULT_FONT_SIZE (12.5)
         """
         if not text:
-            return 0,0
+            return
         if not transform.visible:
-            return 0,0
+            return
         if not (transform.scale_x or transform.scale_y):
-            return 0,0
+            return
         if not label:
-            return 0,0
+            return
         window = self.get_window(window_id)
         if not window:
-            return 0,0
+            return
         if window.closed:
-            return 0,0
+            return
         if not window.visible:
-            return 0,0
+            return
         
         viewport : Viewport = self.get_viewport_from_window(window_id, viewport_id)
         if not viewport:
-            return 0,0
+            return
         
         # Set properties for label
         if label.text != text:
@@ -567,11 +566,7 @@ class Display:
             label.font_size = font_size
         
         # | Adjustments
-        w,h = label.content_width, label.content_height
-
-        # | Fix transform
-        transform.w = w
-        transform.h = h
+        w,h = transform.w, transform.h
         
         # | Get XY position
         x,y = transform.into_screen_coords(viewport.tsize)
@@ -588,7 +583,6 @@ class Display:
         if label.opacity != transform.alpha:
             label.opacity = transform.alpha
         label.visible = viewport.is_onscreen(transform)
-        return w,h
 
     ## Add/Remove
     def _add_window_entry(self):

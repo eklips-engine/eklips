@@ -35,7 +35,9 @@ class ExtraWindow(CanvasItem, Color):
 
     def __init__(self, properties={}, parent=None):
         ## Setup CanvasItem
-        self._title = DEFAULT_NAME
+        self._icon     = engine.icon
+        self._iconpath = engine.game.win.icofile
+        self._title    = DEFAULT_NAME
         super().__init__(properties, parent)
 
         ## Setup BG color
@@ -52,6 +54,24 @@ class ExtraWindow(CanvasItem, Color):
     @color.setter
     def color(self, rgb : list[int]):
         self.rgb = rgb
+    
+    @export(None,"str","file_path/img")
+    def icon_path(self):
+        """Filepath of the attached Icon. Setting this value loads and sets the iconpath as the Window's icon."""
+        return self._iconpath
+    @icon_path.setter
+    def icon_path(self, value):
+        if not value: return
+        self._iconpath = value
+        self.icon      = engine.loader.load(value)
+    
+    @property
+    def icon(self): return self._icon
+    @icon.setter
+    def icon(self, value):
+        self._icon = value
+        if self._window:
+            self._window.set_icon(value)
     
     @export(DEFAULT_NAME,"list","color")
     def title(self) -> str: return self._title
@@ -73,6 +93,8 @@ class ExtraWindow(CanvasItem, Color):
         # this shit is not happening, unless i manage the window frame and shit myself. Which i am NOT doing.
         return
     def _update_color(self, r, g, b, a):
+        if not self._window:
+            return
         self._window.viewports[MAIN_VIEWPORT].set_background(r,g,b,a)
     
     def _make_new_item(self):
@@ -90,7 +112,7 @@ class ExtraWindow(CanvasItem, Color):
             viewport_size  = self.tsize,
             viewport_color = self.color,
             
-            icon = None,
+            icon = self.icon,
 
             resizable    = True,
             minimum_size = None,
@@ -116,7 +138,7 @@ class ExtraWindow(CanvasItem, Color):
     def _remove_item(self):
         if not self._window:
             return
-        self._window.on_close()
+        self._hookonclose()
     
     def _set_visible(self, val):
         if val:

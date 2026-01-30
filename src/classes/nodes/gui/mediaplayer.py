@@ -31,8 +31,10 @@ class MediaPlayer(CanvasItem):
 
         super().__init__(properties, parent)
         
-        self.media_id = mixer.get_num_channels() - 1
+        self.media_id = engine.sid
         self.channel  = mixer.Channel(self.media_id)
+        
+        engine.sid += 1
     
     def _setup_properties(self, scene=None):
         super()._setup_properties(scene)
@@ -107,7 +109,7 @@ class MediaPlayer(CanvasItem):
         """Restart the attached Media file."""
         if self._sound:
             self.channel.stop()
-            self.channel.play()
+            self.channel.play(self._sound)
         if self._video:
             self._video.restart()
     
@@ -143,8 +145,9 @@ class MediaPlayer(CanvasItem):
     
     def update(self):
         super().update()
-        if self._video:
-            if self._video.active:
+        ## Video
+        if self.busy:
+            if self._video:
                 self._video._update()
                 self.draw()
         else:
@@ -193,3 +196,9 @@ class MediaPlayer(CanvasItem):
     @auto_start.setter
     def auto_start(self, value):
         self._autostart = value
+    
+    def _free(self):
+        self.stop()
+        if self._video:
+            self._video.close()
+        super()._free()

@@ -1,10 +1,29 @@
-# XXX
 # Import libraries
-import pyglet as pg
+import pygame, pyglet as pg, json, gc
 from classes import ui
 
 # Import inherited
-from classes.nodes.gui.themed.themeditem import *
+from classes.nodes.gui.canvasitem import *
 
-class Button(ThemedItem):
-    pass
+# Classes
+class Button(CanvasItem):
+    """
+    A Button.
+    
+    XXX
+    """
+
+    @export({}, "dict", "tiles")
+    def tiles(self):
+        return self._tiles
+    @tiles.setter
+    def tiles(self, value):
+        self._tiles = {}
+        for i in value: # TileID, GridX, GridY
+            self.place_tile(*i)
+    
+    def __init__(self, properties={}, parent=None):
+        self._tiles = {}
+        super().__init__(properties, parent)
+
+        self.batch_id = self.viewport.add_batch()

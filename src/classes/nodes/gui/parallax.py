@@ -12,6 +12,8 @@ class Parallax(Sprite):
     
     XXX
     """
+    _can_check_layer = True
+    _isblittable     = True
 
     def __init__(self, properties=..., parent=None):
         super().__init__(properties, parent)
@@ -35,19 +37,19 @@ class Parallax(Sprite):
     def speed(self, value): self._speed = value
 
     def update(self):
-        self._imgoffsetx += engine.delta * self.speed
+        self._imgoffsetx = engine.delta * self.speed
         super().update()
     
     def _draw(self):
         return engine.display.blit(
             transform   = self,
-            window_id   = self._drawing_wid,
-            viewport_id = self._drawing_vid,
+            window_id   = self.window_id,
+            viewport_id = self.viewport_id,
             sprite      = self.citem,
             region      = [
-                self._imgoffsetx % self.image.width, # X
-                0,                                               # Y
-                self.image.width,                                # W
-                self.image.height                                # H
+                round(self._imgoffsetx) % self.image.width, # X
+                0,                                          # Y
+                self.image.width,                           # W
+                self.image.height                           # H
             ]
         )

@@ -28,12 +28,9 @@ def scnready(self : ColorRect):
     vlbl = self.scene.get_node_from_path("/vlbl")
     htbx = self.scene.get_node_from_path("/htbx")
 
-    nlbl.text = gmdt.name
-    vlbl.text = f"v{gmdt.version}"
-    
-    htbx.x = self.x
-    nlbl.x = self.x + 15
-    vlbl.x = nlbl.x
+    htbx.y = self.y
+    nlbl.y = self.y
+    vlbl.y = self.y + 30
     ready  = True
 
 def _process(self : ColorRect, delta : float):
@@ -43,6 +40,5 @@ def _process(self : ColorRect, delta : float):
     if htbx.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         engine.selected_project = gjsp
         window                  = engine.display.get_window(MAIN_WINDOW)
-        window.width            = 1152
         window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))
         engine.scene.load("res://scenes/editor.scn")

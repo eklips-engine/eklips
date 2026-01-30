@@ -28,7 +28,17 @@
                     "media":      "root://_assets/load.mp3",
                     "auto_start": true,
 
-                    "volume":     0.3,
+                    "volume":     0.1,
+
+                    "children":   {}
+                },
+                "Shh": {
+                    "type":       "MediaPlayer",
+                    "media":      "root://_assets/shh.mp3",
+                    "auto_start": true,
+                    "loops":      -1,
+
+                    "volume":     0.000000000001,
 
                     "children":   {}
                 },

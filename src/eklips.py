@@ -26,8 +26,9 @@ def on_draw():
     try:
         # Calculate delta
         _current_delta = time.time()
-        engine.delta   = _current_delta - _old_delta
-        engine.uptime += engine.delta
+        engine.tdelta  = (_current_delta - _old_delta)
+        engine.delta   = engine.tdelta * engine.speed
+        engine.uptime += engine.tdelta
         _old_delta     = _current_delta
 
         # Update scene

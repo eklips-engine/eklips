@@ -10,7 +10,7 @@ from classes.customprops import *
 from classes.locals      import *
 
 # Init mixer
-pygame.mixer.init()
+pygame.mixer.init(channels=2)
 
 # Functions
 def get_date():
@@ -143,12 +143,14 @@ icon      : pg.image.AbstractImage = None
 keyboard  : Keyboard               = None
 scene     : resources.Scene        = None
 running   : bool                   = False
-spronscr  : int                    = 0
-uid       : int                    = 0
-sid       : int                    = 0
-delta     : float                  = 0.0
-fps       : float                  = 0.0
-uptime    : float                  = 0.0
+spronscr  : int                    = 0     # amount of CanvasItems on screen
+uid       : int                    = 0     # amount of Objects
+sid       : int                    = 0     # amount of pygame Channels
+delta     : float                  = 0.0   # deltaTime
+tdelta    : float                  = 0.0   # `engine.delta` but not multiplied by speed
+fps       : float                  = 0.0   # Framerate per window, To get the global FPS, you must do `fps * num_of_windows`
+uptime    : float                  = 0.0   # This value is how many seconds you have been running the engine.
+speed     : int                    = 1     # This value is the multiplier of `engine.delta`.
 
 _wincloseblacklist : list = [MAIN_WINDOW]
 _screenc_cache     : dict = {}

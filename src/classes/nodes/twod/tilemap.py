@@ -27,4 +27,10 @@ class Tilemap(CanvasItem):
         super().__init__(properties, parent)
 
         self.batch_id = self.viewport.add_batch()
-        self.batch    = self.viewport.batches[self.batch_id]
+        ...
+    
+    def draw(self):
+        ...
+    
+    def update(self):
+        ... # add collision boxes using engine.scene.CollisionManager

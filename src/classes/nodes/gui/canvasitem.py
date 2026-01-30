@@ -52,7 +52,8 @@ class CanvasItem(Node, Transform):
         return self._image
     @image.setter
     def image(self, value):
-        self._image = value
+        self._image    = value
+        self.w, self.h = value.width, value.height
         if self.citem:
             self.citem.image = value
 
@@ -129,10 +130,10 @@ class CanvasItem(Node, Transform):
 
     ## Drawing related
     def draw(self, image):
-        """Draw the CanvasItem. This is usually called automatically."""
+        """Draw the CanvasItem. If one doesn't exist, a new one will be created. This is usually called automatically."""
+        if not self.citem:
+            self._make_new_item()
         if image:
-            if image != self.citem.image:
-                self.citem.image = image
             self._draw()
     def _draw(self):
         return engine.display.blit(

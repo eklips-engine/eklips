@@ -113,6 +113,8 @@
                         "tsize":    [300,150],
                         "scale":    [1,1],
                         "scroll":   [0,0],
+                        
+                        "color": [35, 35, 50],
 
                         "rotation": 0,
                         "alpha":    255,
@@ -125,6 +127,8 @@
                     "type": "ExtraWindow",
                     "title": "settings_window",
                     
+                    "color": [35, 35, 50],
+
                     "transform": {
                         "position": [0,0],
                         "tsize":    [300,300],

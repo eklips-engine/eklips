@@ -20,6 +20,7 @@ class Label(CanvasItem, Color):
         self._text = value
         if self.citem:
             self.citem.text = value
+            self.w, self.h  = self.citem.content_width, self.citem.content_height
 
     @export(DEFAULT_FONT_NAME,"str","font")
     def font(self) -> str: return self._fname
@@ -28,6 +29,7 @@ class Label(CanvasItem, Color):
         self._fname = value
         if self.citem:
             self.citem.font_name = value
+            self.w, self.h  = self.citem.content_width, self.citem.content_height
 
     @export(DEFAULT_FONT_SIZE,"float/int","float/int")
     def font_size(self) -> float | int: return self._fsize
@@ -36,6 +38,7 @@ class Label(CanvasItem, Color):
         self._fsize = value
         if self.citem:
             self.citem.font_size = value
+            self.w, self.h       = self.citem.content_width, self.citem.content_height
 
     @export([255,255,255],"list","color")
     def color(self) -> tuple[int, int, int]:
@@ -94,6 +97,9 @@ class Label(CanvasItem, Color):
         self.citem.font_name = self.font
         self.citem.font_size = self.font_size
         self.citem.visible   = False
+
+        self.w, self.h       = self.citem.content_width, self.citem.content_height
+
     def _setup_properties(self, scene=None):
         super()._setup_properties(scene)
         self._make_new_item()

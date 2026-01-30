@@ -13,11 +13,14 @@ class EklImage(ImageData):
         texture.flip          = self.flip
         return texture
 
-    def flip(self, flip_w, flip_h):
+    def flip(self, flip_w, flip_h, no_cache=False) -> Texture:
         fid = f"{flip_w}{flip_h}"
-        if not fid in self._flipimgcache:
+        if not fid in self._flipimgcache or no_cache:
             texture = super().get_texture()
-            self._flipimgcache[fid] = texture.get_transform(flip_w, flip_h, 0)
+            result  = texture.get_transform(flip_w, flip_h, 0)
+
+            self._flipimgcache[fid] = result
+            return result
         return self._flipimgcache[fid]
 
 # Functions

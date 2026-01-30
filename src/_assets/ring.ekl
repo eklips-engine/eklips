@@ -9,17 +9,16 @@ def _process(self : engine.nodes.CanvasItem, delta):
         return
     
     # Get Eklips Node
-    try:
-        eklips = self.scene.get_node_from_path("/Eklips")
-    except:
-        eklips = None
+    eklips = self.scene.get_node_from_path("/Eklips")
+    shh    = self.scene.get_node_from_path("/Shh")
     
     # Rotate the ring
-    self.rotation   += delta * 150
+    self.rotation   += delta * (150 + (self.rotation/180))
     eklips.rotation += delta * 15
+    shh.volume      = (self.rotation/180000)
 
     # Check if rotated fully, then start fading out
-    if self.rotation > 351:
+    if self.rotation > 702:
         self.alpha -= delta * 150
     
     # Match Eklips alpha with Ring alpha

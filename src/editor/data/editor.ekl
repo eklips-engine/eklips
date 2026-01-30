@@ -31,6 +31,8 @@ def _process(self : Node, delta : float):
     
     if backbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         if True or askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_warnleaveprj")):
-            window       = engine.display.get_window(MAIN_WINDOW)
-            window.width = 1152
             engine.scene.load("res://scenes/master.scn")
+    
+    window        = engine.display.get_window(MAIN_WINDOW)
+    if window.width < 1151:
+        window.width += round((1152 - window.width) // 10)

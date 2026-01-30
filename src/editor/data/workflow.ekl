@@ -19,6 +19,7 @@ def populate_frame(self : ColorRect):
     print(f" ~ [editor] Populate Panel with projects")
     pid = 0
     x   = 10
+    y   = 10
     for project in project_list:
         try:
             gamedata = GameData({
@@ -44,20 +45,17 @@ def populate_frame(self : ColorRect):
             nlbl.text = gamedata.name
             vlbl.text = f"v{gamedata.version}"
 
-            nlbl.draw()
-            vlbl.draw()
-            rnod.x = x
+            rnod.y = y
             if vlbl.w > nlbl.w:
                 w = 20 + vlbl.w
             else:
                 w = 20 + nlbl.w
-            x     += w + 5
+            y     += 66
             htbx.w = w
 
             print(f" |~ {gamedata.name} v{gamedata.version}")
             pid += 1
         except Exception as err:
-            print(err)
             engine.error_handler.show_error(err)
 
 def make_new_project(name, directory):
@@ -87,24 +85,19 @@ def _onready(self):
 
 def _process(self, delta):
     if self.name  == "panel_obj":
-        self.w = engine.display.get_window().width  - 20
-        self.h = engine.display.get_window().height - 83 - (self.scene.get_node_from_path("/version_str").h)
+        window        = engine.display.get_window(MAIN_WINDOW)
+        if window.width > 650:
+            window.width += round((648 - window.width) // 10)
+        
+        self.w = window.width  - 20
+        self.h = window.height - 83 - (self.scene.get_node_from_path("/version_str").h)
     if self.name  == "version_str":
         self.text = engine.VERSION_FULL
-
-def load_project(self):
-    pass
 
 def save_metadata(self):
     pass
 
-def play_project(self):
-    pass
-
 def open_project_directory(self):
-    pass
-
-def close_project(self):
     pass
 
 def open_editor_settings(self):
