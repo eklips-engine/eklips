@@ -107,7 +107,7 @@
                 },
 
                 "file_browser_panel": {
-                    "type": "ColorRect",
+                    "type": "CanvasItem",
 
                     "children": {
                         "titlebar": {
@@ -150,10 +150,26 @@
                                 "visible":  true,
                                 "skew":     0
                             }
+                        },
+                        "viewport": {
+                            "type": "ExtraViewport",
+
+                            "color": [25,25,35],
+
+                            "transform": {
+                                "position": [0,   40],
+                                "tsize":    [212,525],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
                         }
                     },
-
-                    "color": [25,25,35],
 
                     "transform": {
                         "position": [10,  75],
@@ -170,7 +186,7 @@
                 },
                 
                 "scene_preview_panel": {
-                    "type": "ColorRect",
+                    "type": "CanvasItem",
 
                     "children": {
                         "titlebar": {
@@ -213,10 +229,26 @@
                                 "visible":  true,
                                 "skew":     0
                             }
+                        },
+                        "viewport": {
+                            "type": "ExtraViewport",
+
+                            "color": [25,25,35],
+
+                            "transform": {
+                                "position": [0,   40],
+                                "tsize":    [673,525],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
                         }
                     },
-
-                    "color": [25,25,35],
 
                     "transform": {
                         "position": [0,    75],
@@ -233,7 +265,7 @@
                 },
                 
                 "properties_panel": {
-                    "type": "ColorRect",
+                    "type": "CanvasItem",
 
                     "children": {
                         "titlebar": {
@@ -276,10 +308,26 @@
                                 "visible":  true,
                                 "skew":     0
                             }
+                        },
+                        "viewport": {
+                            "type": "ExtraViewport",
+
+                            "color": [25,25,35],
+
+                            "transform": {
+                                "position": [0,   40],
+                                "tsize":    [212,525],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
                         }
                     },
-
-                    "color": [25,25,35],
 
                     "transform": {
                         "position": [10,  75],

@@ -195,10 +195,13 @@ class CanvasItem(Node, Transform):
         super()._free()
     
     ## Update
-    def update(self):
-        super().update()
+    def _update_relativity(self):
         if self.parent and self.parent.get("_iscitem", False):
             self._offset_x, self._offset_y = self.parent.into_screen_coords(self.viewport.tsize, False)
+    
+    def update(self):
+        super().update()
+        self._update_relativity()
         
         if self.get_if_mouse_hovering():
             self.call_signal("_hover")

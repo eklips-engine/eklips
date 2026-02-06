@@ -74,9 +74,14 @@ class ExtraViewport(CanvasItem, Color, Viewport): # Group project looking ass no
         window.viewports[self.viewport_id] = self
     
     ## Rewrites
+    def _update_relativity(self):
+        if self.parent and self.parent.get("_iscitem", False):
+            self._offset_x, self._offset_y = self.parent.into_screen_coords(self.window.size, False)
+    
     def draw(self):
         """Draw the Viewport. This should be called automatically by the `EklWindow`."""
         Viewport.draw(self)
+    
     def get_if_mouse_hovering(self):
         mpos   = engine.mouse.pos
         x,y    = self.into_screen_coords()
