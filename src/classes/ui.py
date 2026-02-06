@@ -301,8 +301,8 @@ class Viewport(Transform):
         self.depth_buffer.delete()
     
     ## Transform related
-    def into_screen_coords(self):
-        return super().into_screen_coords(self.window.size)
+    def into_screen_coords(self, do_flip : bool = True):
+        return super().into_screen_coords(self.window.size, do_flip)
     def _set_size(self, w, h):
         self._resize_framebuffer()    
     

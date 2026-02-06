@@ -195,9 +195,9 @@ class Transform:
     def anchor(self): return self._anchor
 
     @property
-    def x(self): return self._x - self._offset_x
+    def x(self): return self._x + self._offset_x
     @property
-    def y(self): return self._y - self._offset_y
+    def y(self): return self._y + self._offset_y
 
     @property
     def scale_x(self): return self._scale_x
@@ -353,24 +353,33 @@ class Transform:
         self.visible  = value["visible"]
         self.tsize    = value["tsize"]
     
-    def into_screen_coords(self, window_size : list[int,int] = [480,480]):
+    def into_screen_coords(self, window_size : list[int,int] = [480,480], do_flip : bool = True):
         anchor = self.anchor
-        cid    = f"{self.position}{window_size}{self.tsize}{anchor}"
+        cid    = f"{self.position}{window_size}{self.tsize}{anchor}{do_flip}"
         if cid in _screenc_cache:
             return _screenc_cache[cid]
-        x        = 0
-        y        = 0
-        if "right"      in anchor:
+        x = 0
+        y = 0
+
+        if "right"   in anchor:
             x = window_size[0] - self.w - self.x
         else:
             x = self.x
-        if "top" in anchor:
-            y = window_size[1] - self.h - self.y
+
+        if do_flip:
+            if "top" in anchor:
+                y = window_size[1] - self.h - self.y
+            else:
+                y = self.y
         else:
-            y = self.y
-        if "centerx"    in anchor:
+            if "top" in anchor:
+                y = self.y
+            else:
+                y = window_size[1] - self.h - self.y
+
+        if "centerx" in anchor:
             x = (window_size[0]/2) - (self.w/2) + self.x
-        if "centery"    in anchor:
+        if "centery" in anchor:
             y = (window_size[1]/2) - (self.h/2) + self.y
         _screenc_cache[cid] = [x,y]
         return [x,y]

@@ -18,7 +18,7 @@ def _process(self : engine.nodes.CanvasItem, delta):
     shh.volume      = (self.rotation/180000)
 
     # Check if rotated fully, then start fading out
-    if self.rotation > 702:
+    if self.rotation > 351 or engine.debug.skip_load:
         self.alpha -= delta * 150
     
     # Match Eklips alpha with Ring alpha

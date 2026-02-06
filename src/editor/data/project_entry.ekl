@@ -28,9 +28,6 @@ def scnready(self : ColorRect):
     vlbl = self.scene.get_node_from_path("/vlbl")
     htbx = self.scene.get_node_from_path("/htbx")
 
-    htbx.y = self.y
-    nlbl.y = self.y
-    vlbl.y = self.y + 30
     ready  = True
 
 def _process(self : ColorRect, delta : float):

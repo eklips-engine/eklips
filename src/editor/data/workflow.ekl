@@ -18,7 +18,6 @@ def populate_frame(self : ColorRect):
     project_list = engine.savefile.get("projects", [])
     print(f" ~ [editor] Populate Panel with projects")
     pid = 0
-    x   = 10
     y   = 10
     for project in project_list:
         try:
@@ -44,14 +43,8 @@ def populate_frame(self : ColorRect):
 
             nlbl.text = gamedata.name
             vlbl.text = f"v{gamedata.version}"
-
-            rnod.y = y
-            if vlbl.w > nlbl.w:
-                w = 20 + vlbl.w
-            else:
-                w = 20 + nlbl.w
-            y     += 66
-            htbx.w = w
+            rnod.y    = y
+            y       += 66
 
             print(f" |~ {gamedata.name} v{gamedata.version}")
             pid += 1
@@ -88,9 +81,7 @@ def _process(self, delta):
         window        = engine.display.get_window(MAIN_WINDOW)
         if window.width > 650:
             window.width += round((648 - window.width) // 10)
-        
-        self.w = window.width  - 20
-        self.h = window.height - 83 - (self.scene.get_node_from_path("/version_str").h)
+            self.w        = window.width  - 20
     if self.name  == "version_str":
         self.text = engine.VERSION_FULL
 

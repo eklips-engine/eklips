@@ -1,4 +1,6 @@
 {
+    "info": "This file is for the engine to know what game to load",
+
     "project": {
         "file": "editor/game.json",
         "dir":  "UseFileParent"

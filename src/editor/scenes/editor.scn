@@ -115,14 +115,31 @@
 
                             "children": {
                                 "text": {
-                                    "type": "Label"
+                                    "type": "Label",
+
+                                    "text": "File Browser",
+
+                                    "font_size": 18,
+                                    
+                                    "transform": {
+                                        "position": [10,   3],
+                                        "tsize":    [212, 40],
+                                        "scale":    [1,    1],
+                                        "scroll":   [0,    0],
+
+                                        "rotation": 0,
+                                        "alpha":    255,
+                                        "anchor":   "top left",
+                                        "visible":  true,
+                                        "skew":     0
+                                    }
                                 }
                             },
 
                             "color": [45,45,63],
 
                             "transform": {
-                                "position": [10,  75],
+                                "position": [0,    0],
                                 "tsize":    [212, 40],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
@@ -159,19 +176,40 @@
                         "titlebar": {
                             "type": "ColorRect",
 
-                            "children": {},
+                            "children": {
+                                "text": {
+                                    "type": "Label",
+
+                                    "text": "Scene Preview",
+
+                                    "font_size": 18,
+                                    
+                                    "transform": {
+                                        "position": [10,   3],
+                                        "tsize":    [212, 40],
+                                        "scale":    [1,    1],
+                                        "scroll":   [0,    0],
+
+                                        "rotation": 0,
+                                        "alpha":    255,
+                                        "anchor":   "top left",
+                                        "visible":  true,
+                                        "skew":     0
+                                    }
+                                }
+                            },
 
                             "color": [45,45,63],
 
                             "transform": {
-                                "position": [0,   75],
+                                "position": [0,    0],
                                 "tsize":    [673, 40],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
                                 "rotation": 0,
                                 "alpha":    255,
-                                "anchor":   "top centerx",
+                                "anchor":   "top left",
                                 "visible":  true,
                                 "skew":     0
                             }
@@ -201,19 +239,40 @@
                         "titlebar": {
                             "type": "ColorRect",
 
-                            "children": {},
+                            "children": {
+                                "text": {
+                                    "type": "Label",
+
+                                    "text": "Properties",
+
+                                    "font_size": 18,
+                                    
+                                    "transform": {
+                                        "position": [10,   3],
+                                        "tsize":    [212, 40],
+                                        "scale":    [1,    1],
+                                        "scroll":   [0,    0],
+
+                                        "rotation": 0,
+                                        "alpha":    255,
+                                        "anchor":   "top left",
+                                        "visible":  true,
+                                        "skew":     0
+                                    }
+                                }
+                            },
 
                             "color": [45,45,63],
 
                             "transform": {
-                                "position": [10,  75],
+                                "position": [0,    0],
                                 "tsize":    [212, 40],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
                                 "rotation": 0,
                                 "alpha":    255,
-                                "anchor":   "top right",
+                                "anchor":   "top left",
                                 "visible":  true,
                                 "skew":     0
                             }

@@ -28,7 +28,7 @@
                     "font_size": 19,
 
                     "transform":   {
-                        "position": [25,10],
+                        "position": [15, 0],
                         "tsize":    [1,  1],
                         "scale":    [1,  1],
                         "scroll":   [0,  0],
@@ -44,10 +44,10 @@
                     "type":  "CanvasItem",
                     
                     "transform":   {
-                        "position": [10,10],
-                        "tsize":    [1, 61],
-                        "scale":    [1,  1],
-                        "scroll":   [0,  0],
+                        "position": [0,    0],
+                        "tsize":    [618, 61],
+                        "scale":    [1,    1],
+                        "scroll":   [0,    0],
 
                         "rotation": 0,
                         "alpha":    255,
@@ -61,7 +61,7 @@
                     "color": [255,255,255],
 
                     "transform":   {
-                        "position": [25,40],
+                        "position": [15,30],
                         "tsize":    [1,  1],
                         "scale":    [1,  1],
                         "scroll":   [0,  0],

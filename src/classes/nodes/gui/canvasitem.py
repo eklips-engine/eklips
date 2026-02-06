@@ -31,6 +31,7 @@ class CanvasItem(Node, Transform):
     (NOTE: The reason why `tsize` is called that because
     anytree's NodeMixin uses a size property..)
     """
+    _iscitem                                    = True
     _can_check_layer                            = True
     _isdisplayobject                            = False
     _isblittable                                = False   # If class is meant to blit CItem
@@ -196,6 +197,9 @@ class CanvasItem(Node, Transform):
     ## Update
     def update(self):
         super().update()
+        if self.parent and self.parent.get("_iscitem", False):
+            self._offset_x, self._offset_y = self.parent.into_screen_coords(self.viewport.tsize, False)
+        
         if self.get_if_mouse_hovering():
             self.call_signal("_hover")
             if engine.mouse.buttons[engine.MOUSE_LEFT]:
