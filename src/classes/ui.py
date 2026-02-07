@@ -234,10 +234,6 @@ class Viewport(Transform):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"
     
-    ## def get_screen_pos(self, transform : Transform):
-        x,y = transform.into_screen_coords(self.size)
-        return x - self.cam.x, y - self.cam.y
-    
     ## Add Batch
     def add_batch(self):
         """Add a batch to Window `wid`. Returns its ID."""
@@ -279,12 +275,11 @@ class Viewport(Transform):
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA
         )
-        self.depth_buffer = pg.image.buffer.Renderbuffer(self.w, self.h, GL_DEPTH_COMPONENT)
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-        self.framebuffer.attach_renderbuffer(self.depth_buffer, attachment=GL_DEPTH_ATTACHMENT)
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
+        self.color_buffer.delete()
         self.color_buffer = pg.image.Texture.create(
             self.w, self.h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
@@ -298,7 +293,6 @@ class Viewport(Transform):
             self.window.switch_to()
         self.framebuffer.delete()
         self.color_buffer.delete()
-        self.depth_buffer.delete()
     
     ## Transform related
     def into_screen_coords(self, do_flip : bool = True):

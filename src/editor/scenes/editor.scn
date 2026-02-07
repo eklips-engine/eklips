@@ -62,49 +62,6 @@
                         "skew":     0
                     }
                 },
-                "nlbl": {
-                    "type": "Label",
-                    
-                    "text":      "Dolorem",
-                    "font_size": 23,
-
-                    "children":  {},
-                    
-                    "transform": {
-                        "position": [65,20],
-                        "tsize":    [1,1],
-                        "scale":    [1,1],
-                        "scroll":   [0,0],
-
-                        "rotation": 0,
-                        "alpha":    255,
-                        "anchor":   "top left",
-                        "visible":  true,
-                        "skew":     0
-                    }
-                },
-                "vlbl": {
-                    "type": "Label",
-                    
-                    "color":     [82,82,114],
-                    "text":      "v1.0",
-                    "font_size": 23,
-
-                    "children":  {},
-                    
-                    "transform": {
-                        "position": [185,20],
-                        "tsize":    [1,1],
-                        "scale":    [1,1],
-                        "scroll":   [0,0],
-
-                        "rotation": 0,
-                        "alpha":    255,
-                        "anchor":   "top left",
-                        "visible":  true,
-                        "skew":     0
-                    }
-                },
 
                 "file_browser_panel": {
                     "type": "CanvasItem",
@@ -152,13 +109,13 @@
                             }
                         },
                         "viewport": {
-                            "type": "ExtraViewport",
+                            "type": "ScrollingViewport",
 
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,525],
+                                "tsize":    [212,232],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -173,7 +130,7 @@
 
                     "transform": {
                         "position": [10,  75],
-                        "tsize":    [212,565],
+                        "tsize":    [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 
@@ -184,7 +141,84 @@
                         "skew":     0
                     }
                 },
-                
+                "scene_tree_panel": {
+                    "type": "CanvasItem",
+
+                    "children": {
+                        "titlebar": {
+                            "type": "ColorRect",
+
+                            "children": {
+                                "text": {
+                                    "type": "Label",
+
+                                    "text": "Scene Tree",
+
+                                    "font_size": 18,
+                                    
+                                    "transform": {
+                                        "position": [10,   3],
+                                        "tsize":    [212, 40],
+                                        "scale":    [1,    1],
+                                        "scroll":   [0,    0],
+
+                                        "rotation": 0,
+                                        "alpha":    255,
+                                        "anchor":   "top left",
+                                        "visible":  true,
+                                        "skew":     0
+                                    }
+                                }
+                            },
+
+                            "color": [45,45,63],
+
+                            "transform": {
+                                "position": [0,    0],
+                                "tsize":    [212, 40],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
+                        },
+                        "viewport": {
+                            "type": "ScrollingViewport",
+
+                            "color": [25,25,35],
+
+                            "transform": {
+                                "position": [0,   40],
+                                "tsize":    [212,232],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
+                        }
+                    },
+
+                    "transform": {
+                        "position": [10,   8],
+                        "tsize":    [212,272],
+                        "scale":    [1,    1],
+                        "scroll":   [0,    0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "bottom left",
+                        "visible":  true,
+                        "skew":     0
+                    }
+                },
                 "scene_preview_panel": {
                     "type": "CanvasItem",
 
@@ -231,8 +265,7 @@
                             }
                         },
                         "viewport": {
-                            "type": "ExtraViewport",
-
+                            "type":  "ExtraViewport",
                             "color": [25,25,35],
 
                             "transform": {
@@ -263,7 +296,6 @@
                         "skew":     0
                     }
                 },
-                
                 "properties_panel": {
                     "type": "CanvasItem",
 
@@ -310,13 +342,13 @@
                             }
                         },
                         "viewport": {
-                            "type": "ExtraViewport",
+                            "type": "ScrollingViewport",
 
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,525],
+                                "tsize":    [212,232],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -331,13 +363,91 @@
 
                     "transform": {
                         "position": [10,  75],
-                        "tsize":    [212,565],
+                        "tsize":    [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 
                         "rotation": 0,
                         "alpha":    255,
                         "anchor":   "top right",
+                        "visible":  true,
+                        "skew":     0
+                    }
+                },
+                "signals_panel": {
+                    "type": "CanvasItem",
+
+                    "children": {
+                        "titlebar": {
+                            "type": "ColorRect",
+
+                            "children": {
+                                "text": {
+                                    "type": "Label",
+
+                                    "text": "Signals",
+
+                                    "font_size": 18,
+                                    
+                                    "transform": {
+                                        "position": [10,   3],
+                                        "tsize":    [212, 40],
+                                        "scale":    [1,    1],
+                                        "scroll":   [0,    0],
+
+                                        "rotation": 0,
+                                        "alpha":    255,
+                                        "anchor":   "top left",
+                                        "visible":  true,
+                                        "skew":     0
+                                    }
+                                }
+                            },
+
+                            "color": [45,45,63],
+
+                            "transform": {
+                                "position": [0,    0],
+                                "tsize":    [212, 40],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
+                        },
+                        "viewport": {
+                            "type": "ScrollingViewport",
+
+                            "color": [25,25,35],
+
+                            "transform": {
+                                "position": [0,   40],
+                                "tsize":    [212,232],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     0
+                            }
+                        }
+                    },
+
+                    "transform": {
+                        "position": [10,   8],
+                        "tsize":    [212,272],
+                        "scale":    [1,    1],
+                        "scroll":   [0,    0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "bottom right",
                         "visible":  true,
                         "skew":     0
                     }
