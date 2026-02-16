@@ -20,6 +20,7 @@ The list of stuff TODO are here: (4/12)
 | Add Scrolling Viewport Node            | 8/10 |  Yes  | Editor, also UI reasons                  |
 | Add Viewport Node                      | 9/10 |  Yes  | Needed for multi-viewport system         |
 | Add Window Node                        | 9/10 |  Yes  | Editor                                   |
+| Fix Window bugs                        | 9/10 |  No   | Editor + severe bugs                     | 
 | Add Tilemap, and tileset               | 9/10 |  No   | What's a 2d game engine without it lul   |
 | Add Networking                         | 3/10 |  No   | Idk how yet and don't need it rn         |
 | Add UI elements                        | 4/10 |  No   | Not really useful right now              |

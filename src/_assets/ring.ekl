@@ -1,6 +1,6 @@
 import classes.singleton as engine
 
-def _process(self : engine.nodes.CanvasItem, delta):
+def _process(self, delta):
     # Load master scene if Sprite is fully invisible or halt if not found
     if self.alpha < 0:
         if engine.game.master_scene:

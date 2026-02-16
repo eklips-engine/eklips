@@ -23,6 +23,10 @@ def _process(self : Node, delta : float):
     if backbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         if True or askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_warnleaveprj")):
             engine.scene.load("res://scenes/master.scn")
+    if playbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
+        os.system(f"eklips.py -file {gmdt.project_file} -dir {gmdt.project_dir} -editordebug")
+    if settbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
+        showinfo("Info", "Multiple windows are yet to function properly.. Sigh.")
     
     window        = engine.display.get_window(MAIN_WINDOW)
     if window.width < 1151:

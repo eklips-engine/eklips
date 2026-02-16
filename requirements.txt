@@ -6,3 +6,4 @@ requests
 anytree
 pygame-ce
 typing_extensions
+xmltodict

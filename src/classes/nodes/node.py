@@ -39,17 +39,6 @@ class Node(Object, NodeMixin):
     def _setup_properties(self, scene=None):
         self._scene = scene
         super()._setup_properties()
-
-    ## Update code
-    def update(self):
-        # Check if i have to be freed
-        if not self._runnable:
-            print("Run")
-            self._free()
-            return
-
-        # Run process function
-        self._process()
     
     ## Memory related
     def _free(self):

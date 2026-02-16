@@ -104,13 +104,16 @@
                     }
                 },
                 "make_new_project_window": {
-                    "type": "ExtraWindow",
+                    "type":  "ExtraWindow",
                     "title": "make_new_project_window",
+                    
+                    "color": [35, 35, 50],
+
                     "children": {},
                     
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [300,150],
+                        "tsize":    [420,240],
                         "scale":    [1,1],
                         "scroll":   [0,0],
                         
@@ -124,14 +127,14 @@
                     }
                 },
                 "settings_window": {
-                    "type": "ExtraWindow",
+                    "type":  "ExtraWindow",
                     "title": "settings_window",
                     
                     "color": [35, 35, 50],
 
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [300,300],
+                        "tsize":    [320,320],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 

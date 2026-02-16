@@ -4,7 +4,7 @@ import pyglet as pg
 from classes import ui
 
 # Import inherited
-from classes.nodes.gui.themed.themeditem import *
+from classes.nodes.gui.canvasitem import *
 
-class Progressbar(ThemedItem):
+class Progressbar(CanvasItem):
     pass

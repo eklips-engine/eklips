@@ -1,5 +1,5 @@
 # Import libraries
-import pygame, pyglet as pg, json, gc
+import pygame, pyglet as pg, json, gc, xmltodict
 
 # Import components
 from classes.locals      import *
@@ -8,7 +8,6 @@ import classes.singleton as engine
 # Import resources
 print(" ~ Importing all resources")
 from classes.resources.object  import *
-from classes.resources.script  import *
 from classes.resources.scene   import *
 from classes.resources.image   import *
 from classes.resources.tileset import *
@@ -27,7 +26,8 @@ class Loader:
         "ani": ["gif"],                                             # pyglet.image.Animation
         "fnt": ["ttf","otf"],                                       # Fonts
         "scn": ["scn","tscn"],                                      # Scene
-        "res": ["res","rc"]                                         # Ekl Resource
+        "res": ["res","rc"],                                        # Ekl Resource
+        "xml": ["xml", "svg", "html"]
     }
 
     def _get_true_path(self, path : str):
@@ -53,6 +53,8 @@ class Loader:
                 return json.loads(open(actual_path).read())
             if ext in self.extensions["scn"]:
                 return json.loads(open(actual_path).read())
+            if ext in self.extensions["xml"]:
+                return xmltodict.parse(open(actual_path).read())
             if ext in self.extensions["res"]:
                 data     = json.loads(open(actual_path).read())
                 classobj = globals().get(data["type"])

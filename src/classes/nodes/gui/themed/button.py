@@ -12,15 +12,6 @@ class Button(CanvasItem):
     
     XXX
     """
-
-    @export({}, "dict", "tiles")
-    def tiles(self):
-        return self._tiles
-    @tiles.setter
-    def tiles(self, value):
-        self._tiles = {}
-        for i in value: # TileID, GridX, GridY
-            self.place_tile(*i)
     
     def __init__(self, properties={}, parent=None):
         self._tiles = {}

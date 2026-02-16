@@ -172,6 +172,12 @@ class CanvasItem(Node, Transform):
             self.viewport_id
         )
         return viewport
+    def _get_window(self) -> ui.EklWindow:
+        """Get the Window that the CanvasItem will be drawn to."""
+        window : ui.EklWindow = engine.display.get_window(
+            self.window_id
+        )
+        return window
     
     ## CItem managing
     def _remove_item(self):

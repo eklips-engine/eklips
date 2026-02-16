@@ -16,7 +16,6 @@ from classes.nodes.gui.animatedsprite    import *
 from classes.nodes.gui.parallax          import *
 from classes.nodes.gui.mediaplayer       import *
 
-from classes.nodes.gui.themed.themeditem  import *
 from classes.nodes.gui.themed.button      import *
 from classes.nodes.gui.themed.progressbar import *
 from classes.nodes.gui.themed.treeview    import *

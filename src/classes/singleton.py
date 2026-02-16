@@ -20,7 +20,7 @@ def load_engine():
     global running,game,display,mouse,loader,keyboard,scene,savefile,lang,icon,clock
 
     # Initialize metadata
-    game = GameData()
+    game   = GameData()
     
     # Initialize resource loader
     loader = resources.Loader()

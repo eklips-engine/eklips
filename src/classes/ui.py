@@ -134,7 +134,7 @@ class EklWindow(pg.window.Window):
     def flip(self):
         if self.closed:
             return
-
+        
         for vid in self.viewports:
             viewport    = self.viewports[vid]
             viewport.draw()
@@ -236,7 +236,7 @@ class Viewport(Transform):
     
     ## Add Batch
     def add_batch(self):
-        """Add a batch to Window `wid`. Returns its ID."""
+        """Add a batch to the Viewport. Returns its ID."""
         bid      = len(self.batches)
         batch    = pg.graphics.Batch()
 
@@ -279,6 +279,8 @@ class Viewport(Transform):
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
+        if not self.framebuffer:
+            return
         self.color_buffer.delete()
         self.color_buffer = pg.image.Texture.create(
             self.w, self.h,
@@ -664,7 +666,7 @@ class Display:
         Args:
             wid: ID of the Window."""
         window = self.get_window(wid)
-        
+
         window.close()
         self.windows.pop(wid)
     

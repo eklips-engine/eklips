@@ -24,9 +24,9 @@ class Object(metaclass=_exportmeta):
     """
     _runnable        = True
     _script_path     = None
-    _script          = None
     _can_init_script = True
     obj_id           = None
+    _function_queue  = []
     _properties      = {}   # NOT actual property values, but instead info of this classes properties
     
     # Property related functions
@@ -63,21 +63,10 @@ class Object(metaclass=_exportmeta):
         try:
             src  = engine.loader.load(path, force_new_resource=True)
         except:
-            src  = ""
-            path = None
-
-        if not path or not src:
-            if self._script:
-                self._script.free()
-            self._script       = None
+            self._script_path = None
             return
         
-        self._script : engine.resources.Script = engine.resources.Script()
-
-        self._script.file_path   = path
-        self._script.source_code = src
-        
-        exec(self._script.source_code, self._script._namespace, self._script._namespace)
+        exec(src, self.__dict__, self.__dict__)
 
     # Init
     def __init__(self, properties={}):
@@ -111,14 +100,9 @@ class Object(metaclass=_exportmeta):
     # Script related
     def call(self, function, *args):
         """Call a function from the attached Script, if it exists."""
-        if not self._script:
+        if not function in self.__dict__:
             return
-        if not self._script._namespace:
-            return
-        if not function in self._script._namespace:
-            return
-            raise ScriptError(f"The Script {self._script.file_path} tried to call '{function}{tuple(args)}' but failed as the function doesn't exist in the Script.")
-        mobj = types.MethodType(self._script._namespace[function], self)
+        mobj = types.MethodType(self.__dict__[function], self)
         try:
             if len(args) == 0:
                 return mobj() 
@@ -126,17 +110,13 @@ class Object(metaclass=_exportmeta):
                 return mobj(*args)
         except:
             if engine.debug.avoid_error_mercy:
-                raise ScriptError(f"The Script {self._script.file_path} tried to call '{function}{tuple(args)}' but it failed horribly")
+                raise ScriptError(f"The Script {self.script_path} tried to call '{function}{tuple(args)}' but it failed horribly")
     
     def call_signal(self, signal_name, *args):
         """Call an attached signal from the attached Script, if it exists."""
-        if not self._script:
+        if not self.signals.get(signal_name, None) in self.__dict__:
             return
-        if not self._script._namespace:
-            return
-        if not self.signals.get(signal_name, None) in self._script._namespace:
-            return
-        mobj = types.MethodType(self._script._namespace[self.signals[signal_name]], self)
+        mobj = types.MethodType(self.__dict__[self.signals[signal_name]], self)
         try:
             if len(args) == 0:
                 return mobj() 
@@ -144,43 +124,30 @@ class Object(metaclass=_exportmeta):
                 return mobj(*args)
         except:
             if engine.debug.avoid_error_mercy:
-                raise ScriptError(f"The Script {self._script.file_path} tried to call '{signal_name}{tuple(args)}' but it failed horribly")
+                raise ScriptError(f"The Script {self.script_path} tried to call '{signal_name}{tuple(args)}' but it failed horribly")
     
     def call_deferred(self, function, *args, is_signal = False) -> None:
         """Call a function/signal from the attached Script after the Script has finished its process tick."""
         self._function_queue.append([function, args, is_signal])
 
-    def getvar(self, name, default = None):
-        """Get a variable from the attached Script."""
-        return self._script._namespace.get(name, default)
-
-    def setvar(self, name, value):
-        """Set a variable from the attached Script."""
-        self._script._namespace[name] = value
-
-    def _process(self):
+    def update(self):
         """Run the `_process()` function on the Script and call queued functions. This is called every frame of the Object/Node's existence."""
-        if not self._script:
+        # Check if i have to be freed
+        if not self._runnable:
+            self._free()
             return
         
         try:
-            self.call("_process", engine.delta)
+            self._process(self, engine.delta)
         except Exception as err:
             pass
 
-        for info in self._script._function_queue:
+        for info in self._function_queue:
             if info[2]:
                 self.call_signal(info[0], info[1])
             else:
                 self.call(info[0], info[1])
-        self._script._function_queue.clear()
-    
-    def _onready(self):
-        """Run the `_onready()` function on the Script. This should only be called after the Object/Node is ready."""
-        try:
-            self.call("_onready")
-        except Exception as err:
-            pass
+        self._function_queue.clear()
     
     def _setup_properties(self):
         # Setup properties
@@ -188,4 +155,9 @@ class Object(metaclass=_exportmeta):
             if key in ["children","parent","signals","type"]:
                 continue
             self.set(key, self._properties_onready[key])
-        self._onready()
+        
+        # Call _onready
+        try:
+            self._onready(self)
+        except:
+            pass
