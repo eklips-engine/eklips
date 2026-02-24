@@ -20,13 +20,17 @@ import classes.singleton as engine
 print(" ~ Modify pyglet.eventloop._redraw_windows")
 def newrwd(dt: float) -> None:
     # Redraw all windows
-    for window in pg.app.windows.copy():
-        window : pg.window.BaseWindow
-
-        try:
-            window.draw(dt)
-        except:
-            pass
+    for wid in engine.display.windows.copy():
+        if wid in engine.display.windows:
+            window : pg.window.BaseWindow = engine.display.windows.get(wid)
+            
+            if window:
+                window.draw(dt)
+        else:
+            continue
+    
+    # Update display
+    engine.display.update()
 pg.app.event_loop._redraw_windows = newrwd
 
 ## FPS Display

@@ -106,10 +106,13 @@ class EklWindow(pg.window.Window):
     
     ## Closing the window
     def on_close(self):
-        engine.display.remove_window(self.id) 
+        engine.display._doomed.append(self.id) 
+    
     def close(self):
         if self.closed:
             return
+        
+        self.switch_to()
         self.closed = True
         for vid in self.viewports.copy():
             viewport = self.viewports[vid]
@@ -135,6 +138,7 @@ class EklWindow(pg.window.Window):
         if self.closed:
             return
         
+        self.switch_to()
         for vid in self.viewports:
             viewport    = self.viewports[vid]
             viewport.draw()
@@ -405,10 +409,24 @@ class Viewport(Transform):
 
 class Display:
     """A class to manage `EklWindow`'s."""
-    windows        = {}
-    main_window_id = None
+    windows        = {}   # Dict of windows
+    _doomed        = []   # List of windows to run through remove_window
+    _merciless     = []   # List of windows to run through window.close
+    main_window_id = None # Name
+    _windid        = 0    # Next ID
 
-    ## Spoof. To be removed
+    ## Update
+    def update(self):
+        for doomedid in self._doomed.copy():
+            self.remove_window(doomedid)
+        for doomedid in self._merciless.copy():
+            self.get_window(doomedid).close()
+            self.windows[doomedid] = None
+        
+        self._doomed.clear()
+        self._merciless.clear()
+    
+    ## Spoof. To be removed.
     def blit(
         self,
         transform      : Transform,
@@ -582,8 +600,9 @@ class Display:
 
     ## Add/Remove
     def _add_window_entry(self):
-        wid               = len(self.windows)
+        wid               = self._windid
         self.windows[wid] = None
+        self._windid     += 1
         return wid
     def add_window(self,
         name           : str                    = DEFAULT_NAME,
@@ -665,6 +684,9 @@ class Display:
         
         Args:
             wid: ID of the Window."""
+        if not wid in self.windows:
+            print(f"??? {wid}")
+            return
         window = self.get_window(wid)
 
         window.close()

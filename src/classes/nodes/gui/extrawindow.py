@@ -129,16 +129,17 @@ class ExtraWindow(CanvasItem, Color):
         self._window.on_close = self._hookonclose
     
     def _hookonclose(self):
+        if not self._window:
+            return
         if self._window.closed:
             return
-        self._window.close()
-        self._window                           = None
-        engine.display.windows[self.window_id] = None
+        engine.display._merciless.append(self.window_id)
+        self._window = None
     
     def _remove_item(self):
         if not self._window:
             return
-        self._hookonclose()
+        self._window.on_close()
     
     def _set_visible(self, val):
         if val:
