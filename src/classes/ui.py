@@ -156,7 +156,6 @@ class EklWindow(pg.window.Window):
         engine.mouse.scroll = scroll_y
     def on_mouse_press(self, x, y, button, modifiers):
         engine.mouse.pos                  = [x, y]
-        print(button)
         engine.mouse.buttons[button]      = True
         engine.mouse.just_clicked[button] = True
     def on_mouse_release(self, x, y, button, modifiers):

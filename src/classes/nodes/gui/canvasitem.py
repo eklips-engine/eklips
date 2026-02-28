@@ -216,6 +216,8 @@ class CanvasItem(Node, Transform):
         if self.get_if_mouse_hovering():
             self.call_signal("_hover")
             if engine.mouse.buttons[engine.MOUSE_LEFT]:
+                self.call_signal("_held")
+            if engine.mouse.just_clicked[engine.MOUSE_LEFT]:
                 self.call_signal("_clicked")
     
     ## Convenience functions for user

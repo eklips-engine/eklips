@@ -34,7 +34,7 @@ def _process(self : ColorRect, delta : float):
     global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid
     if not ready:
         scnready(self)
-    if htbx.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
+    if htbx.get_if_mouse_hovering() and engine.mouse.just_clicked[MOUSE_LEFT]:
         engine.selected_project = gjsp
         window                  = engine.display.get_window(MAIN_WINDOW)
         window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))

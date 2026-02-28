@@ -8,25 +8,7 @@
                     "left_to_right": false,
                     "script_path":   "res://data/workflow.ekl",
 
-                    "children": {
-                        "test": {
-                            "type": "Checkbox",
-                            "children": {},
-                            
-                            "transform": {
-                                "position": [0,0],
-                                "tsize":    [1,1],
-                                "scale":    [1,1],
-                                "scroll":   [0,0],
-                                "layer":    456,
-                                "rotation": 0,
-                                "alpha":    255,
-                                "anchor":   "bottom left",
-                                "visible":  true,
-                                "skew":     0
-                            }
-                        }
-                    },
+                    "children": {},
 
                     "color": [25,25,35],
 
