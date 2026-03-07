@@ -120,7 +120,7 @@ class CanvasItem(Node, Transform):
     ## Drawing related
     def draw(self):
         """Draw the CanvasItem. This is usually called automatically."""
-        if self.visible and self.viewport.is_onscreen(self):
+        if self.visible and self.viewport.is_onscreen(self) and self.citem:
             return self.viewport.blit_sprite(self, self.citem)
 
     ## Transform related

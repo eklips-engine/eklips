@@ -1,5 +1,6 @@
 # Import singleton
-from pyglet.image        import *
+import pygame
+from pyglet.image import *
 
 # Classes
 class EklImage(ImageData):
@@ -24,7 +25,21 @@ class EklImage(ImageData):
         return self._flipimgcache[fid]
 
 # Functions
+def cnvsrfekl(srf : pygame.Surface) -> EklImage:
+    """Convert a Pygame surface to an Eklips Image."""
+    gw = srf.get_width()
+    gh = srf.get_height()
+
+    return EklImage(
+        gw,
+        gh,
+        "RGBA",
+        srf.get_buffer(),
+        -4 * gw
+    )
+
 def cnveklimg(pgimg : AbstractImage) -> EklImage:
+    """Convert a Pyglet Image to an Eklips Image."""
     pgtxt = pgimg.get_texture()
     return EklImage(
         pgimg.width,

@@ -6,11 +6,25 @@
         "pe_pjfl":  "Eklips Project File",
         "pe_evfl":  "Everything else..",
 
-        "pe_title": "Eklips Editor - Project Editor",
+        "pe_title": "Eklips Editor - Project List",
         "pe_titlesetting": "Eklips Editor - Settings",
         "pe_titlenewprj": "Eklips Editor - New Project",
         "pe_titleselprj": "Eklips Editor - Select Project File",
         "pe_titleeditor": "Eklips Editor - %",
+        "yes": "Yes",
+        "no": "No",
+        "can": "Cancel",
+        "con": "Continue",
+        
+        "ee_fb": "File Browser",
+        "ee_st": "Scene Tree",
+        "ee_sp": "Scene Preview",
+        "ee_pr": "Properties",
+        "ee_sg": "Signals",
+
+        "ee_titlest": "Eklips Editor - Settings for %",
+        "ee_iconst": "Icon file",
+        "ee_eklver": "Designed Eklips ver",
         
         "ee_title": "Eklips Editor",
         "pe_warnleaveprj": "Are you sure you want to leave? Your progress will be saved. Totally.",

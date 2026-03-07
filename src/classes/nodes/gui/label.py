@@ -68,7 +68,7 @@ class Label(CanvasItem, Color):
     
     def draw(self):
         """Draw the label. This is usually called automatically."""
-        if self.visible and self.viewport.is_onscreen(self) and len(self.text.split()):
+        if self.visible and self.viewport.is_onscreen(self) and len(self.text.split()) and self.citem:
             return self.viewport.blit_label(self, self.citem)
 
     ## CItem managing

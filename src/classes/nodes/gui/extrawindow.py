@@ -82,6 +82,13 @@ class ExtraWindow(CanvasItem, Color):
         if self._window:
             self._window.set_caption(val)
     
+    @export(base_transform, "dict", "transform")
+    def transform(self):
+        return self._turn_object_into_transform_property()
+    @transform.setter
+    def transform(self, val):
+        self._convert_transform_property_into_object(val)
+    
     def _set_alpha(self, deg):
         # Any desktop environment does not have support for opacity, unless i manage the window frame and shit
         # myself. Which i am NOT doing.

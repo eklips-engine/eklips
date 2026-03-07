@@ -146,7 +146,7 @@ class Scene(Resource, SceneLike):
         obj._setup_properties(scene=self)
 
         # Recompile list of nodes
-        self._temp_node_list.append(obj)
+        self._temp_node_list.append([obj, nodepath])
 
         # Return Node if needed
         return obj
@@ -193,13 +193,13 @@ class Scene(Resource, SceneLike):
             self.get_node_paths(f"{nodepath}/{child}", False, out)
         return out
     def get_nodes(self, nodepath=USE_SCENE_TREE, exclude_self=False) -> list[Node]:
-        """Get a list of each Node in the scene tree or a node entry. (e.g. `[Node2D(path='/'), ...]`)
+        """Get a list of each Node alongside its path in the scene tree or a node entry. (e.g. `[(Node2D(), "/"), ...]`)
      
         Args:   
             node: The node to get a list of each child of using its node path.
             exclude_self: Whether to add the passed Node to the list or not."""
         nodepath = "" if nodepath == USE_SCENE_TREE else nodepath
-        return [self.get_node_from_path(p) for p in self.get_node_paths(nodepath, exclude_self)]
+        return [[self.get_node_from_path(p), p] for p in self.get_node_paths(nodepath, exclude_self)]
     def get_node_entry_from_path(self, nodepath : str, throw_error_if_failed : bool = False) -> dict:
         """Get a Node's data using its path in the scene tree. (e.g. `{"type": "Node2D", "transform": {...}, ...}`)
        
@@ -275,34 +275,45 @@ class Scene(Resource, SceneLike):
         Args:
             nodepath: The node's path in the scene tree. (etc, `/father/me`, `/me`)
             throw_error_if_failed: Throw an Error if it failed deleting the Node."""
+        timer_name = f"Delete'{nodepath}'"
         parts = [""] + nodepath.strip("/").split("/") if nodepath else [""]
         try:
             current = self.nodes[parts[0]]                   # Get root node
             for name in parts[1:][:-1]:                      # Go through the Nodes in the path
                 current = current["children"][name]          # Get the previous iter.'s child
+            if parts[-1] not in current["children"]:
+                return "NOT_FOUND"
             node = current["children"][parts[-1]].get("obj") # Get the Node
 
             # Now we can delete the Node and remove it eternally
+            if engine.debug.enabled:
+                engine.debug.start_timer(timer_name)
             if node:
                 node._free()
+            if engine.debug.enabled:
+                engine.debug.end_timer(timer_name)
+                #engine.debug.remove_timer(timer_name)
             current["children"].pop(parts[-1])
         except Exception as error:
             if throw_error_if_failed or engine.debug.avoid_error_mercy:
                 raise SceneError(f"Tried to delete node entry {nodepath} but failed")
-            return
+            return "FOUND_BUT_FAILED"
         
         # Recompile list of nodes
-        self._temp_node_list.pop(node)
+        self._temp_node_list.remove([node, nodepath])
+
     def empty(self):
         """Empty the scene."""
+        timer_name = f"Clear'{self.file_path}'"
         if engine.debug.enabled:
-            engine.debug.start_timer(f"Clear'{self.file_path}'")
+            engine.debug.start_timer(timer_name)
         root = self.nodes[""].get("obj")
         if root: root._free()
         self._nodes          = EMPTY_SCENE
         self._temp_node_list = []
         if engine.debug.enabled:
-            engine.debug.end_timer()
+            engine.debug.end_timer(timer_name)
+            engine.debug.remove_timer(timer_name)
     def _free(self):
         self.empty()
         super()._free()
@@ -315,7 +326,7 @@ class Scene(Resource, SceneLike):
             return
 
         # Update all nodes
-        for node in self._temp_node_list:
+        for node, path in self._temp_node_list:
             if not node or not node._runnable:
                 self.delete_node(path)
                 continue

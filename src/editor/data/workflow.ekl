@@ -16,7 +16,6 @@ def populate_frame(self : ColorRect):
     # The "project_list" list is formatted like this:
     # project_list: ['editor/game.json', ...]
     project_list = engine.savefile.get("projects", [])
-    print(f" ~ [editor] Populate Panel with projects")
     pid = 0
     y   = 10
     for project in project_list:
@@ -54,9 +53,6 @@ def populate_frame(self : ColorRect):
         y       += 66
 
         pid += 1
-    
-    panel = engine.scene.get_node_from_path("/panel_obj")
-    #panel.content_height = len(project_list)*66-panel.h
 
 def make_new_project(name, directory):
     # This makes a new project.

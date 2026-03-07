@@ -25,19 +25,27 @@ def on_draw():
     
     try:
         # Calculate delta
+        engine.debug.start_timer("Delta")
         _current_delta = time.time()
         engine.delta   = engine.speed * engine.tdelta
         engine.uptime += engine.tdelta
         _old_delta     = _current_delta
+        engine.debug.end_timer("Delta")
         
         # Update scene
+        engine.debug.start_timer("Scn")
         engine.scene.update()
+        engine.debug.end_timer("Scn")
 
         # Check if fullscreen is wanted
         if engine.keyboard.pressed.get(pg.window.key.F11) and engine.game.win.resizable:
+            engine.debug.start_timer("FS")
             main_window.toggle_fullscreen()
+            engine.debug.end_timer("FS")
         if engine.keyboard.pressed.get(pg.window.key.F12):
+            engine.debug.start_timer("Screenie")
             main_window.screenshot()
+            engine.debug.end_timer("Screenie")
 
         # Clear the list of temporary actions
         engine.keyboard.pressed.clear()
@@ -48,6 +56,7 @@ def on_draw():
     except Exception as error:
         engine.error_handler.show_error(error)
         engine.quit()
+    main_window.invalid = True
 
 # Start the engine
-pg.app.run(interval=1/MAXFPS)
+pg.app.run(1 / MAXFPS)

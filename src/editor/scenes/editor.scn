@@ -74,7 +74,7 @@
                                 "text": {
                                     "type": "Label",
 
-                                    "text": "File Browser",
+                                    "text": "ee_fb",
 
                                     "font_size": 18,
                                     
@@ -152,7 +152,7 @@
                                 "text": {
                                     "type": "Label",
 
-                                    "text": "Scene Tree",
+                                    "text": "ee_st",
 
                                     "font_size": 18,
                                     
@@ -230,7 +230,7 @@
                                 "text": {
                                     "type": "Label",
 
-                                    "text": "Scene Preview",
+                                    "text": "ee_sp",
 
                                     "font_size": 18,
                                     
@@ -307,7 +307,7 @@
                                 "text": {
                                     "type": "Label",
 
-                                    "text": "Properties",
+                                    "text": "ee_pr",
 
                                     "font_size": 18,
                                     
@@ -385,7 +385,7 @@
                                 "text": {
                                     "type": "Label",
 
-                                    "text": "Signals",
+                                    "text": "ee_sg",
 
                                     "font_size": 18,
                                     

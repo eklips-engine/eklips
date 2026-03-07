@@ -41,11 +41,11 @@ class Parallax(Sprite):
         super().update()
     
     def draw(self):
-        if self.visible and self.viewport.is_onscreen(self):
-            self.citem.image = self.image.get_region([
-                round(self._imgoffsetx) % self.image.width, # X
-                0,                                          # Y
-                self.image.width,                           # W
-                self.image.height                           # H
-                ])
-            return self.viewport.blit_sprite(self, self.citem)
+        if self.visible and self.viewport.is_onscreen(self) and self.citem:
+            self.citem.image = self.citem.image.get_region(
+                self._imgoffsetx, # X
+                0,                # Y
+                self.image.width, # W
+                self.image.height # H
+            )
+            self.viewport.blit_sprite(self, self.citem)

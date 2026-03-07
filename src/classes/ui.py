@@ -13,6 +13,7 @@ def set_anti_aliasing(yn : bool):
     else:  value = GL_NEAREST
     pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = value
 
+# Cast some fucking OpenGL spells i don't know
 glEnable(GL_BLEND)
 glEnable(GL_CULL_FACE)
 
@@ -132,16 +133,17 @@ class EklWindow(pg.window.Window):
                 viewport.h = height
     
     ## Drawing
-    def on_draw(self):
-        self.switch_to()
-        self.clear()
     def flip(self):
         if self.closed:
             return
+        
         self.switch_to()
         for vid in self.viewports:
             viewport    = self.viewports[vid]
             viewport.draw()
+        
+        if engine.debug.show_graph:
+            engine.debug.draw_debug_graph()
         super().flip()
     
     ## Mouse Events
@@ -291,6 +293,7 @@ class Viewport(Transform, Color):
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self._sprite = pg.sprite.Sprite(self.color_buffer, z=self.id)
+        self._set_pos(*self.position)
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
@@ -416,10 +419,9 @@ class Viewport(Transform, Color):
         # Draw Viewport to Window
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        x, y = self.into_screen_coords()
-        if self._sprite.position[:2] != [x, y]:
-            self._sprite.x = x
-            self._sprite.y = y
+        x, y    = self.into_screen_coords()
+        self._sprite.x = x
+        self._sprite.y = y
         self._sprite.draw()
 
     ## Camera functions    

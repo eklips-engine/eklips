@@ -10,15 +10,20 @@ backbtn : Sprite = None
 settbtn : Sprite = None
 playbtn : Sprite = None
 
+def load():
+    global backbtn, settbtn, playbtn
+    
+    backbtn = engine.scene.get_node_from_path("/backico")
+    playbtn = engine.scene.get_node_from_path("/playico")
+    settbtn = engine.scene.get_node_from_path("/settico")
+
 def _process(self : Node, delta : float):
     global backbtn, settbtn, playbtn
 
     gmdt : GameData = engine.projects[engine.selected_project]
 
     if not backbtn:
-        backbtn = engine.scene.get_node_from_path("/backico")
-        playbtn = engine.scene.get_node_from_path("/playico")
-        settbtn = engine.scene.get_node_from_path("/settico")
+        load()
     
     if backbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         if True or askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_warnleaveprj")):

@@ -1,0 +1,17 @@
+import classes.singleton as engine
+from classes.nodes       import *
+
+eklips : Sprite = None
+
+def _process(self : Sprite, delta):
+    # Get eklips node
+    global eklips
+    if not eklips:
+        eklips = self.scene.get_node_from_path("/Eklips")
+    
+    # Indicators
+    engine.debug.start_timer("SpinEkl")
+    self.alpha     = 1 / engine.delta * 60
+    eklips.alpha   = self.alpha
+    self.rotation += engine.delta * 150
+    engine.debug.end_timer("SpinEkl")

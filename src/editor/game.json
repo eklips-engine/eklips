@@ -5,7 +5,7 @@
         "ekl": "5.0A"
     },
     "viewport": {
-        "size":       [1152,  648],
+        "size":       [648,   648],
         "color":      [35, 35, 50],
         "minsize":    [648,   648],
         "maxsize":    [1152,  648],
@@ -14,7 +14,7 @@
     },
     "scenes": {
         "master":  "res://scenes/master.scn",
-        "loading": null
+        "loading": "root://_assets/loading.scn"
     },
     
     "directory": "editor",

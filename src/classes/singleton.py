@@ -55,6 +55,10 @@ def load_engine():
                     window.close()
                     display.windows.pop(wid)
 
+    # Init debug graph
+    if debug.show_graph:
+        debug._init_graph()
+    
     # Initialize user input sections
     mouse    = Mouse()
     keyboard = Keyboard()

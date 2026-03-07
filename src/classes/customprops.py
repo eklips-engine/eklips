@@ -366,6 +366,7 @@ class Transform:
         self.rotation  = value["rotation"]
         self.anchor    = value["anchor"]
         self.scroll    = value["scroll"]
+        
         self.visible   = value["visible"]
     
     def into_screen_coords(self, window_size : list[int,int] = [480,480], do_flip : bool = True):

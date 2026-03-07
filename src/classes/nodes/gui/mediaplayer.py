@@ -160,7 +160,7 @@ class MediaPlayer(CanvasItem):
     def draw(self):
         if self._video.frame_surf:
             self.citem.image = self._video.frame_surf
-            if self.visible and self.viewport.is_onscreen(self):
+            if self.visible and self.viewport.is_onscreen(self) and self.citem:
                 return self.viewport.blit_sprite(self, self.citem)
     
     def _set_size(self,w,h):

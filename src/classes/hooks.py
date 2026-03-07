@@ -17,7 +17,7 @@ from classes.locals      import *
 import classes.singleton as engine
 
 ## Pyglet event loop
-print(" ~ Modify pyglet.eventloop._redraw_windows")
+print(" ~ Modify pyglet.app.eventloop._redraw_windows")
 def newrwd(dt: float) -> None:
     engine.tdelta = dt
 
@@ -34,6 +34,18 @@ def newrwd(dt: float) -> None:
     # Update display
     engine.display.update()
 pg.app.event_loop._redraw_windows = newrwd
+print(" ~ Modify pyglet.app.eventloop.idle")
+def newidle():
+    clock = pg.app.event_loop.clock
+    dt    = clock.update_time()
+    clock.call_scheduled_functions(dt)
+
+    # Update timeout
+    clock.get_sleep_time(True)
+
+    # SUNLIGHT YELLOW OVADRIVAAAAAAAAAAAAAA
+    return 0
+pg.app.event_loop.idle = newidle
 
 ## FPS Display
 class HookFPSDisplay(pg.window.FPSDisplay):

@@ -41,7 +41,7 @@
                     }
                 },
                 "htbx": {
-                    "type":  "CanvasItem",
+                    "type":  "ColorRect",
                     
                     "transform":   {
                         "position": [0,    0],

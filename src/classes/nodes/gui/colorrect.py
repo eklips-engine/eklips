@@ -26,6 +26,8 @@ class ColorRect(CanvasItem, Color):
         return self.color_as_tuple()
     @color.setter
     def color(self, rgb : list[int]):
+        if rgb == self.rgb:
+            return
         self.rgb = rgb
     def _update_color(self, r, g, b, a):
         self._refresh_image()

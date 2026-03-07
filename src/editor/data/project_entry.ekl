@@ -24,9 +24,9 @@ def scnready(self : ColorRect):
     gid  = self.scene.pid
     gmdt = engine.projects[gjsp]
 
-    nlbl = self.scene.get_node_from_path("/nlbl")
-    vlbl = self.scene.get_node_from_path("/vlbl")
-    htbx = self.scene.get_node_from_path("/htbx")
+    nlbl : Label     = self.scene.get_node_from_path("/nlbl")
+    vlbl : Label     = self.scene.get_node_from_path("/vlbl")
+    htbx : ColorRect = self.scene.get_node_from_path("/htbx")
 
     ready  = True
 
@@ -34,8 +34,12 @@ def _process(self : ColorRect, delta : float):
     global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid
     if not ready:
         scnready(self)
-    if htbx.get_if_mouse_hovering() and engine.mouse.just_clicked[MOUSE_LEFT]:
-        engine.selected_project = gjsp
-        window                  = engine.display.get_window(MAIN_WINDOW)
-        window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))
-        engine.scene.load("res://scenes/editor.scn")
+    if htbx.get_if_mouse_hovering():
+        htbx.color = [45,45,63]
+        if engine.mouse.just_clicked[MOUSE_LEFT]:
+            engine.selected_project = gjsp
+            window                  = engine.display.get_window(MAIN_WINDOW)
+            window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name))
+            engine.scene.load("res://scenes/editor.scn")
+    else:
+        htbx.color = [25,25,35]
