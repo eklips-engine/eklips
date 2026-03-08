@@ -122,17 +122,15 @@ class CanvasItem(Node, Transform):
     def draw(self):
         """Draw the CanvasItem. This is usually called automatically."""
         if self.visible and self.viewport.is_onscreen(self) and self.citem:
-            x,y = self.into_screen_coords(self.viewport.tsize)
-            x  += self.image.width
-            y  += self.image.height
-            
-            self.citem.x = x
-            self.citem.y = y
+            x, y         = self.into_screen_coords(self.viewport.tsize)
+            self.citem.x = x + (self.citem.image.anchor_x * self.scale_x)
+            self.citem.y = y + (self.citem.image.anchor_y * self.scale_y)
 
     ## Transform related
     def _set_anchors(self):
-        self.citem.image.anchor_x = self.citem.image.width  // self.scale_x
-        self.citem.image.anchor_y = self.citem.image.height // self.scale_y
+        self.citem.image.anchor_x = self.citem.image.width  // 2
+        self.citem.image.anchor_y = self.citem.image.height // 2
+        self.citem._update_position()
     def _set_pos(self, x, y):
         if not self.citem:
             return

@@ -163,10 +163,7 @@ class MediaPlayer(CanvasItem):
         if self._video.frame_surf:
             self.citem.image = self._video.frame_surf
             self._set_anchors()
-            if self.visible and self.viewport.is_onscreen(self):
-                x,y          = self.into_screen_coords(self.viewport.tsize)
-                self.citem.x = x
-                self.citem.y = y
+            super().draw()
     
     def _set_size(self,w,h):
         if self._video:

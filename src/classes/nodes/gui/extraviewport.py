@@ -59,6 +59,8 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
         window.viewports[self.viewport_id] = self
     
     ## Transform related
+    def _set_anchors(self):
+        Viewport._set_anchors(self)
     def _set_size(self, w, h):
         Viewport._set_size(self, w,h)
     def _set_scale(self, x, y):
@@ -75,6 +77,8 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
         if self.parent and self.parent.get("_iscitem", False):
             self._offset_x, self._offset_y = self.parent.into_screen_coords(self.window.size, False)
     
+    def _make_new_item(self):
+        self._make_framebuffer()
     def draw(self):
         """Draw the Viewport. This should be called automatically by the `EklWindow`."""
         Viewport.draw(self)

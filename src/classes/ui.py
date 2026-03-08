@@ -235,7 +235,7 @@ class Viewport(Transform, Color):
         self.framebuffer  = None
         self.color_buffer = None
         self.depth_buffer = None
-        self._sprite      = None
+        self.citem      = None
 
         self._closing = False
 
@@ -287,13 +287,13 @@ class Viewport(Transform, Color):
             self.window.switch_to()
         self.framebuffer  = pg.image.Framebuffer()
         self.color_buffer = pg.image.Texture.create(
-            self.w, self.h,
+            self._w, self._h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-        self._sprite = pg.sprite.Sprite(self.color_buffer, z=self.id)
-        self._set_pos(*self.position)
+        self.citem = pg.sprite.Sprite(self.color_buffer, z=self.id)
+        self._set_anchors()
     def _resize_framebuffer(self):
         if self.window:
             self.window.switch_to()
@@ -301,12 +301,14 @@ class Viewport(Transform, Color):
             return
         self.color_buffer.delete()
         self.color_buffer = pg.image.Texture.create(
-            self.w, self.h,
+            self._w, self._h,
             min_filter=GL_NEAREST, mag_filter=GL_NEAREST,
             internalformat=GL_RGBA8
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-        self._sprite.image = self.color_buffer
+        self.citem.image = self.color_buffer
+        self._set_anchors()
+        
     def _delete_buffer(self):
         if not self.framebuffer:
             return
@@ -314,28 +316,28 @@ class Viewport(Transform, Color):
             self.window.switch_to()
         self.framebuffer.delete()
         self.color_buffer.delete()
-        self._sprite.delete()
+        self.citem.delete()
 
     ## Transform related
     def _set_anchors(self):
-        self._sprite.image.anchor_x = self._sprite.image.width  // self.scale_x
-        self._sprite.image.anchor_y = self._sprite.image.height // self.scale_y
+        # For some reason when rotating the anchors dont anchor anchoringly and rotate around the bottom left of the image (????)
+        self.citem.image.anchor_x = self.citem.image.width  // 2
+        self.citem.image.anchor_y = self.citem.image.height // 2
+        self.citem._update_position()
     def into_screen_coords(self, do_flip : bool = True):
         return super().into_screen_coords(self.window.size, do_flip)
     def _set_alpha(self, deg):
-        self._sprite.opacity = deg
+        self.citem.opacity = deg
     def _set_rot(self, deg):
-        self._sprite.rotation = deg
+        self.citem.rotation = deg
     def _set_scale(self, x, y):
-        self._sprite.scale_x = x
-        self._sprite.scale_y = y
+        self.citem.scale_x = x
+        self.citem.scale_y = y
         self._set_anchors()
     def _set_size(self, w, h):
         self._resize_framebuffer()
     def _set_visible(self, val):
-        if not self._sprite:
-            return
-        self._sprite.visible = val
+        self.citem.visible = val
 
     ## Drawing related
     def set_background(self, r=0,g=0,b=0,a=255):
@@ -392,10 +394,10 @@ class Viewport(Transform, Color):
         # Draw Viewport to Window
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        x, y    = self.into_screen_coords()
-        self._sprite.x = x
-        self._sprite.y = y
-        self._sprite.draw()
+        x, y         = self.into_screen_coords()
+        self.citem.x = x + (self.color_buffer.anchor_x * self.scale_x)
+        self.citem.y = y + (self.color_buffer.anchor_y * self.scale_y)
+        self.citem.draw()
 
     ## Camera functions    
     def _reset_camera(self):
