@@ -27,12 +27,12 @@ class CollisionManager:
         self.shapes.pop(sid)
     
     def colliderect(self, shape : CollisionBox, other : CollisionBox) -> bool:
-        """Check if `shape` is colliding with `other` on `axis`."""
+        """Check if `shape` is colliding with `other`."""
         return shape.colliderect(other)
 
-    def get_collisions(self, shape : CollisionBox) -> list:
-        """Get the shapes that are colliding `shape` on `axis`."""
-        return shape._shape.collidelist(self.shapes.values())
+    def get_collisions(self, shape : CollisionBox) -> int:
+        """Get if `shape` is being collided by another shape."""
+        return shape._shape.collidelist(list(self.shapes.values()))
 
 class SceneLike:
     def __init__(self):
@@ -44,7 +44,7 @@ class SceneLike:
         self._inherited_scn                   = None        # Filepath of the inherited scene
         self._blessed                         = []          # List of nodes that are about to be created
         self._temp_node_list                  = []          # List of nodepaths in the scene tree
-        self._stf : CollisionManager          = None        # Collision Manager
+        self._collisionman : CollisionManager = None        # Collision Manager
         self._widgetman    : WidgetManager    = None        # Widget Manager
 
 class Scene(Resource, SceneLike):
@@ -75,8 +75,8 @@ class Scene(Resource, SceneLike):
             self.empty()
 
         # Init managers
-        self._stf       = engine.resources.CollisionManager()
-        self._widgetman = engine.resources.WidgetManager()
+        self._collisionman = engine.resources.CollisionManager()
+        self._widgetman    = engine.resources.WidgetManager()
 
         # Set filepath and load
         self._file_path = path
@@ -91,10 +91,10 @@ class Scene(Resource, SceneLike):
     @nodes.setter
     def nodes(self, nodes : dict):
         self.empty()
-        self._stf       = engine.resources.CollisionManager()
-        self._widgetman = engine.resources.WidgetManager()
-        self._nodes     = nodes
-        nodepaths       = self.get_node_paths("")
+        self._collisionman = engine.resources.CollisionManager()
+        self._widgetman    = engine.resources.WidgetManager()
+        self._nodes        = nodes
+        nodepaths          = self.get_node_paths("")
 
         for nodepath in nodepaths:
             self._initialize_node_entry(nodepath)

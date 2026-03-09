@@ -75,9 +75,11 @@ class HookFPSDisplay(pg.window.FPSDisplay):
         if self._elapsed >= self.update_period:
             self._elapsed = 0
             average_delta = sum(self._delta_times)/len(self._delta_times)
-            engine.fps    = round(1 / average_delta)
+            engine.fps    = 1 / average_delta
+            if engine.fps  < ZDE_FIX:
+                engine.fps = ZDE_FIX
 
-            self.label.text = f"{engine.fps}/{MAXFPS} FPS"
+            self.label.text = f"{round(engine.fps)}/{MAXFPS} FPS"
             self.label.y    = self.viewport.h-self.label.content_height
     
     def _hook_flip(self) -> None:

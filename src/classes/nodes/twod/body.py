@@ -36,9 +36,9 @@ class Body(CollisionBox):
     def update(self):
         super().update()
 
-        if len(self.world.get_collisions(self, AXIS_X)):
+        if self.world.get_collisions(self):
             self._velocity[0] = 0
-        if len(self.world.get_collisions(self, AXIS_Y)):
+        if self.world.get_collisions(self):
             self._velocity[1] = 0
         self.x += self._velocity[0]
         self.y += self._velocity[1]

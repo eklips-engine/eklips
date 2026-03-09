@@ -13,6 +13,13 @@ from classes.locals      import *
 pygame.mixer.init(channels=2)
 
 # Functions
+def rgbtohex(rgb: list) -> str:
+    r,g,b = rgb
+    return "#{:02x}{:02x}{:02x}".format(round(r),round(g),round(b))
+def invertrgb(rgb: list) -> list:
+    r,g,b = rgb
+    return [255-r,255-g,255-b]
+
 def get_date():
     return time.strftime('%d %m %Y %H %M %S')
 
@@ -106,7 +113,7 @@ def load_cursor(name) -> pg.window.MouseCursor | pg.window.ImageMouseCursor:
 
 def is_action_pressed(entry) -> bool:
     """Returns true if action `entry` is pressed. Might return False if the entry's settings have `holdable` disabled."""
-    action_entries = game.project_data.get("actions",{})
+    action_entries = game.actions
     if entry in action_entries:
         action_data = action_entries[entry]
         for action in action_data["actions"]:

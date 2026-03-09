@@ -1,10 +1,12 @@
 ## Spaghetti code
-import classes.singleton       as engine
-from tkinter                   import ttk
-from tkinter.messagebox        import *
-from tkinter.filedialog        import *
-from classes.customprops       import *
-from classes.nodes             import *
+import classes.singleton as engine
+import tkinter           as tk
+from tkinter             import ttk
+from tkinter.messagebox  import *
+from tkinter.filedialog  import *
+from classes.customprops import *
+from classes.nodes       import *
+from tkinter             import colorchooser
 
 backbtn : Sprite = None
 settbtn : Sprite = None
@@ -29,6 +31,109 @@ def load():
     pr_title.text = engine.lang.get(pr_title.text)
     sg_title.text = engine.lang.get(sg_title.text)
 
+def _settings_dialog():
+    gjsp : str      = engine.selected_project
+    gmdt : GameData = engine.projects[engine.selected_project]
+    gjs  : dict     = engine.loader.load(gjsp)
+
+    window   = engine.display.windows[MAIN_WINDOW]
+    window.switch_to()
+    window.clear()
+
+    for viewport in window.viewports.values():
+        viewport.alpha = 127
+
+    print(" ~ Initialize Project Settings window")
+    root = tk.Tk()
+    root.title(engine.lang.get("es_titlest").replace("%", gmdt.name))
+    root.geometry("404x284")
+    root.resizable(0, 0)
+    tabs = ttk.Notebook(root)
+
+    """
+        "es_iconst":  "Icon file",
+        "es_eklver":  "Designed Eklips ver",
+        
+        "es_scenes":  "Scenes",
+        "es_mstrscn": "Main scene",
+        "es_loadscn": "Loading scene",
+        
+        "es_ver":     "Version",
+        "es_name":    "Name",
+        "es_antiali": "Antialiasing",
+
+        "es_winsiz":  "Size",
+        "es_wmnsiz":  "Minimum size",
+        "es_wmxsiz":  "Maximum size",
+
+        "es_langdir": "Language path:",
+        "es_langs":   "Supported languages"
+    """
+
+    ## General
+    print(" \\ ~ General")
+    tab = ttk.Frame(tabs, width=400, height=280)
+    tab.pack(fill="both", expand=True)
+
+    name_label = ttk.Label(tab, text=engine.lang.get("es_name"))
+    name_label.place(x=5,y=5)
+
+    ver_label = ttk.Label(tab, text=engine.lang.get("es_ver"))
+    ver_label.place(x=5,y=25)
+
+    # Scenes
+    scenes = ttk.Frame(tab, borderwidth=1, relief=tk.RIDGE, width=385, height=160)
+    scenes.place(x=5, y=95)
+
+    tabs.add(tab, text=engine.lang.get("es_general"))
+
+    ## Window
+    print(" \\ ~ Window")
+    tab = ttk.Frame(tabs, width=400, height=280)
+    tab.pack(fill="both", expand=True)
+
+    description = ttk.Label(tab, text=engine.lang.get("es_windesc"))
+    description.place(x=5,y=5)
+    
+    tabs.add(tab, text=engine.lang.get("es_window"))
+    
+    ## Actions
+    print(" \\ ~ Actions")
+    tab = ttk.Frame(tabs, width=400, height=280)
+    tab.pack(fill="both", expand=True)
+    
+    description = ttk.Label(tab, text=engine.lang.get("es_actdes"))
+    description.place(x=5,y=5)
+    
+    tabs.add(tab, text=engine.lang.get("es_action"))
+
+    ## Language
+    print(" \\ ~ Language")
+    tab = ttk.Frame(tabs, width=400, height=280)
+    tab.pack(fill="both", expand=True)
+    
+    description = ttk.Label(tab, text=engine.lang.get("es_langdes"))
+    description.place(x=5,y=5)
+
+    tabs.add(tab, text=engine.lang.get("es_lang"))
+
+    ## Font
+    print(" \\ ~ Font")
+    tab = ttk.Frame(tabs, width=400, height=280)
+    tab.pack(fill="both", expand=True)
+    
+    description = ttk.Label(tab, text=engine.lang.get("es_fontdes"))
+    description.place(x=5,y=5)
+    
+    tabs.add(tab, text=engine.lang.get("es_font"))
+
+    ## Finishing touches
+    tabs.pack(padx=2,pady=2, expand=True)
+    root.mainloop()
+
+    for viewport in window.viewports.values():
+        viewport.alpha = 255
+
 def _process(self : Node, delta : float):
     global backbtn, settbtn, playbtn
 
@@ -43,7 +148,7 @@ def _process(self : Node, delta : float):
     if playbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         os.system(f"eklips.py -file {gmdt.project_file} -dir {gmdt.project_dir} -editordebug")
     if settbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
-        showinfo("Info", "Multiple windows are yet to function properly.. Sigh.")
+        _settings_dialog()
     
     window        = engine.display.get_window(MAIN_WINDOW)
     if window.width < 1151:

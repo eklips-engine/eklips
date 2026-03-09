@@ -22,18 +22,63 @@
         "ee_pr": "Properties",
         "ee_sg": "Signals",
 
-        "ee_titlest": "Eklips Editor - Settings for %",
-        "ee_iconst": "Icon file",
-        "ee_eklver": "Designed Eklips ver",
+        "es_path":   "Filepath",
+        "es_fntnm":  "Font name",
+        "es_lngnm":  "Language",
+        "es_actnam": "Action name",
+        "es_key":    "Key name",
+        "es_holdable": "Holdable?",
+
+        "es_titlest": "Eklips Editor - Settings for %",
+        "es_general": "General",
+        "es_window":  "Window",
+        
+        "es_action":  "Actions",
+        "es_actdes":  "Define a list of keyboard/mouse presses the user can use to interact with your\napp.",
+        
+        "es_iconst":  "Icon file:",
+        "es_eklver":  "Designed Eklips ver:",
+
+        "es_scenes":  "Scenes",
+        "es_mstrscn": "Main scene:",
+        "es_loadscn": "Loading scene:",
+
+        "es_ver":     "Version:",
+        "es_name":    "Name:",
+        "es_antiali": "Antialiasing:",
+
+        "es_windesc": "Define the properties of the main Window here.",
+        "es_propor":  "Dimensions",
+        "es_winsiz":  "Size:",
+        "es_bgcol":   "Background color:",
+        "es_wmnsiz":  "Minimum size:",
+        "es_wmxsiz":  "Maximum size:",
+        "ec_bgcol":   "Choose background color for every window",
+        "es_chng":    "Change...",
+        "es_resiz":   "Resizable:",
+
+        "es_lang":    "Internationalization",
+        "es_langdes": "Define Languages your app supports.",
+        "es_langdir": "Language path:",
+        "es_langs":   "Supported languages:",
+
+        "es_font":    "Fonts",
+        "es_fontdes": "Define fonts used in your app.",
+
+        "es_add": "Add",
+        "es_rem": "Remove",
         
         "ee_title": "Eklips Editor",
         "pe_warnleaveprj": "Are you sure you want to leave? Your progress will be saved. Totally.",
         
+        "es_mleft": "Left Click",
+        "es_mmdl":  "Middle Click",
+        "es_mrght": "Right Click",
+        
         "pe_lang":  "Language:"
     },
     "properties": {
-        "name":        "English",
-        "description": "It's the.. English language.... what the hell am i supposed to tell you?!",
-        "base":        null
+        "name": "English (American)",
+        "base": null
     }
 }

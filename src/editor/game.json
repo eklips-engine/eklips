@@ -1,41 +1,105 @@
 {
-    "name":    "Eklips Editor",
+    "name": "Eklips Editor",
     "version": {
         "app": "5.0A",
         "ekl": "5.0A"
     },
     "viewport": {
-        "size":       [648,   648],
-        "color":      [35, 35, 50],
-        "minsize":    [648,   648],
-        "maxsize":    [1152,  648],
-        "resizable":  false,
-        "icon_file":  "res://media/icon.png"
+        "size": [
+            648,
+            648
+        ],
+        "color": [
+            25,
+            25,
+            35
+        ],
+        "minsize": [
+            648,
+            648
+        ],
+        "maxsize": [
+            1152,
+            648
+        ],
+        "resizable": false,
+        "icon_file": "root://_assets/icon_beta.png"
     },
     "scenes": {
-        "master":  "res://scenes/master.scn",
+        "master": "res://scenes/master.scn",
         "loading": "root://_assets/loading.scn"
     },
-    
     "directory": "editor",
-
     "actions": {
-        "test": {
-            "actions":  [2],
+        "a1": {
+            "actions": [
+                97,
+                1
+            ],
+            "holdable": true
+        },
+        "a2": {
+            "actions": [
+                97,
+                2
+            ],
+            "holdable": false
+        },
+        "a3": {
+            "actions": [
+                97,
+                4
+            ],
+            "holdable": true
+        },
+        "ab": {
+            "actions": [
+                97,
+                98
+            ],
+            "holdable": false
+        },
+        "cd": {
+            "actions": [
+                99,
+                100
+            ],
+            "holdable": true
+        },
+        "ef": {
+            "actions": [
+                101,
+                102
+            ],
+            "holdable": true
+        },
+        "gh": {
+            "actions": [
+                102,
+                103
+            ],
+            "holdable": true
+        },
+        "ij": {
+            "actions": [
+                104,
+                105
+            ],
             "holdable": true
         }
     },
-
     "behavior": {
-        "autoloads":     [],
+        "autoloads": [],
         "autoload_name": "Autoload!~X",
-
         "antialiasing": false,
-
         "fonts": []
     },
     "language": {
-        "langs": ["en","fr","foobar"],
-        "dir":   "res://lang"
+        "langs": [
+            "en",
+            "fr",
+            "foobar"
+        ],
+        "dir": "res://lang"
     }
 }

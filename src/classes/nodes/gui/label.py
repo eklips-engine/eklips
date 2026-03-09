@@ -49,9 +49,8 @@ class Label(CanvasItem, Color):
     def color(self, rgb : tuple[int, int, int] | list[int]):
         self.rgb = rgb
     def _update_color(self, r, g, b, a):
-        if not self.citem:
-            return
-        self.citem.color = (r,g,b,a)
+        if self.citem:
+            self.citem.color = (r,g,b,a)
     
     def _set_size(self, w, h):
         self._w, self._h = self.citem.content_width, self.citem.content_height
@@ -78,10 +77,9 @@ class Label(CanvasItem, Color):
 
     ## CItem managing
     def _remove_item(self):
-        if not self.citem:
-            return
-        self.citem.delete()
-        self.citem = None
+        if self.citem:
+            self.citem.delete()
+            self.citem = None
     def _make_new_item(self) -> pg.text.Label:
         if self.citem:
             self._remove_item()

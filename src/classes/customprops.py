@@ -161,7 +161,9 @@ class GameData:
 
         # Text-related
         self.fonts   = self.project_data["behavior"]["fonts"]
+        self.langs   = self.project_data["language"]["langs"]
         self.langdir = self.project_data["language"]["dir"]
+        self.actions = self.project_data["actions"]
 
         # Get scenes info
         self.master_scene  = self.project_data["scenes"]["master"]
@@ -240,6 +242,8 @@ class Transform:
     def flip_w(self): return self._flip_w
     @property
     def flip_h(self): return self._flip_h
+    @property
+    def flip(self): return [self.flip_w,self.flip_h]
 
     # Setters
     @visible.setter
@@ -247,9 +251,17 @@ class Transform:
         self._visible = val
         self._set_visible(val)
     @flip_w.setter
-    def flip_w(self, val): self._flip_w = val
+    def flip_w(self, val):
+        self._flip_w = val
+        self._set_flip(*self.flip)
     @flip_h.setter
-    def flip_h(self, val): self._flip_h = val
+    def flip_h(self, val):
+        self._flip_h = val
+        self._set_flip(*self.flip)
+    @flip.setter
+    def flip(self, val):
+        self._flip_w = val[0]
+        self.flip_h  = val[1]
     
     @alpha.setter
     def alpha(self, value):
@@ -311,6 +323,8 @@ class Transform:
         pass
     def _set_size(self,    w,h):
         # This is affected by scaling
+        pass
+    def _set_flip(self,    w,h):
         pass
     
     @w.setter

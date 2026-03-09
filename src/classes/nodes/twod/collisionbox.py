@@ -23,8 +23,8 @@ class CollisionBox(CanvasItem):
     def __init__(self, properties={}, parent=None):
         super().__init__(properties, parent)
         self.world  = engine.scene._collisionman
-        self.rid    = self.world.add(self)
         self._shape = pygame.Rect((0,0,0,0))
+        self.rid    = self.world.add(self._shape)
     
     def _free(self):
         self.world.delete(self.rid)
@@ -33,11 +33,12 @@ class CollisionBox(CanvasItem):
     def colliderect(self, shape):
         return self._shape.colliderect(shape)
     
-    def _set_pos(self):
-        self._shape.x = self.x
-        self._shape.y = self.y
+    def _set_pos(self, x, y):
+        self._shape.x = x
+        self._shape.y = y
     def _set_size(self, w, h):
         self._shape.w = w
         self._shape.h = h
     def _set_rot(self, deg):
-        print("pygame.Rect does not support rotation")
+        # pygame.Rect does not support rotation
+        return

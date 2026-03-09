@@ -1,26 +1,86 @@
 {
     "entries": {
-        "general":  "Général",
+        "general":  "General",
         "pe_title": "Eklips Editeur - Projet Editeur",
         "pe_pjfl":  "Eklips Projet Fichier",
         "pe_evfl":  "Tout les autres..",
         
-        "pe_gnrl":  "Général",
+        "pe_gnrl":  "General",
         "pe_beha":  "Comportement",
          
-        "pe_titlesetting": "Eklips Editeur - Paramèters",
+        "pe_titlesetting": "Eklips Editeur - Parameters",
         "pe_titlenewprj": "Eklips Editeur - Nouveau Projet",
         "pe_titleselprj": "Eklips Editeur - Choisir un Projet Fichier",
         "pe_titleeditor": "Eklips Editeur - %",
         
         "ee_title": "Eklips Editeur",
-        "pe_warnleaveprj": "Êtes-vous sûr de vouloir partir? Votre progression sera sauvegardée trust me bro",
+        "pe_warnleaveprj": "Etes-vous sur de vouloir partir? Votre progression sera sauvegardee trust me bro",
 
+        "yes": "Oui",
+        "no": "Non",
+        "can": "Annuler",
+        "con": "Continue",
+        
+        "ee_fb": "Fichier Explorateur",
+        "ee_st": "Scene Arborescence",
+        "ee_sp": "Scene Preview",
+        "ee_pr": "Proprietes",
+        "ee_sg": "Signaux",
+
+        "es_titlest": "Eklips Editeur - Parameters pour %",
+        "es_general": "General",
+        "es_window":  "Window",
+        
+        "es_action":  "Actions",
+        "es_actdes":  "Definissez une liste de touches clavier/souris que l'utilisateur peut utiliser\npour interagir avec votre application",
+        
+        "es_iconst":  "Fichier icone:",
+        "es_eklver":  "Version d'Eklips:",
+        
+        "es_path":   "Location",
+        "es_fntnm":  "Nom du police",
+        "es_lngnm":  "Nom du langue",
+        "es_actnam": "Nom d'action",
+        "es_key":    "Nom du touche",
+        "es_holdable": "Maintenable?",
+
+        "es_scenes":  "Scenes",
+        "es_mstrscn": "Scene principale:",
+        "es_loadscn": "Scene de chargement:",
+
+        "es_ver":     "Version:",
+        "es_name":    "Nom:",
+        "es_antiali": "Anticrenelage:",
+
+        "es_windesc": "Definissez ici les proprietes de la Window principale.",
+        "es_propor":  "Dimensions",
+        "es_winsiz":  "Taille:",
+        "es_bgcol":   "Couleur de fond:",
+        "es_wmnsiz":  "Taille minimale:",
+        "es_wmxsiz":  "Taille maximale:",
+        "ec_bgcol":   "Choisir la couleur de fond pour tous les Windows a ton application.",
+        "es_chng":    "Modifier...",
+        "es_resiz":   "Redimensionnable:",
+
+        "es_lang":    "Internationalisation",
+        "es_langdes": "Definissez les langues supportees par votre application.",
+        "es_langdir": "Chemin des langues:",
+        "es_langs":   "Langues supportees:",
+
+        "es_font":    "Polices",
+        "es_fontdes": "Definissez les polices utilisees dans votre application.",
+
+        "es_add": "Ajoute",
+        "es_rem": "Supprime",
+        
+        "es_mleft": "Clic gauche",
+        "es_mmdl":  "Clic milieu",
+        "es_mrght": "Clic droite",
+        
         "pe_lang":  "Langue:"
     },
     "properties": {
-        "name":        "French (Français)",
-        "description": "Langue français",
-        "base":        "res://lang/en.json"
+        "name": "French (France)",
+        "base": "res://lang/en.json"
     }
 }

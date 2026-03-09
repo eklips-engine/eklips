@@ -1,8 +1,7 @@
 {
     "entries": {},
     "properties": {
-        "name":        "Foobar",
-        "description": "description",
-        "base":        null
+        "name": "foobar",
+        "base": null
     }
 }

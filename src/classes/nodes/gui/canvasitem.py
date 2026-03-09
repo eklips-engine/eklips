@@ -60,6 +60,7 @@ class CanvasItem(Node, Transform):
         if self.citem:
             self.citem.image = value
             self._set_anchors()
+            self._set_flip(*self.flip)
 
     ## Init
     def __init__(self, properties={}, parent = None):
@@ -86,9 +87,8 @@ class CanvasItem(Node, Transform):
         return [self.flip_w, self.flip_h]
     @flip.setter
     def flip(self, value : list):
-        self.flip_w, self.flip_h = value
-        if self.citem:
-            self.citem.image = self.image.flip(*self.flip)
+        self._flip_w = value[0]
+        self.flip_h  = value[1]
     @export(base_transform, "dict", "transform")
     def transform(self):
         return self._turn_object_into_transform_property()
@@ -125,39 +125,41 @@ class CanvasItem(Node, Transform):
             x, y         = self.into_screen_coords(self.viewport.tsize)
             self.citem.x = x + (self.citem.image.anchor_x * self.scale_x)
             self.citem.y = y + (self.citem.image.anchor_y * self.scale_y)
+            
+            self.citem.visible = self.visible
+        else:
+            self.citem.visible = False
 
     ## Transform related
+    def _set_flip(self, w, h):
+        if self.citem:
+            self.citem.image = self.image.flip(w,h)
     def _set_anchors(self):
         self.citem.image.anchor_x = self.citem.image.width  // 2
         self.citem.image.anchor_y = self.citem.image.height // 2
         self.citem._update_position()
     def _set_pos(self, x, y):
-        if not self.citem:
-            return
-        x,y = self.into_screen_coords(self.viewport.tsize)
-        self.citem.x = x
-        self.citem.y = y
+        if self.citem:
+            x,y = self.into_screen_coords(self.viewport.tsize)
+            self.citem.x = x
+            self.citem.y = y
     def _set_size(self, w, h):
         if self.image:
             self._w, self._h = self.image.width, self.image.height
     def _set_scale(self, x, y):
-        if not self.citem:
-            return
-        self.citem.scale_x = x
-        self.citem.scale_y = y
-        self._set_anchors()
+        if self.citem:
+            self.citem.scale_x = x
+            self.citem.scale_y = y
+            self._set_anchors()
     def _set_rot(self, deg):
-        if not self.citem:
-            return
-        self.citem.rotation = deg
+        if self.citem:
+            self.citem.rotation = deg
     def _set_visible(self, val):
-        if not self.citem:
-            return
-        self.citem.visible = val
+        if self.citem:
+            self.citem.visible = val
     def _set_alpha(self, deg):
-        if not self.citem:
-            return
-        self.citem.opacity = round(deg)
+        if self.citem:
+            self.citem.opacity = round(deg)
 
     def _get_viewport(self) -> ui.Viewport:
         """Get the Viewport that the CanvasItem will be drawn to."""
@@ -175,10 +177,9 @@ class CanvasItem(Node, Transform):
     
     ## CItem managing
     def _remove_item(self):
-        if not self.citem:
-            return
-        self.citem.delete()
-        self.citem = None
+        if self.citem:
+            self.citem.delete()
+            self.citem = None
     def _make_new_item(self) -> pg.sprite.Sprite | pg.text.Label:
         if self.citem:
             self._remove_item()
@@ -220,6 +221,11 @@ class CanvasItem(Node, Transform):
         """Returns true if the mouse is hovering over self."""
         if not self.viewport:
             return
+        if not self.visible:
+            return
+        if not self.viewport.is_onscreen(self):
+            return
+        
         ## Get things
         mpos   = engine.mouse.pos
         x,  y  = self.into_screen_coords(self.viewport.tsize)

@@ -460,11 +460,11 @@ class Viewport(Transform, Color):
 
 class Display:
     """A class to manage `EklWindow`'s."""
-    windows        = {}          # Dict of windows
-    _doomed        = []          # List of windows to run through remove_window
-    _merciless     = []          # List of windows to run through window.close
-    main_window_id = None        # Name
-    _windid        = MAIN_WINDOW # Next ID
+    windows        : dict[int, EklWindow] = {}          # Dict of windows
+    _doomed        : int                  = []          # List of windows to run through remove_window
+    _merciless     : int                  = []          # List of windows to run through window.close
+    main_window_id : int | None           = None        # Name
+    _windid        : int                  = MAIN_WINDOW # Next ID
     print(" ~ Initialize Display")
     
     ## Update
