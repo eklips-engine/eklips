@@ -15,9 +15,9 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
 # Features
 For now, the features are:
- - Atleast 19 different Nodes, i lost track (Window, 2D, GUI, etc..)
+ - 22 different Nodes (Window, Viewport, Sprite, MediaPlayer, etc..)
  - Resource object support
- - Pre-built Loading
+ - Pre-built Loading system
  - Custom filesystem similar to Godot (`res://`, `user://`)
  - Pre-built Saving and Settings support
  - Layering support
@@ -32,4 +32,4 @@ For now, the features are:
 # Requirements
 All of the libraries required to run Eklips are in [here](https://github.com/ZeeAyZ/Eklips/blob/main/requirements.txt). I use Python 3.13.11 because i cannot be bothered to compile PyAudio.
 <br>
-You need atleast a system running Windows 7/Mac OS X 10.3 or later and OpenGL with a version of 3.3 or higher.
+You need atleast a system running Windows 7 or later and OpenGL with a version of 3.3 or higher (according to Pyglet's specs).
