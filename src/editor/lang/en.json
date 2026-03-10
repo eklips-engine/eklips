@@ -69,6 +69,8 @@
         "es_rem": "Remove",
         
         "ee_title": "Eklips Editor",
+        "op_font":  "Open font",
+        "notfont":  "Either not a font file or something broke.",
         "pe_warnleaveprj": "Are you sure you want to leave? Your progress will be saved. Totally.",
         
         "es_mleft": "Left Click",

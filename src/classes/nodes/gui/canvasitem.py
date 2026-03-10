@@ -31,6 +31,7 @@ class CanvasItem(Node, Transform):
     (NOTE: The reason why `tsize` is called that because
     anytree's NodeMixin uses a size property..)
     """
+    _relativity_pos                             = True
     _iscitem                                    = True 
     _can_check_layer                            = True 
     _isdisplayobject                            = False
@@ -131,6 +132,9 @@ class CanvasItem(Node, Transform):
             self.citem.visible = False
 
     ## Transform related
+    def _set_layer(self, val):
+        if self.citem:
+            self.citem.group = pg.graphics.Group(order=val)
     def _set_flip(self, w, h):
         if self.citem:
             self.citem.image = self.image.flip(w,h)
@@ -199,11 +203,13 @@ class CanvasItem(Node, Transform):
     
     ## Update
     def _update_relativity(self):
-        if self.parent and self.parent.get("_iscitem", False):
+        if self.parent and self.parent.get("_iscitem", False) and self._relativity_pos:
             if self.parent.get("_isdisplayobject", False):
                 self._offset_x, self._offset_y = self.parent.into_screen_coords(False)
             else:
                 self._offset_x, self._offset_y = self.parent.into_screen_coords(self.viewport.tsize, False)
+        else:
+            self._offset_x = self._offset_y = 0
     
     def update(self):
         super().update()

@@ -198,6 +198,8 @@ class Transform:
         self._scale_x = 1
         self._scale_y = 1
 
+        self._layer = 0
+
         self._window_size = [0,0]
     
     # Getters
@@ -212,6 +214,9 @@ class Transform:
     def y(self): return self._y + self._offset_y
     @property
     def z(self): return self._z
+
+    @property
+    def layer(self): return self._layer
 
     @property
     def scale_x(self): return self._scale_x
@@ -246,6 +251,10 @@ class Transform:
     def flip(self): return [self.flip_w,self.flip_h]
 
     # Setters
+    @layer.setter
+    def layer(self, val):
+        self._layer = val
+        self._set_layer(val)
     @visible.setter
     def visible(self, val):
         self._visible = val
@@ -326,6 +335,8 @@ class Transform:
         pass
     def _set_flip(self,    w,h):
         pass
+    def _set_layer(self,   val):
+        pass
     
     @w.setter
     def w(self, value):
@@ -364,6 +375,7 @@ class Transform:
             "scale":    self.scale,
             "alpha":    self.alpha,
             "skew":     self.skew,
+            "layer":    self.layer,
             "rotation": self.rotation,
             "anchor":   self.anchor,
             "scroll":   self.scroll,
@@ -372,16 +384,16 @@ class Transform:
         }
     
     def _convert_transform_property_into_object(self, value):
-        self.tsize     = value["tsize"]
-        self.position  = value["position"]
-        self.scale     = value["scale"]
-        self.alpha     = value["alpha"]
-        self.skew      = value["skew"]
-        self.rotation  = value["rotation"]
-        self.anchor    = value["anchor"]
-        self.scroll    = value["scroll"]
-        
-        self.visible   = value["visible"]
+        self.tsize     = value.get("tsize",    self.tsize)
+        self.position  = value.get("position", self.position)
+        self.scale     = value.get("scale",    self.scale)
+        self.alpha     = value.get("alpha",    self.alpha)
+        self.skew      = value.get("skew",     self.skew)
+        self.rotation  = value.get("rotation", self.rotation)
+        self.anchor    = value.get("anchor",   self.anchor)
+        self.scroll    = value.get("scroll",   self.scroll)
+        self.layer     = value.get("layer",    self.layer)
+        self.visible   = value.get("visible",  self.visible)
     
     def into_screen_coords(self, window_size : list[int,int] = [480,480], do_flip : bool = True):
         anchor = self.anchor
