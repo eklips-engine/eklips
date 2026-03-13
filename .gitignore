@@ -1,10 +1,18 @@
+## Projects
 terre
+pb94
+
+## Clutter
 tmp
 __pycache__
 screenshots
 test*.*
-pb94
 images.png
+
+## Pyinstaller things
 build/
 dist/
-requirements.in
+
+## Documentation (hide it)
+docs/install.md
+docs/install.md

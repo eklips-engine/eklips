@@ -1,6 +1,6 @@
-### Eklips Engine <img src="img/spinning_icon.svg" align="right" height="140"/>
+# Eklips Engine <img src="https://raw.githubusercontent.com/ZeeAyZ/Eklips/4415af11cebfc281ea693c53e4a38d012ea95fc8/img/spinning_icon.svg" align="right" height="140"/>
 
-A 2D Node hierarchy-based game engine written in Python using Pyglet.
+Eklips is a 2D Node hierarchy-based game engine written in Python using Pyglet.
 
 >[!WARNING]
 >This project is still in development and is very buggy and unstable, so use at your own risk.
@@ -8,26 +8,28 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 >
 >This fork is the successor of the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account and it will not have any new commits or features.
 
->[!NOTE]
->I'm not gonna be committing as much.. cause school.. and life.. yayy..
+To get started, you can go to these webpages:
+ - [Installation]()
+ - [Editor basics]()
+ - [Using the API]()
 
-# Features
+## Features
 For now, the features are:
  - 22 different Nodes (Window, Viewport, Sprite, MediaPlayer, etc..)
  - Resource object support
  - Pre-built Loading system
- - Custom filesystem similar to Godot (`res://`, `user://`)
+ - Custom filesystem paths similar to Godot (`res://`, `root://`, `user://`)
  - Pre-built Saving and Settings support
  - Layering support
  - Event support
  - Pre-built keybind support
  - Python scripting support
 
-# Documentation
+## Documentation
 >[!WARNING]
 >There isn't any documentation yet.. as the editor is not done and initial release isn't out yet.
 
-# Requirements
+## Requirements
 All of the libraries required to run Eklips are in [here](https://github.com/ZeeAyZ/Eklips/blob/main/docs/requirements.txt). I use Python 3.13.11 because i cannot be bothered to compile PyAudio.
 <br>
 You need atleast a system running Windows 7 or later and OpenGL with a version of 3.3 or higher (according to Pyglet's specs).
