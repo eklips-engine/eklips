@@ -12,7 +12,3 @@ images.png
 ## Pyinstaller things
 build/
 dist/
-
-## Documentation (hide it)
-docs/install.md
-docs/install.md

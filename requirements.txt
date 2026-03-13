@@ -1,0 +1,7 @@
+anytree
+pygame-ce
+pyglet
+pyvidplayer2
+xmltodict
+requests
+typing
