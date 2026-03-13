@@ -14,6 +14,9 @@ from classes.resources.theme   import *
 
 # Classes
 class Loader:
+    """
+    A class to load resources for use.
+    """
     print(" ~ Initialize Resource Loader")
     resource_tree = {}
     use_binary    = False
@@ -28,7 +31,7 @@ class Loader:
         "fnt": ["ttf","otf"],                                       # Fonts
         "scn": ["scn","tscn"],                                      # Scene
         "res": ["res","rc"],                                        # Ekl Resource
-        "xml": ["xml", "svg", "html"]
+        "xml": ["xml", "svg", "html"]                               # Xml
     }
 
     def _get_true_path(self, path : str):
