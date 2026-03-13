@@ -331,7 +331,6 @@ class Viewport(Transform, Color):
     def _set_scale(self, x, y):
         self.citem.scale_x = x
         self.citem.scale_y = y
-        self._set_anchors()
     def _set_size(self, w, h):
         self._resize_framebuffer()
     def _set_visible(self, val):

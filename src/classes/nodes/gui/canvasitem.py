@@ -28,8 +28,7 @@ class CanvasItem(Node, Transform):
     This is a Node that has properties for transformation,
     and is meant for rendering items in the window.
 
-    (NOTE: The reason why `tsize` is called that because
-    anytree's NodeMixin uses a size property..)
+    (NOTE: This node does not draw on its own. Use Sprite for that instead.)
     """
     _relativity_pos                             = True
     _iscitem                                    = True 
@@ -40,7 +39,7 @@ class CanvasItem(Node, Transform):
     _drawing_wid : int                          = 0    
     citem        : pg.sprite.Sprite             = None 
     _imagesid    : int                          = 0    
-    _images      : dict[pg.image.AbstractImage] = {}   
+    _images      : list[pg.image.AbstractImage] = {}   
     _image       : pg.image.AbstractImage       = None 
     _ignore_size_if_drawing                     = False
 
@@ -134,10 +133,13 @@ class CanvasItem(Node, Transform):
     def _set_layer(self, val):
         if self.citem:
             self.citem.group = engine.ui.request_group(val)
-    
     def _set_flip(self, w, h):
         if self.citem:
-            self.citem.image = self.image.flip(w,h)
+            if w: self.citem.scale_x = -self.scale_x
+            else: self.citem.scale_x = self.scale_x
+
+            if h: self.citem.scale_y = -self.scale_y
+            else: self.citem.scale_y = self.scale_y
     def _set_anchors(self):
         self.citem.image.anchor_x = self._w // 2
         self.citem.image.anchor_y = self._h // 2
@@ -147,9 +149,7 @@ class CanvasItem(Node, Transform):
             self._w, self._h = self.image.width, self.image.height
     def _set_scale(self, x, y):
         if self.citem:
-            self.citem.scale_x = x
-            self.citem.scale_y = y
-            self._set_anchors()
+            self._set_flip(self.flip_w, self.flip_h)
     def _set_rot(self, deg):
         if self.citem:
             self.citem.rotation = deg
@@ -186,7 +186,6 @@ class CanvasItem(Node, Transform):
         if not self.image:
             self._image    = engine.loader.load("root://_assets/error.png")
         self.citem         = pg.sprite.Sprite(img=self.image, batch=self.batch)
-        self._set_anchors()
         self.citem.visible = False
     def _refresh_item(self):
         if self.citem:

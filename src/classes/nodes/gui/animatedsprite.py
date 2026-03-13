@@ -10,45 +10,48 @@ class AnimatedSprite(CanvasItem):
     """
     _isblittable     = True
 
-    @export(["root://_assets/error.png"],"list","file_paths/img")
-    def image_paths(self):
-        """List of filepaths of the attached Images.
-        
-        Add a sprite by using `add_sprite_from_animation()`,
-        and remove one using `remove_sprite_from_animation()`.
-
-        .. note:: `remove_sprite_from_animation()` and `_remove_item` are not the same."""
-        return self._images.values()
-    @image_paths.setter
-    def image_paths(self, paths : list):
-        self._images = {}
-        for path in paths:
-            self.add_sprite_from_animation(path)
+    ## Exports
+    @export(None, "str", "animation")
+    def animation(self):
+        return self._pointer[0]
+    @animation.setter
+    def animation(self,value):
+        self._pointer[0] = value
+    @export({},"list","animations/img")
+    def animations(self):
+        # animation: {
+        #  paths: ["imgpath"]
+        #  images: [Img]        # Made on Runtime
+        # }
+        return self._animations
+    @animations.setter
+    def animations(self, animations : list):
+        self._animations = animations
+        for name in self._animations:
+            self._init_animation(name)
+    def _init_animation(self, name):
+        """If you want to make an animation, use `make_animation`. This function is only used internally."""
+        animation           = self._animations[name]
+        animation["frames"] = []
+        for frame in animation["paths"]:
+            animation["frames"].append(engine.loader.load(frame))
+    def get_frame_from_animation(self, animation, frame):
+        return self.animations[animation]["frames"][int(frame)]
     
-    def add_sprite_from_animation(self, image_path):
-        """Add a Sprite from AnimatedSprite. Returns ID in `self._images`"""
-        img_id               = len(self._images)
-        self._images[img_id] = engine.loader.load(image_path)
-        return img_id
-    
-    def remove_sprite_from_animation(self, img_id):
-        self._images.pop(img_id)
-    
+    ## Init
     def __init__(self, properties={}, parent=None):
-        self._imagesid  = 0
-        self._images    = {}
+        self._pointer    = [None, 0]
+        self._animations = {}
 
         super().__init__(properties, parent)
     
-    def step(self):
-        self._imagesid    += 1
-        if self._imagesid  < 0:
-            self._imagesid = len(self._images) - 1
-        if self._imagesid  > len(self._images) - 1:
-            self._imagesid = 0
-
     def update(self):
         super().update()
-        if self._imagesid in self._images:
-            self.image = self._images[self._imagesid]
-            self.draw()
+        # Advance
+        self._pointer[1]    += engine.delta*self.animations[self.animation]["speed"]
+        if self._pointer[1]  > len(self.animations[self.animation]["frames"]):
+            self._pointer[1] = 0
+        
+        # Set image and draw
+        self.image = self.get_frame_from_animation(*self._pointer)
+        self.draw()

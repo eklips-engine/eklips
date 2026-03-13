@@ -18,8 +18,6 @@ class Parallax(Sprite):
         self._citembl    = None
         self._citembr    = None
         self._speed      = 150.0
-        self._imgoffsetx = 0 # How many pixels to offset the image, it's named this for
-                             # lack of a better name
     
     ## Exports
     @export(150.0,"float","slider")
@@ -62,19 +60,27 @@ class Parallax(Sprite):
         self._citemtr.visible = False
         self._citembl.visible = False
         self._citembr.visible = False
+    def _remove_item(self):
+        if self.citem:
+            self.citem.delete()
+            self._citemtr.delete()
+            self._citembl.delete()
+            self._citembr.delete()
+            
+            self.citem    = None
+            self._citemtr = None
+            self._citembl = None
+            self._citembr = None
     def _set_anchors(self):
         self.image.anchor_x = self.image.width  // 2
         self.image.anchor_y = self.image.height // 2
-        
+
         self.citem._update_position()
         self._citemtr._update_position()
         self._citembl._update_position()
         self._citembr._update_position()
     
     ## Draw
-    def update(self):
-        self._imgoffsetx = (self._imgoffsetx + self.speed * engine.delta) % self.w
-        super().update()
     def draw(self):
         if self.visible and self.citem:
             zoom  = self.viewport.cam.zoom
@@ -86,7 +92,7 @@ class Parallax(Sprite):
             self.citem.x    = self._citembl.x = x + (self.citem.image.anchor_x * self.scale_x)
             self.citem.y    = self._citemtr.y = y + (self.citem.image.anchor_y * self.scale_y)
 
-            self._citemtr.x = self._citembr.x = x            + self.w
+            self._citemtr.x = self._citembr.x = self.citem.x + self.w
             self._citembr.y = self._citembl.y = self.citem.y + self.h
             
             self._citemtr.visible = self.visible

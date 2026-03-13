@@ -1,7 +1,6 @@
 # Import singleton
 import pyglet as pg
 from classes.resources.resource import *
-from classes.resources.image    import *
 from classes.customprops        import *
 
 # Classes
@@ -14,11 +13,11 @@ class Theme(Resource):
     print(" ~ Initialize themer")
 
     @property
-    def image(self) -> EklImage:
+    def image(self):
         return self._image
     @image.setter
     def image(self, img : pg.image.ImageData):
-        self._image : EklImage = img
+        self._image = img
         self.refresh()
     
     @export(None,"str","file_path/img")
@@ -48,9 +47,9 @@ class Theme(Resource):
         return self._widgets[name]["obj"]._image
 
     def __init__(self, properties={}):
-        self._image     = None
-        self._imagepath = None
-        self._widgets   = properties["widgets"]
+        self._image     : pg.image.AbstractImage = None
+        self._imagepath : str                    = None
+        self._widgets   : dict                   = properties["widgets"]
         super().__init__(properties)
 
 class _BaseWidget:

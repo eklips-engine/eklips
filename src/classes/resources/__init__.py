@@ -9,7 +9,6 @@ import classes.singleton as engine
 print(" ~ Importing all resources")
 from classes.resources.object  import *
 from classes.resources.scene   import *
-from classes.resources.image   import *
 from classes.resources.tileset import *
 from classes.resources.theme   import *
 
@@ -46,7 +45,10 @@ class Loader:
         
         try:
             if ext in self.extensions["img"]:
-                return cnveklimg(pg.image.load(actual_path))
+                image          = pg.image.load(actual_path)
+                image.anchor_x = image.width  // 2
+                image.anchor_y = image.height // 2
+                return image
             if ext in self.extensions["sfx"]:
                 return pygame.Sound(actual_path)
             if ext in self.extensions["txt"]:
@@ -58,7 +60,7 @@ class Loader:
             if ext in self.extensions["xml"]:
                 return xmltodict.parse(open(actual_path).read())
             if ext in self.extensions["cur"]:
-                image = cnveklimg(pg.image.load(actual_path))
+                image = pg.image.load(actual_path)
                 return pg.window.ImageMouseCursor(image, hot_x=0, hot_y=image.height)
             if ext in self.extensions["res"]:
                 data     = json.loads(open(actual_path).read())
