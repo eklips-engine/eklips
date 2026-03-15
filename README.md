@@ -18,6 +18,8 @@ For now, the features are:
  - 22 different Nodes (Window, Viewport, Sprite, MediaPlayer, etc..)
  - Resource object support
  - Pre-built Loading system
+ - Multi-windowing support
+ - Multi-viewports support
  - Custom filesystem paths similar to Godot (`res://`, `root://`, `user://`)
  - Pre-built Saving and Settings support
  - Layering support

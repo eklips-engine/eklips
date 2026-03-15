@@ -50,6 +50,11 @@ class CanvasItem(Node, Transform):
             self._cached_viewport = engine.display.get_viewport_from_window(self.window_id, self.viewport_id)
         return self._cached_viewport
     @property
+    def batch(self):
+        if not hasattr(self, "_cached_batch"):
+            self._cached_batch = engine.display.get_batch_from_window(self.window_id, self.viewport_id, self.batch_id)
+        return self._cached_batch
+    @property
     def image(self):
         return self._image
     @image.setter
@@ -78,8 +83,7 @@ class CanvasItem(Node, Transform):
             self._drawing_bid = MAIN_BATCH
         
         self._imgflip = [False, False]
-        self.batch    = engine.display.get_batch_from_window(self._drawing_wid, self._drawing_vid, self._drawing_bid)
-
+    
     ## Exported properties
     @export([False, False], "list", "vector2/wh")
     def flip(self):
@@ -103,7 +107,7 @@ class CanvasItem(Node, Transform):
         if self.citem:
             self._remove_item()
         setattr(self, attr, value)
-        self._refresh_item()
+        self._make_new_item()
     @export(MAIN_WINDOW, "int", "windowid")
     def window_id(self): return self._drawing_wid
     @window_id.setter
@@ -182,7 +186,6 @@ class CanvasItem(Node, Transform):
     def _make_new_item(self):
         if self.citem:
             self._remove_item()
-        self.batch         = self.viewport.batches[self.batch_id]
         if not self.image:
             self._image    = engine.loader.load("root://_assets/error.png")
         self.citem         = pg.sprite.Sprite(img=self.image, batch=self.batch)
@@ -207,8 +210,18 @@ class CanvasItem(Node, Transform):
     
     def update(self):
         super().update()
+
+        ## Update relativity
         self._update_relativity()
         
+        ## Reset CITEM if it's fucked.
+        if getattr(self.batch, "invalid", False) and self.citem and not self.viewport._refreshing:
+            self._remove_item()
+            del self._cached_batch
+            self._make_new_item()
+            self._convert_transform_property_into_object(self.transform)
+        
+        ## Check for hovering
         if self.get_if_mouse_hovering():
             self.call_signal("_hover")
             if engine.mouse.buttons[engine.MOUSE_LEFT]:

@@ -88,7 +88,6 @@
                     "type": "Label",
                     "children": {},
                     "script_path": "res://data/workflow.ekl",
-                    "text": "t",
                     
                     "transform": {
                         "position": [2,4],
@@ -107,9 +106,233 @@
                     "type":  "ExtraWindow",
                     "title": "make_new_project_window",
                     
+                    "script_path": "res://data/mknwprj.ekl",
+                    
                     "color": [35, 35, 50],
 
                     "children": {
+                        "name_label": {
+                            "type":        "Label",
+                            "children":    {},
+                            
+                            "text": "ee_name",
+                            
+                            "transform": {
+                                "position": [10, 23],
+                                "tsize":    [2,  2],
+                                "scale":    [1,  1],
+                                "scroll":   [0,  0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "name_entry": {
+                            "type":  "ColorRect",
+                            "color": [24,24,34],
+                            
+                            "transform": {
+                                "position": [76,  20],
+                                "tsize":    [330, 28],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+
+                        "ver_label": {
+                            "type":        "Label",
+                            "children":    {},
+                            
+                            "text": "ee_ver",
+                            
+                            "transform": {
+                                "position": [10,53],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "ver_entry": {
+                            "type":  "ColorRect",
+                            "color": [24,24,34],
+                            
+                            "transform": {
+                                "position": [76,  51],
+                                "tsize":    [330, 28],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        
+                        "path_label": {
+                            "type":        "Label",
+                            "children":    {},
+                            
+                            "text": "ee_path",
+                            
+                            "transform": {
+                                "position": [10,84],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "path_entry": {
+                            "type":  "ColorRect",
+                            "color": [24,24,34],
+                            
+                            "transform": {
+                                "position": [76,  82],
+                                "tsize":    [299, 28],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "pentr_btn": {
+                            "type":       "Sprite",
+                            "image_path": "res://media/folder.png",
+                            
+                            "transform": {
+                                "position": [14, 82],
+                                "tsize":    [28, 28],
+                                "scale":    [1,   1],
+                                "scroll":   [0,   0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top right",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+
+                        "div": {
+                            "type":       "Sprite",
+                            "image_path": "res://media/div.png",
+                            
+                            "transform": {
+                                "position": [0,118],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top centerx",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "auth_label": {
+                            "type":        "Label",
+                            "children":    {},
+                            
+                            "text": "ee_auth",
+                            
+                            "transform": {
+                                "position": [10,133],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "auth_entry": {
+                            "type":  "ColorRect",
+                            "color": [24,24,34],
+                            
+                            "transform": {
+                                "position": [76,  132],
+                                "tsize":    [330, 28],
+                                "scale":    [1,    1],
+                                "scroll":   [0,    0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "top left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+
+                        "mnp_okbtn": {
+                            "type":        "Sprite",
+                            "image_path":  "res://media/icocorrect.png",
+                            "children":    {},
+                            
+                            "text": "ee_ver",
+                            
+                            "transform": {
+                                "position": [100,10],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "left",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        },
+                        "mnp_nobtn": {
+                            "type":        "Sprite",
+                            "image_path":  "res://media/icodelete.png",
+                            "children":    {},
+                            
+                            "text": "ee_ver",
+                            
+                            "transform": {
+                                "position": [100,10],
+                                "tsize":    [2,2],
+                                "scale":    [1,1],
+                                "scroll":   [0,0],
+
+                                "rotation": 0,
+                                "alpha":    255,
+                                "anchor":   "right",
+                                "visible":  true,
+                                "skew":     25
+                            }
+                        }
                     },
                     
                     "transform": {
@@ -145,8 +368,7 @@
                         "visible":  false,
                         "skew":     0
                     },
-                    "children": {
-                    }
+                    "children": {}
                 }
             }
         }

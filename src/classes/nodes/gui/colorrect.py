@@ -60,9 +60,8 @@ class ColorRect(CanvasItem, Color):
     def _make_new_item(self):
         if self.citem:
             self._remove_item()
-        self.batch         = self.viewport.batches[self.batch_id]
         if not self.image:
-            self._image    = engine.loader.load("root://_assets/error.png")
-        self.citem         = pg.shapes.Rectangle(0,0,self._w,self._h, color=self.color, batch=self.batch)
+            self._image = engine.loader.load("root://_assets/error.png")
+        self.citem      = pg.shapes.Rectangle(0,0,self._w,self._h, color=self.color, batch=self.batch)
         self._set_anchors()
         self.citem.visible = False

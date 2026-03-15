@@ -14,44 +14,95 @@ glEnable(GL_CULL_FACE)
 # Variables
 groups = {}
 
-# Functions
-def request_group(order  : int):
-    if not order in groups:
-        groups[order] = pg.graphics.Group(order)
-    return groups[order]
-
-def set_anti_aliasing(yn : bool):
-    if yn: value = GL_LINEAR
-    else:  value = GL_NEAREST
-    pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = value
-
 # Classes
-class EklWindow(pg.window.Window):
-    def __init__(
-        self,
-        wid        : int,
-        
-        width      : int | None                        = None,
-        height     : int | None                        = None,
-        caption    : str | None                        = None,
-        resizable  : bool                              = False,
-        style      : str | None                        = None,
-        fullscreen : bool                              = False,
-        visible    : bool                              = True,
-        vsync      : bool                              = False,
-        file_drops : bool                              = False,
-        display    : pg.display.Display         | None = None,
-        screen     : pg.display.Screen          | None = None,
-        config     : Config                     | None = None,
-        context    : pg.gl.Context              | None = None,
-        mode       : pg.display.base.ScreenMode | None = None,
+class EklBaseWindow(pg.window.BaseWindow):
+    """A Window to handle with Eklips viewports and NOT display them in one Window."""
+    is_basewindow = True
+
+    ## Properties
+    @property
+    def width(self): return self._width
+    @property
+    def height(self): return self._height
+    @property
+    def size(self): return [self.width, self.height]
+    @property
+    def caption(self): return self._caption
+    @property
+    def minimum_size(self): return self._minimum_size
+    @property
+    def maximum_size(self): return self._maximum_size
+    @property
+    def visible(self): return self._visible
+
+    @width.setter
+    def width(self, val):
+        self._width = val
+        self.set_size(*self.size)
+    @height.setter
+    def height(self, val):
+        self._height = val
+        self.set_size(*self.size)
+    @size.setter
+    def size(self, val):
+        self.set_size(*val)
+    @maximum_size.setter
+    def maximum_size(self, val):
+        self.set_maximum_size(*val)
+    @minimum_size.setter
+    def minimum_size(self, val):
+        self.set_minimum_size(*val)
+    @visible.setter
+    def visible(self, val):
+        self.set_visible(val)
+    
+    ## Init
+    def _refresh_viewports(self):
+        self.switch_to()
+        for vid in self.viewports:
+            viewport = self.viewports[vid]
+            viewport._refreshing = True
+            viewport._delete_buffer()
+
+            viewport.window = self
+            viewport._make_framebuffer()
+
+            _revive = []
+            for bid in viewport.batches.copy():
+                batch : pg.graphics.Batch = viewport.batches[bid]
+                batch.invalid = True
+                
+                _revive.append(bid)
+                viewport.batches.pop(bid)
+            viewport._lastbid = MAIN_BATCH
+
+            for bid in _revive:
+                viewport.add_batch()
+            viewport._refreshing = False
+    def __init__(self, wid : int,
+                width      : int | None                        = 1152,
+                height     : int | None                        = 648,
+                caption    : str | None                        = None,
+                resizable  : bool                              = False,
+                style      : str | None                        = None,
+                fullscreen : bool                              = False,
+                visible    : bool                              = True,
+                vsync      : bool                              = False,
+                file_drops : bool                              = False,
+                display    : pg.display.Display         | None = None,
+                screen     : pg.display.Screen          | None = None,
+                config     : Config                     | None = None,
+                context    : pg.gl.Context              | None = None,
+                mode       : pg.display.base.ScreenMode | None = None
     ) -> None:
+        """Create a lazy Window."""
+
         # Setup variables
         self.closed     = False
         self.viewports  = {}
         self.id         = wid
         self._lastvid   = MAIN_VIEWPORT
-        
+
         # Init
         ## Code taken from pyglet/window/base/__init__.py line 508-546
         if not display:
@@ -84,9 +135,6 @@ class EklWindow(pg.window.Window):
                 config.alpha_size = 8
                 config.transparent_framebuffer = True
         
-        if not context:
-            context = config.create_context(None)
-
         super().__init__(
             width,      height,
             caption,    resizable,
@@ -96,7 +144,7 @@ class EklWindow(pg.window.Window):
             screen,     config,
             context,    mode
         )
-
+    
     def __repr__(self):
         return f"{self.__class__.__name__}(size={self.width}x{self.height}, id={self.id})"
 
@@ -104,24 +152,29 @@ class EklWindow(pg.window.Window):
     def screenshot(self):
         """Say cheese!"""
         os.makedirs("screenshots", exist_ok=True)
+        self.switch_to()
         pg.image.get_buffer_manager().get_color_buffer().save(f"screenshots/{engine.get_date()}.png")
     
     ## Closing the window
     def on_close(self):
         engine.display._doomed.append(self.id) 
-    
-    def close(self):
+    def close(self, with_viewports=True):
+        """Close the window.
+        
+        Args:
+            with_viewports: If True, close the viewports too."""
         if self.closed:
             return
         
         self.switch_to()
         self.closed = True
-        for vid in self.viewports.copy():
-            viewport = self.viewports[vid]
-            viewport.close()
+        if with_viewports:
+            for vid in self.viewports.copy():
+                viewport = self.viewports[vid]
+                viewport.close()
         super().close()
-
-    ## Size related    
+    
+    ## Size related
     def toggle_fullscreen(self):
         """Toggle fullscreen mode."""
         self.set_fullscreen(not self.fullscreen)
@@ -131,6 +184,44 @@ class EklWindow(pg.window.Window):
             if VIEWPORT_EQUAL_WINDOW in viewport.flags:
                 viewport.w = width
                 viewport.h = height
+    
+    ## Add Viewport
+    def add_viewport(
+        self,
+        size  : list[int] = [640,480],
+        color : list[int] = BLACK,
+        flags : list[int] = [VIEWPORT_EQUAL_WINDOW],
+        pos   : list[int] = [0,0]
+    ):
+        """
+        Add a viewport to Window `wid`. Returns its ID.
+
+        Args:
+            size: Size of the window's viewport. Using the flag `VIEWPORT_EQUAL_WINDOW` nullifies this.
+            color: Background color of the viewport.
+            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
+            pos: Viewport position.
+        """
+
+        vid            = self._lastvid
+        self._lastvid += 1
+
+        viewport          = Viewport(vid, self, flags)
+        viewport.position = pos
+        viewport.tsize    = size
+        viewport.set_background(*color)
+        viewport.add_batch()
+
+        self.viewports[vid] = viewport
+
+        return vid
+class EklWindow(EklBaseWindow, pg.window.Window):
+    """A modified Window to handle with Eklips viewports and display them in one Window."""
+    is_basewindow = False
+    
+    ## Transform related
+    def _set_size(self, w, h):
+        self.set_size(w, h)
     
     ## Drawing
     def flip(self):
@@ -181,38 +272,6 @@ class EklWindow(pg.window.Window):
     def on_file_drop(self, x, y, paths):
         engine.mouse.pos   = [x, y]
         engine.mouse.paths = paths
-
-    ## Add Viewport
-    def add_viewport(
-        self,
-        size  : list[int] = [640,480],
-        color : list[int] = BLACK,
-        flags : list[int] = [VIEWPORT_EQUAL_WINDOW],
-        pos   : list[int] = [0,0]
-    ):
-        """
-        Add a viewport to Window `wid`. Returns its ID.
-
-        Args:
-            size: Size of the window's viewport. Using the flag `VIEWPORT_EQUAL_WINDOW` nullifies this.
-            color: Background color of the viewport.
-            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
-            pos: Viewport position.
-        """
-
-        vid            = self._lastvid
-        self._lastvid += 1
-
-        viewport          = Viewport(vid, self, flags)
-        viewport.position = pos
-        viewport.tsize    = size
-        viewport.set_background(*color)
-        viewport.add_batch()
-
-        self.viewports[vid] = viewport
-
-        return vid
-
 class Viewport(Transform, Color):
     """A class to manage a portion of a Window."""
 
@@ -230,13 +289,14 @@ class Viewport(Transform, Color):
 
         self.flags = flags
 
-        self.batches      = []
-        self.framebuffer  = None
-        self.color_buffer = None
-        self.depth_buffer = None
-        self.citem      = None
+        self.batches : dict[int, pg.graphics.Batch] = {}
+        self.framebuffer                            = None
+        self.color_buffer                           = None
+        self.depth_buffer                           = None
+        self.citem                                  = None
 
-        self._closing = False
+        self._refreshing = False
+        self._closing    = False
 
         self.id = vid
 
@@ -246,18 +306,17 @@ class Viewport(Transform, Color):
         self._make_framebuffer()
         
         self._lastbid = MAIN_BATCH
-
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id})"
+        return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id}, wid={self.window})"
     
     ## Add Batch
     def add_batch(self):
         """Add a batch to the Viewport. Returns its ID."""
         bid            = self._lastbid
         batch          = pg.graphics.Batch()
-        self._lastbid += 1
         
-        self.batches.append(batch)
+        self.batches[bid] = batch
+        self._lastbid    += 1
         return bid
 
     ## Convenience functions
@@ -369,6 +428,7 @@ class Viewport(Transform, Color):
         
         # Init viewport
         glDisable(GL_BLEND)
+        self.window.switch_to()
         self.framebuffer.bind()
         if not NO_CLEAR_BACKGROUND in self.flags:
             glClearColor(*self.rgb)
@@ -379,7 +439,8 @@ class Viewport(Transform, Color):
         self._move_camera()
 
         # Draw batches for this Viewport
-        for batch in self.batches:
+        for bid in self.batches:
+            batch = self.batches[bid]
             batch.draw()
         
         # Unbind viewport
@@ -454,7 +515,6 @@ class Viewport(Transform, Color):
         self._closing = True
         self._delete_buffer()
         self.window.viewports.pop(self.id)
-
 class Display:
     """A class to manage `EklWindow`'s."""
     windows        : dict[int, EklWindow] = {}          # Dict of windows
@@ -514,7 +574,7 @@ class Display:
             fpsvisible: Show the FPS if True.
             wid: Create the window in a predetermined window ID if the argument is not None.
         
-        Flags:
+        Attributes:
             VIEWPORT_EQUAL_WINDOW: Used to make the Viewport size equal the Window size.
             NO_CLEAR: Do not clear the Viewport before rendering.
             NO_CLEAR_BACKGROUND: Ignore the set background color.
@@ -579,10 +639,12 @@ class Display:
     
     ## Close
     def close_windows(self):
+        """Closes every open Window."""
         for wid in self.windows:
             window = self.get_window(wid)
             if window:
                 window.close()
+        self.windows.clear()
     
     ## Get
     def get_window(self, wid=MAIN_WINDOW) -> EklWindow:
@@ -622,3 +684,66 @@ class Display:
             return self.get_viewport_from_window(wid, vid).batches[bid]
         except:
             return
+
+# Functions
+def request_group(order     : int):
+    """Get a group with the order `order`.
+    
+    Args:
+        order: The order of the group."""
+    if not order in groups:
+        groups[order] = pg.graphics.Group(order)
+    return groups[order]
+def set_anti_aliasing(value : bool):
+    """Turn on/off anti-aliasing.
+    
+    Args:
+        value: True for on, False for off."""
+    if value: aliasval = GL_LINEAR
+    else:     aliasval = GL_NEAREST
+    pg.image.Texture.default_mag_filter = pg.image.Texture.default_min_filter = aliasval
+
+def _rebase_window(window : EklWindow):
+    """EklWindow -> EklBaseWindow"""
+    
+    new_window           = EklBaseWindow(window.id,
+        window.width,       window.height,
+        window.caption,     window.resizeable,
+        window.style,       window.fullscreen,
+        window.visible,     window.vsync,
+        window._file_drops, window.display,
+        window.screen,      window.config
+    )
+    new_window._lastvid  = window._lastvid
+    new_window.viewports = window.viewports
+    new_window.on_close = window.on_close
+    new_window._refresh_viewports()
+
+    window.viewports = {}
+    window.close(False)
+    del window
+
+    engine.display.windows[new_window.id] = new_window
+    return new_window
+def _unbase_window(window : EklBaseWindow):
+    """EklBaseWindow -> EklWindow"""
+
+    new_window           = EklWindow(window.id,
+        window.width,       window.height,
+        window.caption,     window.resizeable,
+        window.style,       window.fullscreen,
+        window.visible,     window.vsync,
+        window._file_drops, window.display,
+        window.screen,      window.config
+    )
+    new_window._lastvid  = window._lastvid
+    new_window.viewports = window.viewports
+    new_window.on_close = window.on_close
+    new_window._refresh_viewports()
+
+    window.viewports = {}
+    window.close(False)
+    del window
+
+    engine.display.windows[new_window.id] = new_window
+    return new_window

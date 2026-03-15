@@ -175,27 +175,28 @@ def quit():
     display.get_window().on_close()
     
 # Variables
-cursors   : int                    = {}
-clock     : pg.clock.Clock         = None
-display   : ui.Display             = None
-game      : GameData               = None
-loader    : resources.Loader       = None
-lang      : Language               = None
-debug     : DebugConfig            = None
-savefile  : saving.Savefile        = None
-mouse     : Mouse                  = None
-theme     : resources.Theme        = None
-icon      : pg.image.AbstractImage = None
-keyboard  : Keyboard               = None
-scene     : resources.Scene        = None
-running   : bool                   = False
-uid       : int                    = 0     # amount of Objects
-sid       : int                    = 0     # amount of pygame Channels
-delta     : float                  = 0.0   # deltaTime
-tdelta    : float                  = 0.0   # `engine.delta` but not multiplied by speed
-fps       : float                  = 0.0   # Framerate according to `engine.tdelta`
-uptime    : float                  = 0.0   # This value is how many seconds you have been running the engine.
-speed     : int                    = 1     # This value is the multiplier of `engine.delta`.
+_inpyinstaller : bool                   = getattr(sys, "frozen", False)  and hasattr(sys, "_MEIPASS")
+_pyinstallpath : str                    = getattr(sys, "_MEIPASS", None)
+cursors        : int                    = {}    #: Dict of cursor images
+clock          : pg.clock.Clock         = None  #: Pyglet clock
+display        : ui.Display             = None  #: Display object. See `classes.ui.Display`
+game           : GameData               = None  #: GameData object.
+loader         : resources.Loader       = None  #: Loader object.
+lang           : Language               = None  #: Language type.
+debug          : DebugConfig            = None  #: Debug configuration
+savefile       : saving.Savefile        = None  #: Savefile
+mouse          : Mouse                  = None  #: Mouse type.
+theme          : resources.Theme        = None  #: Theme.
+icon           : pg.image.AbstractImage = None  #: Icon image.
+keyboard       : Keyboard               = None  #: Keyboard type.
+scene          : resources.Scene        = None  #: Scene object.
+running        : bool                   = False #: If the engine is running
+uid            : int                    = 0     #: amount of Objects
+sid            : int                    = 0     #: amount of pygame Channels
+delta          : float                  = 0.0   #: deltaTime
+tdelta         : float                  = 0.0   #: `engine.delta` but not multiplied by speed
+fps            : float                  = 0.0   #: Framerate according to `engine.tdelta`
+uptime         : float                  = 0.0   #: This value is how many seconds you have been running the engine.
+speed          : int                    = 1     #: This value is the multiplier of `engine.delta`.
 
-_wincloseblacklist : list = [MAIN_WINDOW]
-_screenc_cache     : dict = {}
+_screenc_cache : dict = {}

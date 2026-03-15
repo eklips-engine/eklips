@@ -1,0 +1,41 @@
+from classes.ui          import *
+from classes.customprops import *
+from classes.nodes       import *
+
+ready : bool = False
+
+makebtn   : Sprite = None
+cancelbtn : Sprite = None
+
+nametxt : Label = None
+vertxt  : Label = None
+pathtxt : Label = None
+
+def scnready(self : ColorRect):
+    global cancelbtn, makebtn, ready, nametxt, vertxt, pathtxt
+
+    makebtn   = self.scene.get_node_from_path("/make_new_project_window/mnp_okbtn")
+    cancelbtn = self.scene.get_node_from_path("/make_new_project_window/mnp_nobtn")
+    
+    nametxt = self.scene.get_node_from_path("/make_new_project_window/name_label")
+    vertxt  = self.scene.get_node_from_path("/make_new_project_window/ver_label")
+    pathtxt = self.scene.get_node_from_path("/make_new_project_window/path_label")
+    authtxt = self.scene.get_node_from_path("/make_new_project_window/auth_label")
+
+    nametxt.text = engine.lang.get("es_name")
+    vertxt.text = engine.lang.get("es_ver")
+    pathtxt.text = engine.lang.get("es_projpath")
+    authtxt.text = engine.lang.get("es_auth")
+
+    ready  = True
+
+def _process(self : ExtraWindow, delta : float):
+    global cancelbtn, makebtn, ready
+    if not ready:
+        scnready(self)
+
+    if engine.mouse.just_clicked[MOUSE_LEFT]:
+        if makebtn.get_if_mouse_hovering():
+            engine.scene.load("res://scenes/editor.scn")
+        if cancelbtn.get_if_mouse_hovering():
+            self.visible = False

@@ -1,5 +1,5 @@
 # Import libraries
-import pygame, pyglet as pg, json, xmltodict
+import pygame, pyglet as pg, json, xmltodict, pkgutil
 
 # Import components
 from classes.locals      import *
@@ -37,8 +37,12 @@ class Loader:
     def _get_true_path(self, path : str):
         path = path.replace("\\", "/")
         
-        if path.startswith("res://"):  return f"{engine.game.project_dir}/{path.removeprefix('res://')}"
-        if path.startswith("root://"): return f"{path.removeprefix('root://')}"
+        if engine._inpyinstaller:
+            if path.startswith("res://"):  return f"{engine._pyinstallpath}/{engine.game.project_dir}/{path.removeprefix('res://')}"
+            if path.startswith("root://"): return f"{engine._pyinstallpath}/{path.removeprefix('root://')}"
+        else:
+            if path.startswith("res://"):  return f"{engine.game.project_dir}/{path.removeprefix('res://')}"
+            if path.startswith("root://"): return f"{path.removeprefix('root://')}"
         if path.startswith("user://"): return f"{engine.game.save_dir}{path.removeprefix('user://')}"
 
         return path

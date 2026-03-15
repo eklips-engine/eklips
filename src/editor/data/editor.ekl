@@ -50,26 +50,6 @@ def _settings_dialog():
     root.resizable(0, 0)
     tabs = ttk.Notebook(root)
 
-    """
-        "es_iconst":  "Icon file",
-        "es_eklver":  "Designed Eklips ver",
-        
-        "es_scenes":  "Scenes",
-        "es_mstrscn": "Main scene",
-        "es_loadscn": "Loading scene",
-        
-        "es_ver":     "Version",
-        "es_name":    "Name",
-        "es_antiali": "Antialiasing",
-
-        "es_winsiz":  "Size",
-        "es_wmnsiz":  "Minimum size",
-        "es_wmxsiz":  "Maximum size",
-
-        "es_langdir": "Language path:",
-        "es_langs":   "Supported languages"
-    """
-
     ## General
     print(" \\ ~ General")
     tab = ttk.Frame(tabs, width=400, height=280)

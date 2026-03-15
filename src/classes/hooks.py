@@ -22,9 +22,9 @@ def newrwd(dt: float) -> None:
     # Redraw all windows
     for wid in engine.display.windows.copy():
         if wid in engine.display.windows:
-            window : pg.window.BaseWindow = engine.display.windows.get(wid)
+            window : EklBaseWindow = engine.display.windows.get(wid)
             
-            if window:
+            if window and not window.is_basewindow:
                 window.draw(dt)
         else:
             continue
@@ -60,25 +60,15 @@ class HookFPSDisplay(pg.window.FPSDisplay):
             font_size             = DEFAULT_FONT_SIZE * 1.25,
             batch                 = self.viewport.batches[MAIN_BATCH],
             color                 = color,
-            group                 = pg.graphics.Group(order=999))
+            group                 = engine.ui.request_group(999))
         
     def update(self) -> None:
         """Records a new data point at the current time.
 
         This method is called automatically when the window buffer is flipped.
         """
-        self._delta_times.append(engine.tdelta)
-        self._elapsed += engine.tdelta
-
-        if self._elapsed >= self.update_period:
-            self._elapsed = 0
-            average_delta = sum(self._delta_times)/len(self._delta_times)
-            engine.fps    = 1 / average_delta
-            if engine.fps  < ZDE_FIX:
-                engine.fps = ZDE_FIX
-
-            self.label.text = f"{round(engine.fps)}/{MAXFPS} FPS"
-            self.label.y    = self.viewport.h-self.label.content_height
+        self.label.text = f"{round(engine.fps)}/{MAXFPS} FPS"
+        self.label.y    = self.viewport.h-self.label.content_height
     
     def _hook_flip(self) -> None:
         self.update()

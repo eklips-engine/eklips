@@ -31,24 +31,27 @@ class ExtraWindow(CanvasItem, Color):
     with it to save resources.. and stuff.. 
     """
     _isdisplayobject = True
-    _isblittable     = True
+    _isblittable     = False
 
     def __init__(self, properties={}, parent=None):
-        ## Setup CanvasItem
-        self._icon     = engine.icon
-        self._iconpath = engine.game.win.icofile
-        self._title    = DEFAULT_NAME
+        ## Setup variables
+        self._icon      = engine.icon
+        self._iconpath  = engine.game.win.icofile
+        self._title     = DEFAULT_NAME
+        self._resizable = False
         super().__init__(properties, parent)
 
         ## Setup BG color
-        Color.__init__(self, *WHITE)
+        Color.__init__(self, *BLACK)
 
         ## Claim an empty slot for use
-        self._drawing_wid        = engine.display._add_window_entry()
-        self._window : EklWindow = None
+        self._drawing_wid                               = engine.display._add_window_entry()
+        self._window : EklWindow | EklBaseWindow | None = None
+
+        self._init_item()
     
     ## Exported properties
-    @export(WHITE,"list","color")
+    @export(BLACK,"list","color")
     def color(self) -> tuple[int, int, int]:
         """RGBA Color value of the Window's main viewport. Modifying a single item will do nothing."""
         return self.color_as_tuple()
@@ -74,7 +77,7 @@ class ExtraWindow(CanvasItem, Color):
         if self._window:
             self._window.set_icon(value)
     
-    @export(DEFAULT_NAME,"list","color")
+    @export(DEFAULT_NAME,"str","str")
     def title(self) -> str: return self._title
     @title.setter
     def title(self, val):
@@ -82,12 +85,12 @@ class ExtraWindow(CanvasItem, Color):
         if self._window:
             self._window.set_caption(val)
     
-    @export(base_transform, "dict", "transform")
-    def transform(self):
-        return self._turn_object_into_transform_property()
-    @transform.setter
-    def transform(self, val):
-        self._convert_transform_property_into_object(val)
+    @export(True,"bool","bool")
+    def resizable(self) -> bool: return self._resizable
+    @resizable.setter
+    def resizable(self, val):
+        self._resizable = val
+        raise Exception("Fuck you for trying to do this, said Pyglet")
     
     ## Transform related
     def _set_size(self, w, h):
@@ -111,52 +114,61 @@ class ExtraWindow(CanvasItem, Color):
         self._window.viewports[MAIN_VIEWPORT].set_background(r,g,b,a)
     
     ## Window management
+    def _init_item(self, as_base=True):
+        ## Make base window
+        if as_base:
+            self._window  = EklBaseWindow(self.window_id,
+                self.w, self.h,
+                self.title, self.resizable)
+        else:
+            self._window  = EklWindow(self.window_id,
+                self.w, self.h,
+                self.title, self.resizable)
+        self._window.set_icon(self.icon)
+
+        ## Register the Window
+        # Fill in information for the Window slot
+        engine.display.windows[self.window_id] = self._window
+
+        # Create viewports
+        self._window.add_viewport(flags=[VIEWPORT_EQUAL_WINDOW])                    # MAIN_VIEWPORT
+        self._window.add_viewport(color=TRANSPARENT, flags=[VIEWPORT_EQUAL_WINDOW]) # UI_VIEWPORT
+
+        # Add FPS Display
+        if engine.debug.show_fps:
+            self.fpsd = engine.hooks.HookFPSDisplay(self._window, [255,255,255,255])
+        
+        # Hooks
+        self._window.on_close = self._hookonclose
     def _make_new_item(self):
         if self._window:
+            if not self._window.is_basewindow:
+                return
+        else:
+            self._init_item(False)
             return
         if not self.visible:
             return
         
-        ## Make Window
-        engine.display.add_window(
-            name = self.title,
-            size = self.tsize,
+        ## UnBaseWindow the BaseWindow
+        self._window      = engine.ui._unbase_window(self._window)
+        self._window.size = self.tsize
+        self._window.set_caption(self.title)
+        self._window.set_icon(self.icon)
 
-            viewport_flags = [VIEWPORT_EQUAL_WINDOW],
-            viewport_size  = self.tsize,
-            viewport_color = self.color,
-            
-            icon = self.icon,
-
-            resizable    = True,
-            minimum_size = None,
-            maximum_size = None,
-
-            visible    = self.visible,
-            fpsvisible = False,
-
-            wid = self.window_id
-        )
-
-        ## Get Window
-        self._window          = engine.display.get_window(self.window_id)
-        self._window.on_close = self._hookonclose
-    
     def _hookonclose(self):
         if not self._window:
             return
         if self._window.closed:
             return
-        engine.display._merciless.append(self.window_id)
-        self._window = None
-    
+        self._window = engine.ui._rebase_window(self._window)
     def _remove_item(self):
         if not self._window:
             return
-        self._window.on_close()
-    
+        engine.display._doomed.append(self.window_id)
+        self._window = None
     def _set_visible(self, val):
         if val:
             self._make_new_item()
         else:
-            self._remove_item()
+            self._hookonclose()

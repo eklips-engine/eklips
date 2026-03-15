@@ -82,7 +82,6 @@ class Label(CanvasItem, Color):
     def _make_new_item(self) -> pg.text.Label:
         if self.citem:
             self._remove_item()
-        self.batch = self.viewport.batches[self.batch_id]
         self.citem = pg.text.Label(batch=self.batch)
         
         self.citem.color     = self.color

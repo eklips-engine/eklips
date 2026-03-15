@@ -192,7 +192,7 @@ class ScrollingViewport(ExtraViewport):
         if self._left_to_right:
             self.cam.x   -= self._vel
             if self.cam.x < 0:
-                self._vel = -((-self.cam.x) / (engine.fps * 0.25))
+                self._vel = -((-self.cam.x) / ((engine.fps+ZDE_FIX) * 0.25))
             if self.cam.x > self.content_width:
                 self.cam.x = self.content_width
             
@@ -202,7 +202,7 @@ class ScrollingViewport(ExtraViewport):
         else:
             self.cam.y   += self._vel
             if self.cam.y > 0:
-                self._vel = (-self.cam.y) / (engine.fps * 0.25)
+                self._vel = (-self.cam.y) / ((engine.fps+ZDE_FIX) * 0.25)
             if self.cam.y < -self.content_height:
                 self.cam.y = -self.content_height
             
@@ -213,4 +213,4 @@ class ScrollingViewport(ExtraViewport):
             self.scrollbar.y    = self.h-self.scrollbar.height+self.cam.y+y
         
         # Weeeeeee
-        self._vel += (-self._vel) / (engine.fps * 0.25)
+        self._vel += (-self._vel) / ((engine.fps+ZDE_FIX) * 0.25)

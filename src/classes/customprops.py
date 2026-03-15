@@ -99,50 +99,50 @@ class WindowProperties:
 
 class DebugConfig:
     """Debugging configuration."""
-    _skipload  = False
+    _skipload  = True
     _freezload = False
-    _enabled   = True
+    _enabled   = False
     _showfps   = True
     _nomercy   = False
     _showgraph = False
     _alwaysvis = False
 
-    @export(False,"bool")
+    @property
     def sprite_always_visible(self):
         """True if sprites are always visible. Read-write."""
         return self._alwaysvis and self._enabled
     @sprite_always_visible.setter
     def sprite_always_visible(self,val): self._alwaysvis = val
 
-    @export(False,"bool")
+    @property
     def skip_load(self):
         """True if the loading animation can be skipped. Read-write."""
         return self._skipload and self._enabled
     @skip_load.setter
     def skip_load(self,val): self._skipload = val
 
-    @export(False,"bool")
+    @property
     def freeze_load(self):
         """True if the loading animation can be frozen. Read-write."""
         return self._freezload and self._enabled
     @freeze_load.setter
     def freeze_load(self,val): self._freezload = val
 
-    @export(True,"bool")
+    @property
     def show_fps(self):
         """True if the engine can show the FPS. Read-write."""
         return self._showfps and self._enabled
     @show_fps.setter
     def show_fps(self,val): self._showfps = val
 
-    @export(False,"bool")
+    @property
     def avoid_error_mercy(self):
         """True if the engine can be more error-prone. Read-write."""
         return self._nomercy and self._enabled
     @avoid_error_mercy.setter
     def avoid_error_mercy(self,val): self._nomercy = val
     
-    @export(False,"bool")
+    @property
     def show_graph(self):
         """True if the engine can show a profiling graph. Read-write."""
         return self._showgraph and self._enabled
@@ -150,7 +150,7 @@ class DebugConfig:
     def show_graph(self,val):
         self._showgraph = val
 
-    @export(False,"bool")
+    @property
     def enabled(self):
         """True if debugging is enabled. Read-write."""
         return self._enabled
@@ -518,6 +518,7 @@ class Transform:
     def _convert_transform_property_into_object(self, value):
         """Sets the Transform object's properties from a dictionary."""
         self.tsize     = value.get("tsize",    self.tsize)
+        self.flip      = value.get("flip",     self.flip)
         self.position  = value.get("position", self.position)
         self.scale     = value.get("scale",    self.scale)
         self.alpha     = value.get("alpha",    self.alpha)
@@ -605,18 +606,29 @@ class Language:
         self.load_lang(file)
     
     @property
-    def properties(self):  return self._file["properties"]
+    def properties(self):
+        """The metadata in the language file."""
+        return self._file["properties"]
     @property
-    def entries(self):     return self._file["entries"]
+    def entries(self):
+        """The entries in the language file."""
+        return self._file["entries"]
     @property
-    def name(self):        return self.properties["name"]
+    def name(self):
+        """The name of the language."""
+        return self.properties["name"]
     @property
-    def description(self): return self.properties["description"]
-    @property
-    def base(self):        return self.properties["base"]
+    def base(self):
+        """The language to use if an entry is not found."""
+        return self.properties["base"]
     
     def load_lang(self,file):
+        """Load a language file.
+        
+        Args:
+            file: The filepath."""
         import classes.singleton as engine
+
         self._file = engine.loader.load(file)
         if self._file["properties"]["base"]:
             _base = Language(self._file["properties"]["base"])
@@ -625,6 +637,10 @@ class Language:
                     self.entries[i] = _base.entries[i]
     
     def get(self, entry):
+        """Get a localized entry from the language file.
+        
+        Args:
+            entry: The name of the entry."""
         return self.entries.get(entry, entry)
 
 class CameraTransform(Transform):

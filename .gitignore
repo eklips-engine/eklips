@@ -8,9 +8,11 @@ __pycache__
 screenshots
 test*.*
 images.png
+.vscode
 
 ## Pyinstaller things
 build/
+_build/
 dist/
 
 docs/

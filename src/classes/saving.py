@@ -34,7 +34,11 @@ class Savefile:
             pass
     
     def get(self, key, fallback=0):
-        """Get a value (e.g. `settings/anti_aliasing`) from the savefile."""
+        """Get a value (e.g. `settings/anti_aliasing`) from the savefile.
+
+        Args:
+            key: The key to get.
+            fallback: The value to use as a fallback."""
         try:
             return reduce(operator.getitem, key.split('/'), self.savefile)
         except:
@@ -42,7 +46,11 @@ class Savefile:
             return fallback
 
     def set(self, key, value):
-        """Set a value (e.g. `settings/anti_aliasing`) from the savefile."""
+        """Set a value (e.g. `settings/anti_aliasing`) from the savefile.
+        
+        Args:
+            key: The key to modify.
+            value: The value to use."""
         try:
             keys = key.split('/')
             d = self.savefile

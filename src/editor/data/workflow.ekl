@@ -67,7 +67,6 @@ def _onready(self):
         win             = engine.display.get_window()
         win.set_caption(engine.lang.get("pe_title"))
         populate_frame(self)
-
 def _process(self, delta):
     if self.name  == "panel_obj":
         window        = engine.display.get_window(MAIN_WINDOW)
@@ -77,18 +76,11 @@ def _process(self, delta):
     if self.name  == "version_str":
         self.text = engine.VERSION_FULL
 
-def save_metadata(self):
-    pass
-
-def open_project_directory(self):
-    pass
-
 def open_editor_settings(self):
     # This provides an interface to modify editor settings.
     window         = self.scene.get_node_from_path("/settings_window")
     window.title   = engine.lang.get("pe_titlesetting")
     window.visible = True
-
 def make_new_project_interface(self):
     # This provides an interface to make a new project.
     window         = self.scene.get_node_from_path("/make_new_project_window")

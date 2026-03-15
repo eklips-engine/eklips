@@ -48,13 +48,12 @@ class Parallax(Sprite):
     def _make_new_item(self):
         if self.citem:
             self._remove_item()
-        self.batch       = self.viewport.batches[self.batch_id]
         if not self.image:
-            self._image  = engine.loader.load("root://_assets/error.png")
-        self.citem       = pg.sprite.Sprite(img=self.image, batch=self.batch)
-        self._citemtr    = pg.sprite.Sprite(img=self.image, batch=self.batch)
-        self._citembl    = pg.sprite.Sprite(img=self.image, batch=self.batch)
-        self._citembr    = pg.sprite.Sprite(img=self.image, batch=self.batch)
+            self._image = engine.loader.load("root://_assets/error.png")
+        self.citem      = pg.sprite.Sprite(img=self.image, batch=self.batch)
+        self._citemtr   = pg.sprite.Sprite(img=self.image, batch=self.batch)
+        self._citembl   = pg.sprite.Sprite(img=self.image, batch=self.batch)
+        self._citembr   = pg.sprite.Sprite(img=self.image, batch=self.batch)
         self._set_anchors()
         self.citem.visible    = False
         self._citemtr.visible = False

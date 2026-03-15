@@ -43,9 +43,11 @@
         "es_mstrscn": "Main scene:",
         "es_loadscn": "Loading scene:",
 
-        "es_ver":     "Version:",
-        "es_name":    "Name:",
-        "es_antiali": "Antialiasing:",
+        "es_ver":      "Version:",
+        "es_name":     "Name:",
+        "es_projpath": "Path:",
+        "es_auth":     "Author:",
+        "es_antiali":  "Antialiasing:",
 
         "es_windesc": "Define the properties of the main Window here.",
         "es_propor":  "Dimensions",

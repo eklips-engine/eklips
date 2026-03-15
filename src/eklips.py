@@ -17,10 +17,16 @@ def on_close():
     engine.display.close_windows()
 
 def update(dt):
+    # Stop right there criminal scum
     if not engine.running:
         return
     
     try:
+        # Calculate FPS
+        engine.fps    = 1 / dt
+        if engine.fps  < ZDE_FIX:
+            engine.fps = ZDE_FIX
+        
         # Calculate delta
         engine.tdelta = dt
         engine.delta   = engine.speed * engine.tdelta
