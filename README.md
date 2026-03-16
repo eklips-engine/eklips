@@ -5,8 +5,6 @@ Eklips is a 2D Node hierarchy-based game engine written in Python using Pyglet.
 >[!WARNING]
 >This project is still in development and is very buggy and unstable, so use at your own risk.
 >Most features are yet to be completed...
->
->This fork is the successor of the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account and it will not have any new commits or features.
 
 To get started, you can go to these webpages:
  - [Installation]()
