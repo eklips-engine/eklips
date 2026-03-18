@@ -262,14 +262,14 @@
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [673,525]
+                                "tsize":    [673,515]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [0,    75],
-                        "tsize":    [673, 565],
+                        "tsize":    [673, 555],
                         "scale":    [1,     1],
                         "scroll":   [0,     0],
 

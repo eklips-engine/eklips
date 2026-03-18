@@ -3,6 +3,9 @@ from classes.nodes.gui.canvasitem import *
 
 # Classes
 class BaseNinePatchRect(CanvasItem):
+    """
+    A CanvasItem with an spliced image.
+    """
     _isblittable = True
 
     ## Exports
@@ -29,19 +32,19 @@ class BaseNinePatchRect(CanvasItem):
             self._remove_item()
         if not self.image:
             self._image    = engine.loader.load("root://_assets/error.png")
-        self.citem    = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citemtr = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citembl = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citembr = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citemt  = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citeml  = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citemr  = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citemb  = pg.sprite.Sprite(self.image, batch=self.batch)
-        self._citemc  = pg.sprite.Sprite(self.image, batch=self.batch)
+        
+        ## Make CItems
+        for s in [
+            "citem", "_citemtr", "_citembl", "_citembr",
+            "_citemt", "_citeml", "_citemr", "_citemb", "_citemc"
+        ]:
+            self.set(s, pg.sprite.Sprite(self.image, batch=self.batch))
+            self.get(s).visible = False
+        
+        ## Splicing things
         self._remake_images()
         self._resize_images()
         self._set_anchors()
-        self._set_visible(False)
     def _remove_item(self):
         for s in [
             self.citem, self._citemtr, self._citembl, self._citembr,
@@ -117,8 +120,8 @@ class BaseNinePatchRect(CanvasItem):
             self.citem, self._citemtr, self._citembl, self._citembr,
             self._citemt, self._citeml, self._citemr, self._citemb, self._citemc
         ]:
-            s.image.anchor_x = 0
-            s.image.anchor_y = 0
+            s.image.anchor_x = s.image.width  // 2
+            s.image.anchor_y = s.image.height // 2
     def _set_size(self, w, h):
         self._resize_images()
     def _set_rot(self, deg):
@@ -153,6 +156,9 @@ class BaseNinePatchRect(CanvasItem):
         return self._image
     @image.setter
     def image(self, value):
+        if self._image is value:
+            return
+        
         self._image = value
         self._remake_images()
         self._resize_images()
@@ -161,7 +167,7 @@ class BaseNinePatchRect(CanvasItem):
     ## Init
     def __init__(self, properties={}, parent=None):
         self._edge_size = self._corner_size = [12,12]
-
+        
         self._imagepath = "root://_assets/error.png"
         super().__init__(properties, parent)
         self._make_new_item()
@@ -172,26 +178,30 @@ class BaseNinePatchRect(CanvasItem):
             cw, ch = self.corner_size
             w, h   = self.w, self.h
 
-            ## Corners
-            self.citem.x    = self._citembl.x = x
-            self.citem.y    = self._citemtr.y = y + (h - ch)
-            self._citembl.y = self._citembr.y = y
+            ## Helpers
+            def hw(s): return (s.image.width  * s.scale_x) / 2
+            def hh(s): return (s.image.height * s.scale_y) / 2
 
-            self._citemtr.x = self._citembr.x = x + (w - cw)
+            ## Corners
+            self.citem.x    = self._citembl.x = x + cw / 2
+            self.citem.y    = self._citemtr.y = y + h - ch / 2
+            self._citembl.y = self._citembr.y = y + ch / 2
+
+            self._citemtr.x = self._citembr.x = x + w - cw / 2
 
             ## Edges
-            self._citemt.x = self._citemb.x = x + cw
-            self._citemt.y                  = self.citem.y
-            self._citemb.y                  = self._citembr.y
+            self._citemt.x = self._citemb.x = x + cw + (w - 2 * cw) / 2
+            self._citemt.y = y + h - hh(self._citemt)
+            self._citemb.y = y + hh(self._citemb)
 
-            self._citeml.x                  = self.citem.x
-            self._citeml.y = self._citemr.y = y + ch
+            self._citeml.x = x + hw(self._citeml)
+            self._citeml.y = self._citemr.y = y + ch + (h - 2 * ch) / 2
 
-            self._citemr.x = self._citeml.x + (self.w-cw)
+            self._citemr.x = x + w - hw(self._citemr)
 
             ## Center
-            self._citemc.x = x + cw
-            self._citemc.y = y + ch
+            self._citemc.x = x + cw + (w - 2 * cw) / 2
+            self._citemc.y = y + ch + (h - 2 * ch) / 2
             
             self._set_visible(True)
         else:

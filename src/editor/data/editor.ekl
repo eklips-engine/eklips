@@ -25,7 +25,8 @@ gjs  : dict     = None
 
 current_scene = None
 
-def change_scn(scn):
+## Loading
+def change_scn(scn): # XXX this is a buggy mess
     global gmdt, gjs, current_scene, scenepreview, sp_vp, old_gmdt_dir
     scenepreview.resume()
     engine.game.project_dir = gmdt.project_dir
@@ -41,7 +42,6 @@ def change_scn(scn):
     scenepreview.nodes = _data
 
     scenepreview.pause()
-
 def load():
     global backbtn, settbtn, playbtn, gjsp, gmdt, gjs, current_scene, scenepreview, sp_vp
     
@@ -75,6 +75,7 @@ def load():
     pr_title.text = engine.lang.get(pr_title.text)
     sg_title.text = engine.lang.get(sg_title.text)
 
+## Settings dialog
 def save():
     global icnpth, msrpth, lsrpth
     global winw, winh, mxwinw, mxwinh, mnwinw, mnwinh, resiz, antiali, languages, langdir, name, ver, verekl
@@ -152,7 +153,6 @@ def change_color():
     ekv_entry.config(foreground=engine.rgbtohex(engine.invertrgb(hexrgb[0])))
     wincol = hexrgb[0]
     return wincol
-
 def _settings_dialog():
     global wincol, ekv_entry, gmdt, gjs, gjsp
     global icnpth, msrpth, lsrpth, fnttrv, lngtrv, fonts
@@ -419,6 +419,7 @@ def _settings_dialog():
     for viewport in window.viewports.values():
         viewport.alpha = 255
 
+## Process
 def _process(self : Node, delta : float):
     global backbtn, settbtn, playbtn
 
@@ -435,7 +436,3 @@ def _process(self : Node, delta : float):
         os.system(f"eklips.py -file {gmdt.project_file} -dir {gmdt.project_dir} -editordebug")
     if settbtn.get_if_mouse_hovering() and engine.mouse.buttons[MOUSE_LEFT]:
         _settings_dialog()
-    
-    window        = engine.display.get_window(MAIN_WINDOW)
-    if window.width < 1151:
-        window.width += round((1152 - window.width) // 10)

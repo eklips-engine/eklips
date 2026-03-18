@@ -39,9 +39,10 @@ class Camera(CanvasItem):
         if (self._follow_parent and self.parent and self.parent.get("_iscitem", False)
            and not self.parent.get("_isdisplayobject", False)):
             self.parent : CanvasItem
+            x, y = self.parent.into_screen_coords()
 
-            target_x = self.parent.x  - (self.viewport.w / 2 - self.parent.w / 2)
-            target_y = -self.parent.y + (self.viewport.h / 2 - self.parent.h / 2)
+            target_x = x - (self.viewport.w / 2 - self.parent.w / 2)
+            target_y = y - (self.viewport.h / 2 - self.parent.h / 2)
 
             if self.parent.flip_w:
                 target_x -= self.parent.w*5

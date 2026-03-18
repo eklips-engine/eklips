@@ -77,7 +77,7 @@ AXIS_X  = 128225 #: Reference X axis for collision
 AXIS_XY = 128226 #: Reference X and Y axis for collision
 AXIS_Y  = 128227 #: Reference y axis for collision
 
-MAXFPS = 120 #: Maximum FPS
+MAXFPS = 520 #: Maximum FPS
 
 NEIGHBOUR_TOPLEFT  = 83850
 NEIGHBOUR_TOPRIGHT = 83854

@@ -61,6 +61,7 @@ class Scene(Resource, SceneLike):
     """
     print(" ~ Initialize Scene")
     
+    ## Init
     def __init__(self, properties={}):
         super().__init__(properties)
         SceneLike.__init__(self)
@@ -75,8 +76,7 @@ class Scene(Resource, SceneLike):
             self.empty()
 
         # Init managers
-        self._collisionman = engine.resources.CollisionManager()
-        self._widgetman    = engine.resources.WidgetManager()
+        self._reload_managers()
 
         # Set filepath and load
         self._file_path = path
@@ -91,20 +91,20 @@ class Scene(Resource, SceneLike):
     @nodes.setter
     def nodes(self, nodes : dict):
         self.empty()
+        self._reload_managers()
+        self._nodes = nodes
+        self._reload_nodes()
+    def _reload_managers(self):
         self._collisionman = engine.resources.CollisionManager()
         self._widgetman    = engine.resources.WidgetManager()
-        self._nodes        = nodes
+    def _reload_nodes(self):
         nodepaths          = self.get_node_paths("")
-
         for nodepath in nodepaths:
             self._initialize_node_entry(nodepath)
     def _loadscenefile(self, path):
         _data       = engine.loader.load(path, force_new_resource=True)
-        self._nodes = _data["nodes"] # XXX Cleanup this mess
-        nodepaths   = self.get_node_paths("")
-
-        for nodepath in nodepaths:
-            self._initialize_node_entry(nodepath)
+        self._nodes = _data["nodes"]
+        self._reload_nodes()
     def load(self, path):
         """
         Load a scene file.

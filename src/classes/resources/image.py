@@ -3,17 +3,7 @@ import pyglet as pg
 from classes.resources.resource import *
 from classes.customprops        import *
 
-#region = None
-#tileheight = 0
-#tilewidth  = 0
-#spacing    = 0
-
 ## Image Grid
-#pg.image.ImageGrid(region,
-#    int(region.height/tileheight),
-#    int(region.width/tilewidth),
-#    row_padding=spacing,
-#    column_padding=spacing).get_texture_sequence()
 class ImageGrid(Resource):
     """
     A Resource wrapper around pg.image.ImageGrid.
@@ -55,7 +45,6 @@ class ImageGrid(Resource):
     def row_padding(self, value):
         self._rowpd = value
         self._make_grid()
-    
     def _make_grid(self):
         self._grid = pg.image.ImageGrid(
             self.image,

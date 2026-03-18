@@ -66,20 +66,21 @@ def _process(self : ColorRect, delta : float):
     if not ready:
         scnready(self)
     
-    if htbx.get_if_mouse_hovering():
+    if getattr(engine, "selected_project", False) == gjsp:
         htbx.visible = True
+    else:
+        htbx.visible = False
+    
+    if htbx.get_if_mouse_hovering():
         if engine.mouse.just_clicked[MOUSE_LEFT]:
+            if getattr(engine, "selected_project", False) == gjsp:
+                return engine.scene.load("res://scenes/editor.scn")
+            engine.selected_project = gjsp
             if trsh.get_if_mouse_hovering():
                 if askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_remove")):
                     engine.savefile.pop(f"projects/{gjsp.replace(':',';').replace('/','$')}")
                     engine.scene.load("res://scenes/master.scn")
-                return
             if star.get_if_mouse_hovering():
                 engine.savefile.set(f"projects/{gjsp.replace(':',';').replace('/','$')}/favorited",
                     not engine.savefile.get(f"projects/{gjsp.replace('/','$').replace(':',';')}/favorited"))
                 _refresh_save()
-                return
-            engine.selected_project = gjsp
-            engine.scene.load("res://scenes/editor.scn")
-    else:
-        htbx.visible = False

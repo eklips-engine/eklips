@@ -14,7 +14,7 @@
 
                     "transform": {
                         "position": [10,84],
-                        "tsize":    [628,547],
+                        "tsize":    [652,533],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 
@@ -44,6 +44,58 @@
                         "skew":     0
                     }
                 },
+
+                "edit_btn": {
+                    "type":        "Button",
+                    "text":        "Edit",
+                    "script_path": "res://data/workflow.ekl",
+
+                    "icon_path": "res://media/icofolder.png",
+
+                    "transform": {
+                        "position": [10,  84],
+                        "tsize":    [190, 45],
+                        "anchor":   "top right"
+                    }
+                },
+                "import_btn": {
+                    "type":        "Button",
+                    "text":        "Import",
+                    "script_path": "res://data/workflow.ekl",
+
+                    "icon_path": "res://media/icofolder.png",
+
+                    "transform": {
+                        "position": [10,  17],
+                        "tsize":    [190, 45],
+                        "anchor":   "bottom right"
+                    }
+                },
+                "run_btn": {
+                    "type": "Button",
+                    "text": "Run..",
+
+                    "icon_path": "res://media/icoplay.png",
+
+                    "transform": {
+                        "position": [20, 134],
+                        "tsize":    [170, 35],
+                        "anchor":   "top right"
+                    }
+                },
+                "dup_btn": {
+                    "type": "Button",
+                    "text": "Duplicate",
+
+                    "icon_path": "res://media/icoplay.png",
+
+                    "transform": {
+                        "position": [20, 174],
+                        "tsize":    [170, 35],
+                        "anchor":   "top right"
+                    }
+                },
+
                 "settings_btn": {
                     "type": "Sprite",
                     "children": {},
@@ -84,6 +136,7 @@
                         "skew":     0
                     }
                 },
+
                 "version_str": {
                     "type": "Label",
                     "children": {},
@@ -102,6 +155,7 @@
                         "skew":     0
                     }
                 },
+
                 "make_new_project_window": {
                     "type":  "ExtraWindow",
                     "title": "make_new_project_window",

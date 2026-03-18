@@ -49,7 +49,7 @@ def populate_frame(self : ColorRect):
         y   += 66
         pid += 1
 
-def select_project_file(self): return askopenfilename(
+def select_project_file(): return askopenfilename(
         filetypes = [
             (engine.lang.get("pe_pjfl"),"game.json"),
             (engine.lang.get("pe_evfl"), "*.*")
@@ -63,14 +63,22 @@ def _onready(self):
         win             = engine.display.get_window()
         win.set_caption(engine.lang.get("pe_title"))
         populate_frame(self)
-def _process(self, delta):
-    if self.name  == "panel_obj":
-        window        = engine.display.get_window(MAIN_WINDOW)
-        if window.width > 650:
-            window.width += round((648 - window.width) // 10)
-            self.w        = window.width  - 20
     if self.name  == "version_str":
         self.text = engine.VERSION_FULL
+def _process(self, delta):
+    if self.name  == "edit_btn":
+        if self.get_if_mouse_hovering() and engine.mouse.just_clicked[MOUSE_LEFT]:
+            if getattr(engine, "selected_project", False):
+                engine.scene.load("res://scenes/editor.scn")
+    if self.name  == "import_btn":
+        if self.get_if_mouse_hovering() and engine.mouse.just_clicked[MOUSE_LEFT]:
+            gjsp = select_project_file()
+            if gjsp:
+                engine.savefile.set(f"projects/{gjsp.replace('/','$').replace(':',';')}", {
+                    "favorited": False,
+                    "tags":      []
+                })
+            engine.scene.load("res://scenes/master.scn")
 
 def open_editor_settings(self):
     # This provides an interface to modify editor settings.

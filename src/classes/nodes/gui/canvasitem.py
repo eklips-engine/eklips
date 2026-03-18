@@ -60,6 +60,8 @@ class CanvasItem(Node, Transform):
         return self._image
     @image.setter
     def image(self, value):
+        if self._image is value:
+            return
         self._image    = value
         self.w, self.h = value.width, value.height
         if self.citem:

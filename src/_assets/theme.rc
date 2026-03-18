@@ -10,6 +10,13 @@
             "pos":  [0,80],
             "size": [72,40]
         },
+        "pressed_btn": {
+            "corner_size": [8,8],
+            "side_size":   [8,8],
+
+            "pos":  [0,0],
+            "size": [40,40]
+        },
         "scrollbtn": {
             "pos":  [0,40],
             "size": [40,40]

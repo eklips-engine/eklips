@@ -64,6 +64,7 @@ class Checkbox(CanvasItem):
             self.citem.image = self._checkbox_selected
         else:
             self.citem.image = self._checkbox_image
+        self.draw()
         
     def _free(self):
         self.widgetman.widgets.pop(self.gid)

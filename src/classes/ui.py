@@ -427,7 +427,6 @@ class Viewport(Transform, Color):
             return
         
         # Init viewport
-        glDisable(GL_BLEND)
         self.window.switch_to()
         self.framebuffer.bind()
         if not NO_CLEAR_BACKGROUND in self.flags:
@@ -450,7 +449,6 @@ class Viewport(Transform, Color):
         self._reset_camera()
 
         # Draw Viewport to Window
-        glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         x, y         = self.into_screen_coords(drawing=True)
         self.citem.x = x

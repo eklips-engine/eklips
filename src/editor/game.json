@@ -6,8 +6,8 @@
     },
     "viewport": {
         "size": [
-            648,
-            648
+            872,
+            634
         ],
         "color": [
             40,
@@ -15,12 +15,12 @@
             55
         ],
         "minsize": [
-            648,
-            648
+            634,
+            634
         ],
         "maxsize": [
-            1152,
-            648
+            1127,
+            634
         ],
         "resizable": false,
         "icon_file": "root://_assets/icon_beta.png"

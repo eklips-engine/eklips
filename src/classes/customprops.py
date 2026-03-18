@@ -582,12 +582,15 @@ class Transform:
         
         ## Draw check
         if drawing:
-            x += (self._w // 2) * self.scale_x
-            y += (self._h // 2) * self.scale_y
+            x, y = self._offset_off_anchor(x, y)
         
         ## More caching stuff
         _screenc_cache[cid] = [x,y]
         return [x,y]
+    def _offset_off_anchor(self, x, y, w=None, h=None):
+        if w == None: w = self._w
+        if h == None: h = self._h
+        return x+(w // 2) * self.scale_x, y+(h // 2) * self.scale_y
     
     @classmethod
     def new(cls, pos : list, surface = None, scale = [1,1], opacity = 255, layer = 0, rotation = 0, anchor = "", scroll = [0,0], visible = True, skew = 0):
@@ -616,9 +619,9 @@ class Mouse:
     #: 1 is up, -1 is down
     scroll       = 0
     #: Buttons just now pressed. Use `engine.is_action_pressed` instead.
-    just_clicked = MOUSE_DEFAULT_STATE
+    just_clicked = MOUSE_DEFAULT_STATE.copy()
     #: Use `engine.is_action_pressed` instead.
-    buttons      = MOUSE_DEFAULT_STATE
+    buttons      = MOUSE_DEFAULT_STATE.copy()
     #: List of filepaths
     paths        = []
 

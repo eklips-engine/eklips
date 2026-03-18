@@ -46,7 +46,7 @@ def update(dt):
         engine.mouse.scroll       = 0
         engine.mouse.dragging     = False
         engine.mouse.dpos         = [0,0]
-        engine.mouse.just_clicked = MOUSE_DEFAULT_STATE
+        engine.mouse.just_clicked = MOUSE_DEFAULT_STATE.copy()
         engine.keyboard.text      = ""
         engine.keyboard.motion    = None
     except Exception as error:
