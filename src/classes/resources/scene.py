@@ -1,39 +1,10 @@
 ## Import classes
+import pymunk
 from classes.resources.resource import *
 from classes.resources.theme    import *
 from classes.nodes              import *
 
 ## Classes
-class SceneError(Warning):
-    pass
-
-class CollisionManager:
-    """
-    Class to store and check if shapes are colliding.
-    """
-    shapes = {}
-
-    @property
-    def amount(self): return len(self.shapes)
-    
-    def add(self, shape):
-        """Add `shape` to the world."""
-        sid              = self.amount
-        self.shapes[sid] = shape
-        return sid
-
-    def delete(self, sid):
-        """Delete shape `sid` from the world."""
-        self.shapes.pop(sid)
-    
-    def colliderect(self, shape : CollisionBox, other : CollisionBox) -> bool:
-        """Check if `shape` is colliding with `other`."""
-        return shape.colliderect(other)
-
-    def get_collisions(self, shape : CollisionBox) -> int:
-        """Get if `shape` is being collided by another shape."""
-        return shape._shape.collidelist(list(self.shapes.values()))
-
 class SceneLike:
     def __init__(self):
         self.paused                           = False       # If the update() function can laze around and do nothing
@@ -44,7 +15,6 @@ class SceneLike:
         self._inherited_scn                   = None        # Filepath of the inherited scene
         self._blessed                         = []          # List of nodes that are about to be created
         self._temp_node_list                  = []          # List of nodepaths in the scene tree
-        self._collisionman : CollisionManager = None        # Collision Manager
         self._widgetman    : WidgetManager    = None        # Widget Manager
 
 class Scene(Resource, SceneLike):
@@ -67,39 +37,37 @@ class Scene(Resource, SceneLike):
         SceneLike.__init__(self)
 
     ## Resource related
+    # Filepath property
     @export(None, "str", "file_path/scn")
     def file_path(self) -> str:
         return self._file_path
     @file_path.setter
     def file_path(self, path : str):
-        if self._file_path != None: # Scene is probs empty if this is True so dont bother if it is
-            self.empty()
-
-        ## Init managers
-        self._reload_managers()
+        print(f" ~ Load scene {path}")
 
         # Set filepath and load
         self._file_path = path
-        _data           = engine.loader.load(path, force_new_resource=True)
-        if _data["properties"]["inherits"]:
-            self._inherited_scn = _data["properties"]["inherits"]
-            self._loadscenefile(_data["properties"]["inherits"])
-            self._loadscenefile(path, append_nodes=True)
-        else:
-            self._loadscenefile(path)
+        self.nodes      = engine.loader.load(path, force_new_resource=True)["nodes"]
+    
+    # Nodes property
     @export({}, "dict", "HIDDEN")
     def nodes(self) -> dict:
         return self._nodes
     @nodes.setter
     def nodes(self, nodes : dict):
-        self.empty()
+        if self._file_path != None: # Scene is probs empty if this is True so dont bother if it is
+            self.empty()
+        
+        ## Init managers
         self._reload_managers()
+
+        ## Set nodes
         self._nodes = nodes
         self._reload_nodes()
+    
+    # Reload
     def _reload_managers(self):
-        print(" ~ Reload Collision and Widget managers")
-        self._collisionman = engine.resources.CollisionManager()
-        self._widgetman    = engine.resources.WidgetManager()
+        self._widgetman = engine.resources.WidgetManager()
     def _reload_nodes(self):
         nodepaths = self.get_node_paths("")
         _nodes    = []
@@ -112,12 +80,8 @@ class Scene(Resource, SceneLike):
         # Make nodes ready up
         for node in _nodes:
             self._ready_node(node)
-    def _loadscenefile(self, path, append_nodes=False):
-        print(f" ~ Load scene {path}")
-        _data     = engine.loader.load(path, force_new_resource=True)
-        _nodedata = _data["nodes"]
-        self._nodes = _nodedata
-        self._reload_nodes()
+    
+    # Replace resource classes
     def load(self, path):
         """
         Load a scene file.
@@ -193,7 +157,9 @@ class Scene(Resource, SceneLike):
         return self._ready_node(self._initialize_node_entry(nodepath))
     
     ## Ready node
-    def _ready_node(self, node) -> Node:
+    def _ready_node(self, node : Node) -> Node:
+        if not node.processable:
+            return
         try:
             node._onready(node)
         except AttributeError:
@@ -317,11 +283,9 @@ class Scene(Resource, SceneLike):
 
     def empty(self):
         """Empty the scene."""
-        print(" ~ Empty scene\n |~ Free root")
         root = self.nodes[""].get("obj")
         if root: root._free()
         
-        print(" |~ Cleanup")
         self._nodes          = EMPTY_SCENE
         self._temp_node_list = []
     def _free(self):
@@ -337,6 +301,8 @@ class Scene(Resource, SceneLike):
 
         # Update all nodes
         for node, path in self._temp_node_list:
+            if not self._runnable:
+                return
             if not node or not node._runnable:
                 self.delete_node(path)
                 continue

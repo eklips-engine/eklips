@@ -48,15 +48,13 @@ class Inputbox(ColorRect, Color):
     ## CItem management
     def _fix_broken_item(self):
         self._remove_item(False)
-        del self._cached_batch
         self._make_new_item()
         self._convert_transform_property_into_object(self.transform)
     def _make_new_item(self):
         if self.citem:
             self._remove_item(False)
         else:
-            self._drawing_bid  = self.viewport.add_batch()
-            self._cached_batch = self.viewport.batches[self.batch_id]
+            self._drawing_bid = self.viewport.add_batch()
 
         self.citem = pg.shapes.Rectangle(0,0,self.w,self.h, color=self.color, batch=self.batch)
         self.label = pg.text.Label(
@@ -147,5 +145,5 @@ class Inputbox(ColorRect, Color):
         display_value = self._value[:]
         if self.widgetman.focused_widget == self.gid:
             display_value.insert(self._pointer, "_" if self._elapsed > self._blinktimer else "")
-        self._get_window().switch_to()
+        self._switch_window()
         self.label.text = f"{''.join(display_value)}"

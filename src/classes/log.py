@@ -1,7 +1,5 @@
 import classes.singleton as engine
-
-class LogError(BaseException):
-    """Class for `error()`"""
+from classes.customprops import *
 
 def info(text):
     """Log some text as info."""
@@ -12,4 +10,4 @@ def warn(text):
 def error(text):
     """Log some text as an error and display it on a dialog."""
     print(f"ERROR: {text}")
-    engine.error_handler.show_error(LogError(text))
+    engine.error_handler.report_erroror(LogError(text))

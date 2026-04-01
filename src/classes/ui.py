@@ -19,6 +19,35 @@ class EklBaseWindow(pg.window.BaseWindow):
     """A Window to handle with Eklips viewports and NOT display them in one Window."""
     is_basewindow = True
 
+    ## Composition
+    def composite(self):
+        ## Make Viewports draw to their colorbuffer/texture
+        self.switch_to()
+        for vp in self.viewports.values():
+            vp.draw()
+        
+        ## Presentation
+        self._present()
+    def _present(self):
+        vp = self.viewports.get(MAIN_VIEWPORT)
+        if not (vp.framebuffer and vp):
+            return
+        
+        if len(vp._vpchildren):
+            for child in vp._vpchildren:
+                vp.framebuffer.bind()
+                self._present_one(child)
+                vp.framebuffer.unbind()
+        self._present_one(vp)
+    def _present_one(self, vp):
+        if not (vp.framebuffer or vp):
+            return
+        x,y        = vp.into_screen_coords(self.size, drawing=True)
+        vp.citem.x = x
+        vp.citem.y = y
+
+        vp.citem.draw()
+        
     ## Properties
     @property
     def width(self): return self._width
@@ -66,7 +95,7 @@ class EklBaseWindow(pg.window.BaseWindow):
     def visible(self, val):
         self.set_visible(val)
     
-    ##init
+    ## Init
     def _refresh_viewports(self):
         self.switch_to()
         for vid in self.viewports:
@@ -108,10 +137,11 @@ class EklBaseWindow(pg.window.BaseWindow):
         """Create a lazy Window."""
 
         # Setup variables
-        self.closed     = False
-        self.viewports  = {}
-        self.id         = wid
-        self._lastvid   = MAIN_VIEWPORT
+        self.closed       = False
+        self.viewports    = {}
+        self.id           = wid
+        self.render_graph = []
+        self._lastvid     = MAIN_VIEWPORT
 
         ## Init
         ## Code taken from pyglet/window/base/__init__.py line 508-546
@@ -154,7 +184,6 @@ class EklBaseWindow(pg.window.BaseWindow):
             screen,     config,
             context,    mode
         )
-    
     def __repr__(self):
         return f"{self.__class__.__name__}(size={self.width}x{self.height}, id={self.id})"
 
@@ -202,7 +231,8 @@ class EklBaseWindow(pg.window.BaseWindow):
         size  : list[int] = [640,480],
         color : list[int] = BLACK,
         flags : list[int] = [VIEWPORT_EQUAL_WINDOW],
-        pos   : list[int] = [0,0]
+        pos   : list[int] = [0,0],
+        parent            = None
     ):
         """
         Add a viewport to Window `wid`. Returns its ID.
@@ -212,14 +242,17 @@ class EklBaseWindow(pg.window.BaseWindow):
             color: Background color of the viewport.
             flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
             pos: Viewport position.
+            parent: The parent of the viewport.
         """
-
+        if parent == None:
+            if len(self.viewports):
+                parent = self.viewports[MAIN_VIEWPORT]
         vid            = self._lastvid
         self._lastvid += 1
 
-        viewport          = Viewport(vid, self, flags)
+        viewport          = Viewport(vid, self, flags, parent)
         viewport.position = pos
-        viewport.tsize    = size
+        viewport.size     = size
         viewport.set_background(*color)
         viewport.add_batch()
 
@@ -239,11 +272,7 @@ class EklWindow(EklBaseWindow, pg.window.Window):
         if self.closed:
             return
         
-        self.switch_to()
-        for vid in self.viewports:
-            viewport    = self.viewports[vid]
-            viewport.draw()
-        
+        self.composite()
         super().flip()
     
     ## Mouse Events
@@ -287,14 +316,39 @@ class EklWindow(EklBaseWindow, pg.window.Window):
         engine.mouse.paths = paths
 class Viewport(Transform, Color):
     """A class to manage a portion of a Window."""
+    _isdisplayobject = True
+    _is_viewport     = True
+    
+    ## Parent
+    @property
+    def _vpparent(self) -> Self: return self._vpppr
+    @_vpparent.setter
+    def _vpparent(self, val : Self):
+        # Remove connection
+        if self._vpppr and self in self._vpppr._vpchildren:
+            self._vpppr._vpchildren.remove(self)
+        
+        # Connect to other parent
+        if val:
+            val._vpchildren.append(self)
+        
+        # Set parent
+        self._vpppr = val
+        if self.framebuffer:
+            self._delete_buffer()
+            self._make_framebuffer()
+    @property
+    def _parentvalid(self): return (self._vpparent and
+                                    getattr(self._vpparent, "_is_viewport", True))
 
-    def __init__(self, vid : int, window : EklWindow, flags : list = []):
+    def __init__(self, vid : int, window : EklWindow, flags : list = [], parent : Self = None):
         """Initialize a Viewport.
         
         Args:
             vid: ID of the Viewport.
             window: Window that the Viewport is attached to.
-            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)"""
+            flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
+            parent: The parent of the Viewport."""
         super().__init__()
         Color.__init__(self)
         
@@ -307,17 +361,31 @@ class Viewport(Transform, Color):
         self.color_buffer                           = None
         self.depth_buffer                           = None
         self.citem                                  = None
+        
+        ## Viewport node-like system to not interfere with Scenes if ExtraViewport
+        self._vpchildren      = []
+        self._vpppr           = None
+        self._vpparent : Self = parent
 
+        ## Source of truth
+        # If batches are being refreshed
         self._refreshing = False
-        self._closing    = False
-
-        self.id = vid
-
+        # Am i created? Or am i destroyed?
+        self._state = "uninitialized"
+        # Do i need a new Batch?
+        self._batch_pending = False
+        
+        ## ID
+        self.id = self._drawing_vid = vid
+        
+        ## Add self to window's viewport registry
         self.window                = window
         self.window.viewports[vid] = self
 
+        ## Make the framebuffer
         self._make_framebuffer()
         
+        ## Track available batch id
         self._lastbid = MAIN_BATCH
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(size={self.w}x{self.h}, id={self.id}, wid={self.window})"
@@ -338,7 +406,7 @@ class Viewport(Transform, Color):
         if engine.debug.sprite_always_visible:
             return True
         
-        x,y = transform.into_screen_coords(viewport_size=self.tsize)
+        x,y = transform.into_screen_coords(viewport_size=self.size)
         if not (
             ((x - self.cam.x) * self.cam.zoom) + (transform.w * self.cam.zoom) < 0 or
             ((x - self.cam.x) * self.cam.zoom) > self.w                       or
@@ -350,6 +418,10 @@ class Viewport(Transform, Color):
 
     ## Framebuffer related
     def _make_framebuffer(self):
+        if self._state != "uninitialized":
+            return
+        self._state = "created"
+
         if self.window:
             self.window.switch_to()
         self.framebuffer  = pg.image.Framebuffer()
@@ -359,9 +431,19 @@ class Viewport(Transform, Color):
             internalformat=GL_RGBA
         )
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
-        self.citem = pg.sprite.Sprite(self.color_buffer, z=self.id)
+        self._make_sprite()
         self._set_anchors()
+    def _make_sprite(self):
+        if self.citem:
+            self.citem.batch = None
+            self.citem.delete()
+            self.citem       = None
+        
+        self.citem          = pg.sprite.Sprite(self.color_buffer, z=self.id)
+        self._batch_pending = True
     def _resize_framebuffer(self):
+        if self._state in ("destroyed", "uninitialized"):
+            return
         if self.window:
             self.window.switch_to()
         if not self.framebuffer:
@@ -375,28 +457,33 @@ class Viewport(Transform, Color):
         self.framebuffer.attach_texture(self.color_buffer, attachment=GL_COLOR_ATTACHMENT0)
         self.citem.image = self.color_buffer
         self._set_anchors()
-        self._set_pos(*self.position)
-        
     def _delete_buffer(self):
-        if not self.framebuffer:
+        if not self.framebuffer and not self.color_buffer and not self.citem:
             return
         if self.window:
             self.window.switch_to()
-        self.framebuffer.delete()
-        self.color_buffer.delete()
-        self.citem.delete()
+        self.citem.batch = None
+        
+        if self.citem:
+            self.citem.delete()
+            self.citem = None
+        if self.framebuffer:
+            self.framebuffer.delete()
+            self.framebuffer = None
+        if self.color_buffer:
+            self.color_buffer.delete()
+            self.color_buffer = None
 
     ## Transform related
     def _set_anchors(self):
         self.citem.image.anchor_x = self._w // 2
         self.citem.image.anchor_y = self._h // 2
         self.citem._update_position()
-    def _set_pos(self, x, y):
-        x, y = self.into_screen_coords(drawing=True)
-        self.citem.x = x
-        self.citem.y = y
-    def into_screen_coords(self, viewport_size=None, do_flip : bool = True, drawing : bool = False, parent=None):
-        return super().into_screen_coords(self.window.size, do_flip, drawing, parent)
+    def into_screen_coords(self, viewport_size=None, do_flip : bool = True, drawing : bool = False, parent_rect=None):
+        if self._vpparent:
+            return super().into_screen_coords(self._vpparent.size, do_flip, drawing, parent_rect)
+        else:
+            return super().into_screen_coords(self.window.size, do_flip, drawing, parent_rect)
     def _set_alpha(self, deg):
         self.citem.opacity = deg
     def _set_rot(self, deg):
@@ -410,6 +497,13 @@ class Viewport(Transform, Color):
         self.citem.visible = val
 
     ## Drawing related
+    def _finalize_batch(self):
+        if not self._batch_pending:
+            return
+        if not self.color_buffer or self.color_buffer.id is None:
+            return
+
+        self._batch_pending = False
     def set_background(self, r=0,g=0,b=0,a=255):
         """
         Set the background color of the Viewport.
@@ -428,44 +522,41 @@ class Viewport(Transform, Color):
         ]
     def draw(self):
         """
-        Draw viewport contents to the window.
+        Draw viewport contents to the colorbuffer texture.
         """
         ## If you or the window is closed, don't bother
-        if self._closing:
-            return
         if not self.window:
             return
-        if self.window.closed:
+        if self.window.closed or not self.window.visible:
             return
-        if not self.window.visible:
+        if not self.framebuffer:
             return
         
+        ## Fix batch if needed
+        if self._batch_pending:
+            self._finalize_batch()
+        
         ## Init viewport
-        self.window.switch_to()
         self.framebuffer.bind()
         if not NO_CLEAR_BACKGROUND in self.flags:
             glClearColor(*self.rgb)
         if not NO_CLEAR in self.flags:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         
-        # Move camera
+        ## Move camera
         self._move_camera()
 
-        # Draw batches for this Viewport
+        ## Draw batches for this Viewport
         for bid in self.batches:
             batch = self.batches[bid]
             batch.draw()
         
-        # Unbind viewport
+        ## Unbind viewport
         self.framebuffer.unbind()
         
-        # Reset camera
+        ## Reset camera
         self._reset_camera()
-
-        # Draw Viewport to Window
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        self.citem.draw()
-
+    
     ## Camera functions    
     def _reset_camera(self):
         view_matrix = self.window.view.scale(
@@ -521,9 +612,16 @@ class Viewport(Transform, Color):
         """
         Delete the framebuffer and close the Viewport.
         """
-        self._closing = True
-        self._delete_buffer()
+        if self._state == "destroyed":
+            return
+        self._state = "destroyed"
+
         self.window.viewports.pop(self.id)
+        self._closing  = True
+        self._runnable = False
+        
+        self._delete_buffer()
+        self._vpparent = None
 class Display:
     """A class to manage `EklWindow`'s."""
     windows        : dict[int, EklWindow] = {}          # Dict of windows

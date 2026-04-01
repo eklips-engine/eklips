@@ -12,7 +12,7 @@
 
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [1.9,1.9],
                         "scroll":   [0,0],
 
@@ -32,7 +32,7 @@
                     
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 
@@ -45,6 +45,26 @@
 
                     "children":   {}
                 },
+                "Text": {
+                    "type": "Label",
+                    "text": "What day is it today?",
+                    "font_size": 25,
+
+                    "transform": {
+                        "position": [0,0],
+                        "size":     [2,2],
+                        "scale":    [1,1],
+                        "scroll":   [0,0],
+
+                        "rotation": 0,
+                        "alpha":    255,
+                        "anchor":   "top centerx",
+                        "visible":  false,
+                        "skew":     0
+                    },
+                    
+                    "children": {}
+                },
                 "Ring": {
                     "type":        "Sprite",
                     "image_path":  "root://_assets/ring.png",
@@ -52,7 +72,7 @@
 
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [2,2],
+                        "size":     [2,2],
                         "scale":    [2,2],
                         "scroll":   [0,0],
 

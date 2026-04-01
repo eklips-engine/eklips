@@ -26,20 +26,22 @@ gjs  : dict     = None
 current_scene = None
 
 ## Loading
-def change_scn(scn): # XXX this is a buggy mess
+def change_scn(scn):
     global gmdt, gjs, current_scene, scenepreview, sp_vp, old_gmdt_dir
     scenepreview.resume()
-    engine.game.project_dir = gmdt.project_dir
+    engine.game.project_dir    = gmdt.project_dir
 
     current_scene = scn
-    true_scn      = scn.replace("res://", f"{gmdt.project_dir}/")
+    true_scn      = os.path.relpath(scn.replace("res://", f"{gmdt.project_dir}/"))
     window        = engine.display.get_window(MAIN_WINDOW)
     window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name).replace("@", scn))
     
     scenepreview.nodes = engine.loader.load(true_scn)["nodes"]
 
+    engine.game.project_dir = old_gmdt_dir
+
 def _onready(self):
-    global backbtn, settbtn, playbtn, gjsp, gmdt, gjs, current_scene, scenepreview, sp_vp
+    global backbtn, settbtn, playbtn, gjsp, gmdt, gjs, current_scene, scenepreview, sp_vp, oldgmt
     
     backbtn = engine.scene.get_node_from_path("/backico")
     playbtn = engine.scene.get_node_from_path("/playico")
@@ -49,15 +51,18 @@ def _onready(self):
     gmdt = engine.projects[engine.selected_project]
     gjs  = engine.loader.load(gjsp)
 
+    gmdt.project_dir = os.path.relpath(gmdt.project_dir)
+    engine.ineditor  = True
+
     window      = engine.display.get_window(MAIN_WINDOW)
     window.set_caption(engine.lang.get("pe_titleeditor").replace("%", gmdt.name).replace("@", "?"))
     window.size = [1152, 634]
 
-    scenepreview = engine.scene.get_node_from_path("/scene_preview_panel/viewport/scene")
-    sp_vp        = scenepreview.parent
-    sp_vp.color  = gmdt.win.color
+    scenepreview               = engine.scene.get_node_from_path("/scene_preview_panel/viewport/scene")
+    sp_vp                      = scenepreview.parent
+    engine._editor_viewport_id = sp_vp.viewport_id
+    sp_vp.color                = gmdt.win.color
     
-    engine.ineditor = True
     change_scn(gmdt.master_scene)
 
     fb_title = engine.scene.get_node_from_path("/file_browser_panel/titlebar/text")
@@ -125,7 +130,7 @@ def _settings_dialog():
     def add_lang(lang):
         global lngtrv, gmdt
         path = f"{langdir.get()}/{lang}.json"
-        name = Language(f"{path.replace('res://',f'{gmdt.project_dir}/')}").name
+        name = Language(f"{path.replace("res://",f"{gmdt.project_dir}/")}").name
         lngtrv.insert("", "end", lang, values=(name, path))
     def make_font():
         global fonts

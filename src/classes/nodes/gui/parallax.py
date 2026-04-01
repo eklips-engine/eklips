@@ -3,6 +3,7 @@ import pyglet as pg
 from classes.nodes.gui.sprite import *
 
 ## Classes
+## XXX implement zoom stuff
 class Parallax(Sprite):
     """
     A 2D scrolling Sprite.
@@ -77,6 +78,10 @@ class Parallax(Sprite):
 
             cx,cy = round(self.viewport.cam.x)+ZDE_FIX,round(self.viewport.cam.y)+ZDE_FIX
             x,  y = cx-(abs(cx/speed%self.w)), cy-(cy/speed%self.h)
+            #if engine.ineditor and not self._iseditortool:
+            #    x = 0
+            #    y = 0
+            #
             
             self.citem.x    = self._citembl.x = x + (self.citem.image.anchor_x * self.scale_x)
             self.citem.y    = self._citemtr.y = y + (self.citem.image.anchor_y * self.scale_y)

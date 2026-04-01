@@ -23,13 +23,12 @@ save_entry = {}
 
 def _refresh_save():
     global save_entry, star
-    save_entry = engine.savefile.get(f"projects/{gjsp.replace('/','$').replace(':',';')}")
+    save_entry = engine.savefile.get(f"projects/{gjsp.replace("/","$").replace(":",";")}")
 
     if save_entry["favorited"]:
         star.image_path = "res://media/icostarred.png"
     else:
         star.image_path = "res://media/icostar.png"
-    
 def scnready(self : ColorRect):
     global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid, target_y, rnod, icon, trsh, star, save_entry
     gjsp = self.scene.projectid
@@ -56,7 +55,6 @@ def scnready(self : ColorRect):
     _refresh_save()
 
     ready  = True
-
 def _process(self : ColorRect, delta : float):
     global gjsp, gid, gmdt, htbx, vlbl, nlbl, ready, lid, target_y, rnod
     if not ready:
@@ -74,9 +72,9 @@ def _process(self : ColorRect, delta : float):
             engine.selected_project = gjsp
             if trsh.get_if_mouse_hovering():
                 if askyesno(engine.lang.get("ee_title"), engine.lang.get("pe_remove")):
-                    engine.savefile.pop(f"projects/{gjsp.replace(':',';').replace('/','$')}")
+                    engine.savefile.pop(f"projects/{gjsp.replace(":",";").replace("/","$")}")
                     engine.scene.load("res://scenes/master.scn")
             if star.get_if_mouse_hovering():
-                engine.savefile.set(f"projects/{gjsp.replace(':',';').replace('/','$')}/favorited",
-                    not engine.savefile.get(f"projects/{gjsp.replace('/','$').replace(':',';')}/favorited"))
+                engine.savefile.set(f"projects/{gjsp.replace(":",";").replace("/","$")}/favorited",
+                    not engine.savefile.get(f"projects/{gjsp.replace("/","$").replace(":",";")}/favorited"))
                 _refresh_save()

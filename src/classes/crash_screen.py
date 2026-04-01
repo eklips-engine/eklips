@@ -5,14 +5,19 @@ from tkinter.messagebox import *
 
 ## Functions
 def get_info(error : Exception):
-    return "".join(tb.format_exception(error))
+    return " - ".join(tb.format_exception(error))
 
-def show_error(error : Exception):
+def report_error(error : Exception):
+    if engine.savefile:
+        engine.savefile.save_data()
+    
     info = get_info(error)
-    print(f"Crashed! See dialog for more info.")
-    showerror("Eklips Engine", info)
+    print(f"""Crashed with info:
+ - {info}""")
     os.makedirs("tmp", exist_ok=True)
     with open(f"tmp/{len(os.listdir('tmp'))}.log","w") as f:
         f.write(info)
+    
+    showerror("Eklips Engine", info)
 
-__dict__ = {"show_error": show_error, "get_info": get_info, "traceback": tb, "os": os}
+__dict__ = {"report_error": report_error, "get_info": get_info, "traceback": tb, "os": os}

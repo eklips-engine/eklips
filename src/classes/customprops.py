@@ -1,6 +1,6 @@
 ## Import libraries & components
-import json, pyglet      as pg, sys
-import os
+import json, pyglet as pg
+import os, sys
 from classes.locals    import *
 from typing_extensions import *
 from typing            import *
@@ -8,7 +8,13 @@ from typing            import *
 ## Variables
 _screenc_cache = {}
 
-## Classes
+## Functions
+def _rotate_point(x, y, cx, cy, cos_a, sin_a):
+    rx = x * cos_a - y * sin_a + cx
+    ry = x * sin_a + y * cos_a + cy
+    return (rx, ry)
+
+## Export class
 @disjoint_base
 class _export:
     def __init__(self, type_=None, default=None, hint=None, fget=None, fset=None):
@@ -40,7 +46,6 @@ class _export:
     def setter(self, fset):
         self.fset = fset
         return self
-
 def export(default=None, type_=None, hint=None):
     """
     Use this class to expose a value as a property in the editor.
@@ -106,6 +111,136 @@ class _exportmeta(type):
         cls._properties = props
         return cls
 
+## Custom node
+class NodeMixin:
+    separator = "/"
+
+    @property
+    def parent(self):
+        """The parent of the Node."""
+        if hasattr(self, "_NodeMixin__parent"):
+            return self.__parent
+        return None
+    @parent.setter
+    def parent(self, value):
+        if value is not None and not isinstance(value, (NodeMixin)):
+            msg = f"Parent node {value!r} is not of type 'Node'."
+            raise TreeError(msg)
+        if hasattr(self, "_NodeMixin__parent"):
+            parent = self.__parent
+        else:
+            parent = None
+        if parent is not value:
+            self.__check_loop(value)
+            self.__detach(parent)
+            self.__attach(value)
+
+    def __check_loop(self, node):
+        if node is not None:
+            if node is self:
+                msg = "Cannot set parent. %r cannot be parent of itself."
+                raise LoopError(msg % (self,))
+            if any(child is self for child in node.iter_path_reverse()):
+                msg = "Cannot set parent. %r is parent of %r."
+                raise LoopError(msg % (self, node))
+    def __detach(self, parent):
+        # pylint: disable=W0212,W0238
+        if parent is not None:
+            parentchildren = parent.__children_or_empty
+            if ASSERTIONS:  # pragma: no branch
+                assert any(child is self for child in parentchildren), "Tree is corrupt."  # pragma: no cover
+            # ATOMIC START
+            parent.__children = [child for child in parentchildren if child is not self]
+            self.__parent = None
+            # ATOMIC END
+    def __attach(self, parent):
+        # pylint: disable=W0212
+        if parent is not None:
+            parentchildren = parent.__children_or_empty
+            if ASSERTIONS:  # pragma: no branch
+                assert not any(child is self for child in parentchildren), "Tree is corrupt."  # pragma: no cover
+            # ATOMIC START
+            parentchildren.append(self)
+            self.__parent = parent
+            # ATOMIC END
+
+    @property
+    def __children_or_empty(self):
+        if not hasattr(self, "_NodeMixin__children"):
+            self.__children = []
+        return self.__children
+    @property
+    def children(self):
+        """The children of this node."""
+        return tuple(self.__children_or_empty)
+    @staticmethod
+    def __check_children(children):
+        seen = set()
+        for child in children:
+            if not isinstance(child, (NodeMixin)):
+                msg = f"Cannot add non-node object {child!r}. It is not a subclass of 'Node'."
+                raise TreeError(msg)
+            childid = id(child)
+            if childid not in seen:
+                seen.add(childid)
+            else:
+                msg = f"Cannot add node {child!r} multiple times as child."
+                raise TreeError(msg)
+    @children.setter
+    def children(self, children):
+        # convert iterable to tuple
+        children = tuple(children)
+        NodeMixin.__check_children(children)
+        # ATOMIC start
+        old_children = self.children
+        del self.children
+        try:
+            for child in children:
+                child.parent = self
+            if ASSERTIONS:  # pragma: no branch
+                assert len(self.children) == len(children)
+        except Exception:
+            self.children = old_children
+            raise
+        # ATOMIC end
+    @children.deleter
+    def children(self):
+        children = self.children
+        for child in self.children:
+            child.parent = None
+        if ASSERTIONS:  # pragma: no branch
+            assert len(self.children) == 0
+
+    @property
+    def path(self):
+        """The path of the Node."""
+        return self._path
+    @property
+    def _path(self):
+        return tuple(reversed(list(self.iter_path_reverse())))
+
+    def iter_path_reverse(self):
+        """Iterate up the tree from the current node to the root node."""
+        node = self
+        while node is not None:
+            yield node
+            node = node.parent
+
+## Error classes
+class SceneError(Warning):
+    pass
+class ScriptError(Exception):
+    pass
+class PlayerError(Exception):
+    """Exception class for problems caused in the `MediaPlayer` Node."""
+class LogError(BaseException):
+    """Class for `error()`"""
+class TreeError(RuntimeError):
+    """Tree Error."""
+class LoopError(TreeError):
+    """https://c.tenor.com/hdEL0uNj1Z4AAAAC"""
+
+## "Data"-holding classes
 class WindowProperties:
     """Properties for the main Window."""
     maxsize      : list = [0,0]
@@ -115,7 +250,6 @@ class WindowProperties:
     antialiasing : bool = False
     vsize        : list = [0,0]
     icofile      : str  = ""
-
 class DebugConfig:
     """Debugging configuration."""
     _skipload  = False
@@ -166,7 +300,6 @@ class DebugConfig:
         return self._enabled
     @enabled.setter
     def enabled(self,val): self._enabled = val
-    
 class GameData:
     """Data about the running project."""
     
@@ -254,7 +387,7 @@ class GameData:
         self.version_ekl = self.project_data["version"]["ekl"]
         
         # Make save directory
-        self.save_dir    = f"{os.path.expanduser('~')}/Eklips Engine/{self.name}"
+        self.save_dir    = f"{pg.resource.get_data_path("Eklips Engine")}/{self.name}"
         os.makedirs(self.save_dir, exist_ok=True)
 
         # Initialize window properties
@@ -276,26 +409,29 @@ class GameData:
         # Get scenes info
         self.master_scene  = self.project_data["scenes"]["master"]
         self.loading_scene = self.project_data["scenes"]["loading"]
-
 class Transform:
     """A transformation object with width, height, x, y, z, scale, flip, etc..."""
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(position={self.position}, tsize={self.tsize})"
+        return f"{self.__class__.__name__}(position={self.position}, size={self.size})"
     
     def __init__(self):
+        ## Coords and size
         self._x = 0
         self._y = 0
         self._z = 0
         self._w = 10
         self._h = 10
 
+        ## Flip
         self._flip_w = 0
         self._flip_h = 0
         
+        ## Offset
         self._offset_x = 0
         self._offset_y = 0
 
+        ## Other properties
         self._rotation = 0
         self.skew      = 0
         self._alpha    = 255
@@ -303,14 +439,76 @@ class Transform:
         self.scroll    = [0,0]
         self._visible  = True
         
+        ## Scale
         self._scale_x = 1
         self._scale_y = 1
 
+        ## Layer
         self._layer = 0
+        
+        ## Weird fancy math bullshit
+        self._dirty_collision = True
+        self._corners = None
+    def _update_corners(self):
+        x, y = self.into_screen_coords()
+        cx   = x + self.w * 0.5
+        cy   = y + self.h * 0.5
+        hw   = self.w * 0.5
+        hh   = self.h * 0.5
 
-        self._window_size = [0,0]
-    
-    # Getters
+        a = math.radians(self._rotation)
+        cos_a = math.cos(a)
+        sin_a = math.sin(a)
+
+        self._corners = [
+            _rotate_point(-hw, -hh, cx, cy, cos_a, sin_a),
+            _rotate_point(hw, -hh, cx, cy, cos_a, sin_a),
+            _rotate_point(hw, hh, cx, cy, cos_a, sin_a),
+            _rotate_point(-hw, hh, cx, cy, cos_a, sin_a),
+        ]
+        self._dirty_collision = False
+    @property
+    def corners(self):
+        if self._dirty_collision:
+            self._update_corners()
+        return self._corners
+    def collides_with(self, other):
+        a = self.corners
+        b = other.corners
+
+        def axes(c):
+            out = []
+            for i in range(4):
+                x1, y1 = c[i]
+                x2, y2 = c[(i + 1) % 4]
+
+                ex = x2 - x1
+                ey = y2 - y1
+
+                nx, ny = -ey, ex
+                l = math.hypot(nx, ny)
+                out.append((nx / l, ny / l))
+            return out
+        def proj(c, axis):
+            ax, ay = axis
+            min_p = max_p = c[0][0] * ax + c[0][1] * ay
+
+            for x, y in c[1:]:
+                p = x * ax + y * ay
+                if p < min_p: min_p = p
+                if p > max_p: max_p = p
+
+            return min_p, max_p
+
+        for axis in axes(a) + axes(b):
+            min_a, max_a = proj(a, axis)
+            min_b, max_b = proj(b, axis)
+
+            if max_a < min_b or max_b < min_a:
+                return False
+        return True
+
+    ## Getters
     @property
     def visible(self):
         """If the Transform is visible. Read-write"""
@@ -369,7 +567,7 @@ class Transform:
         """The Transform's position. Read-write"""
         return [self.x,self.y]
     @property
-    def tsize(self):
+    def size(self):
         """The Transform's size. Read-write"""
         return [self.w,self.h]
 
@@ -396,7 +594,7 @@ class Transform:
         """The Transform's flip. Read-write"""
         return [self.flip_w,self.flip_h]
 
-    # Setters
+    ## Setters
     @layer.setter
     def layer(self, val):
         self._layer = val
@@ -421,20 +619,22 @@ class Transform:
     @alpha.setter
     def alpha(self, value):
         self._alpha = value
+        if value < 0: value = 0
         self._set_alpha(value)
     
     @x.setter
     def x(self, value):
         self._x = value + self._offset_x
         self._set_pos(self._x,self._y)
+        self._update_corners()
     @y.setter
     def y(self, value):
         self._y = value + self._offset_y
         self._set_pos(self._x,self._y)
+        self._update_corners()
     @z.setter
     def z(self, value):
         self._z = value
-        self._set_pos(self._x,self._y)
 
     @anchor.setter
     def anchor(self, value):
@@ -455,11 +655,13 @@ class Transform:
         if self._scale_x == value: return
         self._scale_x = value
         self._set_scale(self.scale_x, self.scale_y)
+        self._update_corners()
     @scale_y.setter
     def scale_y(self, value):
         if self._scale_y == value: return
         self._scale_y = value
         self._set_scale(self.scale_x, self.scale_y)
+        self._update_corners()
     @scale.setter
     def scale(self, value):
         self._scale_x = value[0]
@@ -489,23 +691,25 @@ class Transform:
         if self._w == value: return
         self._w = value
         self._set_size(self.w,self.h)
+        self._update_corners()
     @h.setter
     def h(self, value):
         if self._h == value: return
         self._h = value
         self._set_size(self.w,self.h)
+        self._update_corners()
     
     @rect.setter
     def rect(self, value : list[int,int,int,int]):
         self.position = [value[0], value[1]]
-        self.tsize    = [value[2], value[3]]
+        self.size     = [value[2], value[3]]
     @position.setter
     def position(self, value : list[int,int]):
         self._x = value[0] + self._offset_x
         self.y  = value[1]
-    @tsize.setter
-    def tsize(self, value : list[int,int]):
-        if self.tsize == value: return
+    @size.setter
+    def size(self, value : list[int,int]):
+        if self.size == value: return
         self._w = value[0]
         self.h  = value[1]
 
@@ -513,6 +717,7 @@ class Transform:
     def rotation(self, value):
         self._rotation = value
         self._set_rot(value)
+        self._update_corners()
     
     ## Functions
     def _turn_object_into_transform_property(self):
@@ -527,11 +732,11 @@ class Transform:
             "anchor":   self.anchor,
             "scroll":   self.scroll,
             "visible":  self.visible,
-            "tsize":    self.tsize
+            "size":     self.size
         }
     def _convert_transform_property_into_object(self, value):
         """Sets the Transform object's properties from a dictionary."""
-        self.tsize     = value.get("tsize",    self.tsize)
+        self.size      = value.get("size",    self.size)
         self.flip      = value.get("flip",     self.flip)
         self.position  = value.get("position", self.position)
         self.scale     = value.get("scale",    self.scale)
@@ -612,10 +817,10 @@ class Transform:
         transform_obj.skew     = skew
         transform_obj.visible  = visible
         return transform_obj
-
-class Mouse:
+class Mouse(Transform):
     #: Mouse position anchored at bottom left
     pos          = [0,0]
+
     #: Relative pos from last frame
     dpos         = [0,0]
     #: If mouse is dragging
@@ -628,7 +833,6 @@ class Mouse:
     buttons      = MOUSE_DEFAULT_STATE.copy()
     #: List of filepaths
     paths        = []
-
 class Keyboard:
     #: Keyboard modifiers.
     modifiers = 0
@@ -640,7 +844,6 @@ class Keyboard:
     text      = ""
     #: Motion from Window.on_text_motion.
     motion    = None
-
 class Language:
     def __init__(self, file="res://data/foobar.json"):
         self.load_lang(file)
@@ -682,7 +885,6 @@ class Language:
         Args:
             entry: The name of the entry."""
         return self.entries.get(entry, entry)
-
 class CameraTransform(Transform):
     def __init__(self):
         super().__init__()
@@ -694,7 +896,6 @@ class CameraTransform(Transform):
         return self._zoom
     @zoom.setter
     def zoom(self, val): self._zoom = val
-
 class Color:
     """A color container."""
     def __init__(self, r=0,g=0,b=0,a=255):

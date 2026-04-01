@@ -35,6 +35,7 @@ class Progressbar(CanvasItem):
     @maximum.setter
     def maximum(self, val):
         self._maximum = val
+        self._set_fill_size()
     @show_percentage.setter
     def show_percentage(self, val):
         self._showpercent = val
@@ -43,13 +44,15 @@ class Progressbar(CanvasItem):
         self.bar.scale_x = self.w / self.bar.image.width
         self.bar.scale_y = self.h / self.bar.image.height
     def _set_fill_size(self):
-        self.citem.scale_x = ((self.value+ZDE_FIX)/self.maximum*self.w) / self.citem.image.width
+        self.citem.scale_x = ((self._value+ZDE_FIX)/self._maximum*self.w) / self.citem.image.width
         self.citem.scale_y = self.h / self.citem.image.height
     def _set_size(self, w, h):
         self._set_bar_size()
         self._set_fill_size()
-    def _set_scale(self, x, y):
+    def _set_flip(self, w, h):
         return
+    def _set_scale(self, x, y):
+        self._set_size()
     def _set_alpha(self, deg):
         self.citem.alpha = deg
         self.bar.alpha = deg
@@ -79,15 +82,13 @@ class Progressbar(CanvasItem):
     
     def _fix_broken_item(self):
         self._remove_item(False)
-        del self._cached_batch
         self._make_new_item()
         self._convert_transform_property_into_object(self.transform)
     def _make_new_item(self):
         if self.bar:
             self._remove_item(False)
         else:
-            self._drawing_bid  = self.viewport.add_batch()
-            self._cached_batch = self.viewport.batches[self.batch_id]
+            self._drawing_bid = self.viewport.add_batch()
         
         self.bar   = pg.sprite.Sprite(
             img    = engine.theme.get_static_widget("bg"),
@@ -98,12 +99,15 @@ class Progressbar(CanvasItem):
         self.label = pg.text.Label(
             text   = f"0%",
             batch  = self.batch)
-        self._set_size(*self.tsize)
+        self._set_size(*self.size)
         self._set_anchors()
     def _set_anchors(self):
+        self.bar.image.anchor_x   = self.bar.image.width    // 2
+        self.bar.image.anchor_y   = self.bar.image.height   // 2
         self.citem.image.anchor_x = self.citem.image.width  // 2
         self.citem.image.anchor_y = self.citem.image.height // 2
         self.citem._update_position()
+        self.bar._update_position()
     def _remove_item(self, remove_batches=True):
         if not self.bar or not self.bar._vertex_list:
             return
@@ -129,13 +133,17 @@ class Progressbar(CanvasItem):
         ## Set label text
         self.label.text = f"{int(self.value/self.maximum*100)}%" if self.show_percentage else f"{int(self.value)}"
         
-        ## Get position of full slider object
-        x, y = self.into_screen_coords()
+        ## Get position of full progressbar object
+        bgx, bgy = self.into_screen_coords(drawing=True)
+        x,     y = self.into_screen_coords(drawing=False)
 
         ## Move bg
-        self.bar.x = self.citem.x = x
-        self.bar.y = self.citem.y = y
+        self.bar.x = bgx
+        self.bar.y = bgy
 
         ## Move label
         self.label.x = x + self.w / 2 - self.label.content_width  / 2
-        self.label.y = y + self.h / 2 - self.label.content_height / 2
+        self.label.y = y + self.h / 2 - self.label.content_height / 2 + 2
+        
+        ## Move fill
+        self.citem.x, self.citem.y = self._offset_off_anchor(x=x,y=y, w=self.citem.width,h=self.citem.height)

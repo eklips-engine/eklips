@@ -1,16 +1,18 @@
-import pyglet as pg, socket as sock, math, sys
+import pyglet as pg, socket as sock, math, sys, os
 from typing        import *
 from pyglet.window import key
 
 USE_GAME_PARENT = "UseFileParent" #: Use the game.json file's parent as the project dir
 USE_GAME_CV_DIR = "UseFileCVar"   #: Use the specified project dir in the game.json file
 
+ASSERTIONS = bool(int(os.environ.get("ANYTREE_ASSERTIONS", "0"))) #: Anytree config
+
 NAME         = "Eklips Engine" #: Name of the engine
 BDATE        = [13, 3, 2026]  #:  Uses DD/MM/YYYY format
 MAJOR        = "5"            #: Major; [5].0 A 
 MINOR        = "0"            #: Minor;  5.[0]A 
 HOTFIX       = "A"            #: Hotfix; 5. 0[A]
-BUILD        = 30             #: Increment every time a major feature has been added/completely overhauled
+BUILD        = 35             #: Increment every time a major feature has been added/completely overhauled
 VERSION      = f"{MAJOR}.{MINOR}{HOTFIX}"
 VERSION_FULL = f"v{VERSION}.build{BUILD}"
 print(f"{NAME} {VERSION_FULL}")

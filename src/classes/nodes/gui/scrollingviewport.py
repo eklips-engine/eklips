@@ -2,20 +2,6 @@
 from classes.nodes.gui.extraviewport import *
 from classes.ui                      import *
 
-## Variables
-viewport_transform = {
-    "position": [0,0],
-    "tsize":    [320,320],
-    "scale":    [1,1],
-    "scroll":   [0,0],
-
-    "rotation": 0,
-    "alpha":    255,
-    "anchor":   "top left",
-    "visible":  True,
-    "skew":     0
-}
-
 ## Classes
 class ScrollingViewport(ExtraViewport):
     """

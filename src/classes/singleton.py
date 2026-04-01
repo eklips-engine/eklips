@@ -1,8 +1,8 @@
-##import libraries
-import pyglet       as pg
+## Import libraries
+import pyglet       as pg, pymunk
 import pyvidplayer2 as pvd, time
 
-##import components
+## Import components
 from classes.customprops import *
 from classes             import hooks, resources, nodes, ui
 from classes             import crash_screen as error_handler
@@ -156,7 +156,7 @@ def is_anything_pressed() -> bool:
 
 def handle_closing():
     """
-    Saves the game, closes every window besides ID main, frees the scene and sets `running` to False.
+    Saves the savefile, closes every window besides ID main, frees the scene and sets `running` to False.
 
     Only call this function when you are closing the game engine.
     """
@@ -165,7 +165,6 @@ def handle_closing():
     running = False
     savefile.save_data()
     scene.free()
-    pg.clock.unschedule(_update_func)
     
     for wid in display.windows:
         window = display.get_window(wid)
@@ -187,36 +186,75 @@ def set_mouse(cursor, wid = MAIN_WINDOW):
         window.set_mouse_cursor(cursors[cursor])
 
 def quit(error_code=0):
-    display.get_window().on_close()
+    handle_closing()
+    display.windows[MAIN_WINDOW].close()
     sys.exit(error_code)
     
 ## Variables
-_inpyinstaller : bool = getattr(sys, "frozen", False)  and hasattr(sys, "_MEIPASS") #: is in Pyinstaller?
-_pyinstallpath : str  = getattr(sys, "_MEIPASS", None)                              #: Pyinstaller _internal dir
+#: If the engine is in Pyinstaller?
+_inpyinstaller : bool = getattr(sys, "frozen", False)
+#: The directory of Pyinstaller if in Pyinstaller.
+_pyinstallpath : str  = pg.resource.get_script_home()
 
-_image_filter : int = pg.gl.GL_NEAREST #: OpenGL Filter to apply to images
+#: OpenGL Filter to apply to images
+_image_filter : int = pg.gl.GL_NEAREST
 
-ineditor       : bool                   = False #: If you are in the Eklips Editor. Only tool Nodes can have their scripts updated. see Object.is_editor_tool
-cursors        : int                    = {}    #: Dict of cursor images
-clock          : pg.clock.Clock         = None  #: Pyglet clock
-display        : ui.Display             = None  #: Display object. See `classes.ui.Display`
-game           : GameData               = None  #: GameData object.
-loader         : resources.Loader       = None  #: Loader object.
-lang           : Language               = None  #: Language type.
-debug          : DebugConfig            = None  #: Debug configuration
-savefile       : saving.Savefile        = None  #: Savefile
-mouse          : Mouse                  = None  #: Mouse type.
-theme          : resources.Theme        = None  #: Theme.
-icon           : pg.image.AbstractImage = None  #: Icon image.
-keyboard       : Keyboard               = None  #: Keyboard type.
-scene          : resources.Scene        = None  #: Scene object.
-running        : bool                   = False #: If the engine is running
-uid            : int                    = 0     #: amount of Objects
-delta          : float                  = 0.0   #: deltaTime
-tdelta         : float                  = 0.0   #: `engine.delta` but not multiplied by speed
-fps            : float                  = 0.0   #: Framerate according to `engine.tdelta`
-uptime         : float                  = 0.0   #: This value is how many seconds you have been running the engine.
-speed          : int                    = 1     #: This value is the multiplier of `engine.delta`.
+#: The ID of the Viewport all Nodes are displayed in when in the editor.
+_editor_viewport_id : int = 0
+#: If you are in the Eklips Editor. Only tool Nodes can have their scripts updated.
+#: see Object.processable for more.
+ineditor : bool = False
 
-_screenc_cache : dict = {}
-_update_func          = None
+#: A dictionary of cursor images.
+cursors : int                    = {}
+clock   : pg.clock.Clock         = None
+
+#: Display object. See `classes.ui.Display` for more info.
+display : ui.Display             = None
+
+#: Data about the currently running project.
+game : GameData = None
+
+#: A class to load the currently running project's resources.
+loader : resources.Loader = None
+
+#: A class storing Language information.
+lang  : Language    = None
+
+#: Debug configuration.
+debug : DebugConfig = None
+
+#: The project's savefile.
+savefile : saving.Savefile = None
+
+#: A class storing information about mouse input.
+mouse    : Mouse    = None
+#: A class storing information about keyboard input.
+keyboard : Keyboard = None
+
+#: A class storing a Theme used by some widgets.
+theme : resources.Theme = None
+
+#: The icon of the main window.
+icon : pg.image.AbstractImage = None
+
+#: A class of the main scene.
+scene : resources.Scene = None
+
+#: True, if the engine is running
+running : bool = False
+uid     : int  = 0
+
+#: The current deltaTime, sped up by the `speed` variable.
+delta  : float = 0.0
+#: The true current deltaTime.
+tdelta : float = 0.0
+#: The framerate of the engine.
+fps    : float = 0.0
+#: How many seconds the engine has been running. Useful for tracking playtime.
+uptime : float = 0.0
+#: How fast the engine should be.
+speed  : int   = 1
+
+#: Space
+world = pymunk.Space()

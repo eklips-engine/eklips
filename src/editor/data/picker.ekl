@@ -10,11 +10,11 @@ from classes.nodes             import *
 from classes.nodes.packedscene import *
 
 ## UI related
-pid  = 0
+pid = 0
 pry = 10
 def add_project_to_frame(project : str):
     global pid, pry
-    gjsp = project.replace('$','/').replace(';',':')
+    gjsp = project.replace("$","/").replace(";",":")
     try:
         gamedata = GameData({
             "project": {
@@ -26,10 +26,10 @@ def add_project_to_frame(project : str):
     except:
         gamedata = GameData({
             "project": {
-                "file": "editor/data/base_project/game.json",
-                "dir":  "editor/data/base_project"
+                "file": "_assets/no_game/game.json",
+                "dir":  "_assets/no_game"
             },
-            "name": "Editor-Runtime"
+            "name": "Editor-Borked-Project-Runtime"
         }, is_file=False)
     engine.projects[gjsp] = gamedata
     print(f" |~ {gamedata.name}")
@@ -89,7 +89,7 @@ def edit_btn(self):
 def import_btn(self):
     gjsp = select_project_file()
     if gjsp:
-        engine.savefile.set(f"projects/{gjsp.replace('/','$').replace(':',';')}", {
+        engine.savefile.set(f"projects/{gjsp.replace("/","$").replace(":",";")}", {
             "favorited": False,
             "tags":      []
         })

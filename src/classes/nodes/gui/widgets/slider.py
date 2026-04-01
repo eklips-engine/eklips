@@ -40,9 +40,11 @@ class Slider(CanvasItem):
         self._showpercent = val
     
     def _set_size(self, w, h):
-        self.slider_bg.scale_x = w / self.slider_bg.image.width
+        self.slider_bg.scale_x = w      / self.slider_bg.image.width
         self.slider_bg.scale_y = (h-20) / self.slider_bg.image.height
     def _set_scale(self, x, y):
+        self._set_size()
+    def _set_flip(self, w, h):
         return
     def _set_alpha(self, deg):
         self.citem.alpha = deg
@@ -77,15 +79,13 @@ class Slider(CanvasItem):
     
     def _fix_broken_item(self):
         self._remove_item(False)
-        del self._cached_batch
         self._make_new_item()
         self._convert_transform_property_into_object(self.transform)
     def _make_new_item(self):
         if self.slider_bg:
             self._remove_item(False)
         else:
-            self._drawing_bid  = self.viewport.add_batch()
-            self._cached_batch = self.viewport.batches[self.batch_id]
+            self._drawing_bid = self.viewport.add_batch()
         
         self.slider_bg = pg.sprite.Sprite(
             img        = engine.theme.get_static_widget("bg"),
@@ -96,11 +96,13 @@ class Slider(CanvasItem):
         self.label     = pg.text.Label(
             text       = f"0%",
             batch      = self.batch)
-        self._set_size(*self.tsize)
+        self._set_size(*self.size)
         self._set_anchors()
     def _set_anchors(self):
-        self.citem.image.anchor_x = self.citem.image.width  // 2
-        self.citem.image.anchor_y = self.citem.image.height // 2
+        self.slider_bg.image.anchor_x = self.slider_bg.image.width  // 2
+        self.slider_bg.image.anchor_y = self.slider_bg.image.height // 2
+        self.citem.image.anchor_x     = self.citem.image.width      // 2
+        self.citem.image.anchor_y     = self.citem.image.height     // 2
         self.citem._update_position()
     def _remove_item(self, remove_batches=True):
         if not self.slider_bg or not self.slider_bg._vertex_list:
@@ -188,11 +190,12 @@ class Slider(CanvasItem):
         self.label.text = f"{int(self.value/self.maximum*100)}%" if self.show_percentage else f"{int(self.value)}"
         
         ## Get position of full slider object
-        x, y = self.into_screen_coords()
+        bgx, bgy = self.into_screen_coords(drawing=True)
+        x,     y = self.into_screen_coords()
 
         ## Move bg
-        self.slider_bg.x = x + 5
-        self.slider_bg.y = y + 5
+        self.slider_bg.x = bgx + 5
+        self.slider_bg.y = bgy - 5
 
         ## Move label
         self.label.x = x + self.w / 2 - self.label.content_width  / 2
@@ -203,5 +206,5 @@ class Slider(CanvasItem):
         if self._value   == 0:
             self.citem.x = x
         else:
-            self.citem.x = x + (self._value/self._maximum)*self.w 
-        self.citem.x += self.citem.image.anchor_x - self.citem.width / 2
+            self.citem.x = x + ((self._value+ZDE_FIX)/self._maximum*self.w)
+        self.citem.x += self.citem.image.anchor_x

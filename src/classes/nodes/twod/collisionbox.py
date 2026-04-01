@@ -1,5 +1,5 @@
 ## Import libraries
-import pygame
+import pymunk
 from classes.nodes.gui.colorrect import *
 
 ## Classes
@@ -18,9 +18,6 @@ class CollisionBox(CanvasItem):
 
     def __init__(self, properties={}, parent=None):
         super().__init__(properties, parent)
-        self.world  = engine.scene._collisionman
-        self._shape = pygame.Rect((0,0,0,0))
-        self.rid    = self.world.add(self._shape)
     
     def update(self):
         # Update CItem

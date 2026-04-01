@@ -9,7 +9,7 @@ from classes.customprops import *
 ## Variables
 base_transform = {
     "position": [0,0],
-    "tsize":    [0,0],
+    "size":     [0,0],
     "scale":    [1,1],
     "scroll":   [0,0],
 
@@ -49,14 +49,10 @@ class CanvasItem(Node, Transform):
         self._get_window().switch_to()
     @property
     def viewport(self):
-        if not hasattr(self, "_cached_viewport"):
-            self._cached_viewport = self._get_viewport()
-        return self._cached_viewport
+        return self._get_viewport()
     @property
     def batch(self):
-        if not hasattr(self, "_cached_batch"):
-            self._cached_batch = self._get_viewport().batches[self.batch_id]
-        return self._cached_batch
+        return self.viewport.batches[self.batch_id]
     @property
     def image(self):
         return self._image
@@ -121,7 +117,10 @@ class CanvasItem(Node, Transform):
     @export(MAIN_VIEWPORT, "int", "viewportid")
     def viewport_id(self): return self._drawing_vid
     @viewport_id.setter
-    def viewport_id(self, value): self._update_drawing_ids("_drawing_vid", value)
+    def viewport_id(self, value):
+        if engine.ineditor and not self._iseditortool:
+            value = engine._editor_viewport_id
+        self._update_drawing_ids("_drawing_vid", value)
     @export(MAIN_BATCH, "int", "batchid")
     def batch_id(self): return self._drawing_bid
     @batch_id.setter
@@ -157,33 +156,27 @@ class CanvasItem(Node, Transform):
     def _set_alpha(self, deg):
         if self.citem:
             self.citem.opacity = round(deg)
-    def into_screen_coords(self, viewport_size = None, do_flip = True, drawing = False):
+    def into_screen_coords(self, viewport_size = None, do_flip = True, drawing = False, parent_rect=None):
         """Get the position of the CanvasItem in the Viewport.
         
         Args:
-            viewport_size: If not specified, will use CanvasItem.viewport.tsize."""
+            viewport_size: If not specified, will use CanvasItem.viewport.size.
+            parent_rect: This argument does nothing and uses `self.parent` instead."""
         if not viewport_size:
-            viewport_size = self.viewport.tsize
+            viewport_size = self.viewport.size
         if self.parent and self.parent.get("_iscitem", False) and self._relativity_pos:
             return super().into_screen_coords(viewport_size, do_flip, drawing, 
                 [*self.parent.into_screen_coords(),
-                 *self.parent.tsize])
+                 *self.parent.size])
         return super().into_screen_coords(viewport_size, do_flip, drawing)
 
     ## Display object getters
     def _get_viewport(self) -> ui.Viewport:
         """Get the Viewport that the CanvasItem will be drawn to."""
-        viewport : ui.Viewport = engine.display.get_viewport_from_window(
-            self.window_id,
-            self.viewport_id
-        )
-        return viewport
+        return self._get_window().viewports[self.viewport_id]
     def _get_window(self) -> ui.EklWindow:
         """Get the Window that the CanvasItem will be drawn to."""
-        window : ui.EklWindow = engine.display.get_window(
-            self.window_id
-        )
-        return window
+        return engine.display.get_window(self.window_id)
     
     ## CItem managing
     def _remove_item(self):
@@ -193,15 +186,14 @@ class CanvasItem(Node, Transform):
             self.citem = None
     def _fix_broken_item(self):
         self._remove_item()
-        del self._cached_batch
         self._make_new_item()
         self._convert_transform_property_into_object(self.transform)
     def _make_new_item(self):
         if self.citem:
             self._remove_item()
         if not self.image:
-            self._image    = engine.loader.load("root://_assets/error.png")
-        self.citem         = pg.sprite.Sprite(img=self.image, batch=self.batch)
+            self._image = engine.loader.load("root://_assets/error.png")
+        self.citem      = pg.sprite.Sprite(img=self.image, batch=self.batch)
         self._set_visible(False)
     def _refresh_item(self):
         if self.citem:
@@ -216,7 +208,7 @@ class CanvasItem(Node, Transform):
         super().update()
         
         ## Reset CITEM if it's fucked.
-        if getattr(self.batch, "invalid", False) and self.citem and not self.viewport._refreshing:
+        if getattr(self.batch, "invalid", False) and self.citem:# and not self.viewport._refreshing:
             self._fix_broken_item()
         
         ## Check for hovering
@@ -240,6 +232,12 @@ class CanvasItem(Node, Transform):
         else:
             self._set_visible(False)
     
+    ## Editor modification
+    def _setup_properties(self, scene=None):
+        super()._setup_properties(scene)
+        if engine.ineditor and not self._iseditortool:
+            self._drawing_vid = engine._editor_viewport_id
+    
     ## Convenience functions for user
     def get_if_mouse_hovering(self) -> bool:
         """Returns true if the mouse is hovering over self."""
@@ -248,12 +246,12 @@ class CanvasItem(Node, Transform):
         if not self.viewport.is_onscreen(self):
             return
         
-        ## Get things
-        mpos   = engine.mouse.pos
-        x,  y  = self.into_screen_coords()
+        ## XXX fix this, time crunc hAAHHHH
+        """
         vx, vy = self.viewport.into_screen_coords()
 
         ## Apply viewport position into x and y
+        x,y=0,0
         x += vx - self.viewport.cam.x
         y += vy - self.viewport.cam.y
 
@@ -264,9 +262,5 @@ class CanvasItem(Node, Transform):
         h  = self.h * self.viewport.cam.zoom
 
         ## Result
-        return (
-            mpos[0] >= x     and
-            mpos[0] <= x + w and
-            mpos[1] >= y     and
-            mpos[1] <= y + h
-        )
+        return engine.mouse.collides_with(self)
+        """

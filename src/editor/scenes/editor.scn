@@ -1,20 +1,21 @@
 {
     "nodes": {
         "": {
-            "type":           "Node",
-            "is_editor_tool": true,
-            "script_path":    "res://data/editor.ekl",
+            "type":        "Node",
+            "processable": true,
+            "script_path": "res://data/editor.ekl",
             
             "children": {
                 "backico": {
                     "type":       "Sprite",
                     "image_path": "res://media/icoback.png",
+                    "processable": true,
 
                     "children":  {},
                     
                     "transform": {
                         "position": [18,   21],
-                        "tsize":    [1,     1],
+                        "size":     [1,     1],
                         "scale":    [0.7, 0.7],
                         "scroll":   [0,     0],
 
@@ -28,12 +29,13 @@
                 "playico": {
                     "type":       "Sprite",
                     "image_path": "res://media/icoplay.png",
+                    "processable": true,
 
                     "children":  {},
                     
                     "transform": {
                         "position": [10,   20],
-                        "tsize":    [1,     1],
+                        "size":     [1,     1],
                         "scale":    [0.7, 0.7],
                         "scroll":   [0,     0],
 
@@ -47,12 +49,13 @@
                 "settico": {
                     "type":       "Sprite",
                     "image_path": "res://media/icosetting.png",
+                    "processable": true,
 
                     "children":  {},
                     
                     "transform": {
                         "position": [53,   26],
-                        "tsize":    [1,     1],
+                        "size":     [1,     1],
                         "scale":    [0.5, 0.5],
                         "scroll":   [0,     0],
 
@@ -67,6 +70,7 @@
                 "new_node_window": {
                     "type":  "ExtraWindow",
                     "title": "new_node_window",
+                    "processable": true,
                     
                     "script_path": "res://data/mknwprj.ekl",
                     
@@ -74,7 +78,7 @@
                     
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [540,540],
+                        "size":     [540,540],
                         "scale":    [1,1],
                         "scroll":   [0,0],
                         
@@ -90,22 +94,24 @@
 
                 "file_browser_panel": {
                     "type": "CanvasItem",
+                    "processable": true,
 
                     "children": {
                         "titlebar": {
                             "type": "ColorRect",
+                            "processable": true,
 
                             "children": {
                                 "text": {
                                     "type": "Label",
-
+                                    "processable": true,
                                     "text": "ee_fb",
 
                                     "font_size": 18,
                                     
                                     "transform": {
                                         "position": [10,   3],
-                                        "tsize":    [212, 40],
+                                        "size":     [212, 40],
                                         "scale":    [1,    1],
                                         "scroll":   [0,    0],
 
@@ -122,26 +128,28 @@
 
                             "transform": {
                                 "position": [0,    0],
-                                "tsize":    [212, 40]
+                                "size":     [212, 40]
                             }
                         },
                         "viewport": {
                             "type": "ScrollingViewport",
+                            "processable": true,
 
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,232]
+                                "size":     [212,232]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [10,  75],
-                        "tsize":    [212,272],
+                        "size":     [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
+                        "processable": true,
 
                         "rotation": 0,
                         "alpha":    255,
@@ -152,14 +160,17 @@
                 },
                 "scene_tree_panel": {
                     "type": "CanvasItem",
+                    "processable": true,
 
                     "children": {
                         "titlebar": {
                             "type": "ColorRect",
+                            "processable": true,
 
                             "children": {
                                 "text": {
                                     "type": "Label",
+                                    "processable": true,
 
                                     "text": "ee_st",
 
@@ -167,7 +178,7 @@
                                     
                                     "transform": {
                                         "position": [10,   3],
-                                        "tsize":    [212, 40],
+                                        "size":     [212, 40],
                                         "scale":    [1,    1],
                                         "scroll":   [0,    0],
 
@@ -184,24 +195,25 @@
 
                             "transform": {
                                 "position": [0,    0],
-                                "tsize":    [212, 40]
+                                "size":     [212, 40]
                             }
                         },
                         "viewport": {
                             "type": "ScrollingViewport",
+                            "processable": true,
 
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,232]
+                                "size":     [212,232]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [10,   8],
-                        "tsize":    [212,272],
+                        "size":     [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 
@@ -214,22 +226,24 @@
                 },
                 "scene_preview_panel": {
                     "type": "CanvasItem",
+                    "processable": true,
 
                     "children": {
                         "titlebar": {
                             "type": "ColorRect",
+                            "processable": true,
 
                             "children": {
                                 "text": {
                                     "type": "Label",
-
+                                    "processable": true,
                                     "text": "ee_sp",
 
                                     "font_size": 18,
                                     
                                     "transform": {
                                         "position": [10,   3],
-                                        "tsize":    [212, 40],
+                                        "size":     [212, 40],
                                         "scale":    [1,    1],
                                         "scroll":   [0,    0],
 
@@ -245,32 +259,32 @@
                             "color": [45,45,63],
 
                             "transform": {
-                                "position": [0,    0],
-                                "tsize":    [673, 40]
+                                "position": [0, 0],
+                                "size":     [673, 40]
                             }
                         },
                         "viewport": {
                             "type":  "ExtraViewport",
                             "color": [0,0,0],
+                            "processable": true,
 
                             "children": {
                                 "scene": {
                                     "type":      "PackedScene",
-                                    "paused":    true,
                                     "file_path": "res://scenes/base_scene.scn"
                                 }
                             },
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [673,515]
+                                "size":     [673,515]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [0,    75],
-                        "tsize":    [673, 555],
+                        "size":     [673, 555],
                         "scale":    [1,     1],
                         "scroll":   [0,     0],
 
@@ -283,22 +297,24 @@
                 },
                 "properties_panel": {
                     "type": "CanvasItem",
+                    "processable": true,
 
                     "children": {
                         "titlebar": {
                             "type": "ColorRect",
+                            "processable": true,
 
                             "children": {
                                 "text": {
                                     "type": "Label",
-
+                                    "processable": true,
                                     "text": "ee_pr",
 
                                     "font_size": 18,
                                     
                                     "transform": {
                                         "position": [10,   3],
-                                        "tsize":    [212, 40],
+                                        "size":     [212, 40],
                                         "scale":    [1,    1],
                                         "scroll":   [0,    0],
 
@@ -315,24 +331,24 @@
 
                             "transform": {
                                 "position": [0,    0],
-                                "tsize":    [212, 40]
+                                "size":     [212, 40]
                             }
                         },
                         "viewport": {
                             "type": "ScrollingViewport",
-
+                            "processable": true,
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,232]
+                                "size":     [212,232]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [10,  75],
-                        "tsize":    [212,272],
+                        "size":     [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 
@@ -345,22 +361,24 @@
                 },
                 "signals_panel": {
                     "type": "CanvasItem",
+                    "processable": true,
 
                     "children": {
                         "titlebar": {
                             "type": "ColorRect",
+                            "processable": true,
 
                             "children": {
                                 "text": {
                                     "type": "Label",
-
+                                    "processable": true,
                                     "text": "ee_sg",
 
                                     "font_size": 18,
                                     
                                     "transform": {
                                         "position": [10,   3],
-                                        "tsize":    [212, 40],
+                                        "size":     [212, 40],
                                         "scale":    [1,    1],
                                         "scroll":   [0,    0],
 
@@ -377,24 +395,24 @@
 
                             "transform": {
                                 "position": [0,    0],
-                                "tsize":    [212, 40]
+                                "size":     [212, 40]
                             }
                         },
                         "viewport": {
                             "type": "ScrollingViewport",
-
+                            "processable": true,
                             "color": [25,25,35],
 
                             "transform": {
                                 "position": [0,   40],
-                                "tsize":    [212,232]
+                                "size":     [212,232]
                             }
                         }
                     },
 
                     "transform": {
                         "position": [10,   8],
-                        "tsize":    [212,272],
+                        "size":     [212,272],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 

@@ -2,23 +2,27 @@
 import classes.singleton as engine
 import gc, types
 from classes.locals       import *
-from classes.customprops  import export, _exportmeta
+from classes.customprops  import _exportmeta, export
+from classes.customprops  import *
 from classes.log          import *
 
 ## Classes
-class ScriptError(Exception):
-    pass
-
 class Object(metaclass=_exportmeta):
     """
-    Base class for almost all other classes in the engine.
+    Base class for almost all other classes in the editor.
 
-    This class is the ancestor for classes that can be programmable and interacts with the Engine's libraries, components, etc..
-    Each class may define new properties, methods or signals, which are available to all inheriting classes. For example, a Sprite instance is able to call Object.call_deferred() because it inherits from Object.
+    This class is the ancestor for classes that can be programmable and interacts with the engine's libraries, components,
+    etc..
+    
+    Each class may define new properties, methods or signals, which are available to all inheriting classes. For example,
+    a Sprite instance is able to call Object.call_deferred() because it inherits from Object.
 
     You can create new instances, using `Object(properties)`.
-    To delete an Object instance, call `free()`. This is necessary for most classes inheriting Object, because they do not manage memory on their own, and will otherwise cause memory leaks when no longer used.
-    Objects can have a Script attached to them. Once the Script is instantiated, it effectively acts as an extension to the base class, allowing it to define and inherit new properties, methods and signals.
+    To delete an Object instance, call `free()`. This is necessary for most classes inheriting Object, because they do not manage
+    memory on their own, and will otherwise cause memory leaks when no longer used.
+
+    Objects can have a Script attached to them. Once the Script is instantiated, it effectively acts as an extension to
+    the base class, allowing it to define and inherit new properties, methods and signals.
     
     If you are setting up an Object on your own, don't forget to call `_setup_properties()` after initializing the Object.
     
@@ -45,15 +49,20 @@ class Object(metaclass=_exportmeta):
     
     ## Properties
     @property
-    def is_editor_tool(self):
-        return self._iseditortool and engine.ineditor
+    def processable(self):
+        """If the Objects can run `_process()`, influenced by engine.ineditor and self._runnable"""
+        if not self._runnable:
+            return False
+        if not engine.ineditor:
+            return True
+        return (self._iseditortool and engine.ineditor)
     @export(None,"str","str")
     def name(self) -> str: return self._name
     @export(None,"str","file_path/ekl")
     def script_path(self) -> str: return self._script_path
 
-    @is_editor_tool.setter
-    def is_editor_tool(self, val):
+    @processable.setter
+    def processable(self, val):
         self._iseditortool = val
     @name.setter
     def name(self, value): self._name = value
@@ -94,7 +103,7 @@ class Object(metaclass=_exportmeta):
     ## Memory related
     def _free(self):
         self._runnable = False
-        engine.uid -= 1
+        engine.uid    -= 1
         del self
         gc.collect()
     
@@ -145,7 +154,7 @@ class Object(metaclass=_exportmeta):
             return
         
         try:
-            if self.is_editor_tool or not engine.ineditor:
+            if self.processable:
                 self._process(self, engine.delta)
         except Exception as err:
             pass

@@ -1,11 +1,7 @@
 ## Import libraries
-from pygame import mixer
 from classes.nodes.gui.canvasitem import *
 
 ## Classes
-class PlayerError(Exception):
-    """Exception class for problems caused in the `MediaPlayer` Node."""
-
 class MediaPlayer(CanvasItem):
     """
     A Media Player.
@@ -162,7 +158,7 @@ class MediaPlayer(CanvasItem):
     def _set_size(self,w,h):
         if self._video:
             self._w, self._h = self._ogsize
-            self._video.resize(self.tsize)
+            self._video.resize(self.size)
 
     @export(1.0, "float", "float")
     def volume(self) -> int:

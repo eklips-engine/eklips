@@ -52,7 +52,9 @@ class Body(CollisionBox):
     
     def update(self):
         super().update()
-
+        if not self.processable:
+            return
+        
         if self.velocity[1]   > self.velocity_cap:
             self._velocity[1] = self.velocity_cap
         if not self.noclip:

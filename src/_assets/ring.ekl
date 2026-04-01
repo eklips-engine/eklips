@@ -1,13 +1,19 @@
-import classes.singleton as engine
+import classes.singleton as engine, random, time
 from classes.nodes       import *
 
 eklips : Sprite = None
+timer  : float  = 0.0
 
 def _process(self : Sprite, delta):
     # Get eklips node
-    global eklips
+    global eklips, timer
     if not eklips:
         eklips = self.scene.get_node_from_path("/Eklips")
+        text   = self.scene.get_node_from_path("/Text")
+        if time.strftime("%m-%d") == "04-01":
+            text.visible = True
+        else:
+            text.visible = False
     
     # Load master scene if Sprite is fully invisible or halt if not found
     if self.alpha < 0:
@@ -16,10 +22,19 @@ def _process(self : Sprite, delta):
         return
     
     # Rotate the ring
-    self.rotation   += (150 + (self.rotation/180)) * delta
-    eklips.rotation += 15                          * delta
+    if time.strftime("%m-%d") == "04-01":
+        self.viewport.rotation += (150+(self.rotation/180))*delta
+        eklips.rotation        += 15                          * delta
+        
+        # Check if rotated fully, then start fading out
+        if self.viewport.rotation > 360:
+            self.alpha  -= (300 + (self.rotation/180)) * delta
+            eklips.alpha = self.alpha
+    else:
+        self.rotation   += (150 + (self.rotation/180)) * delta
+        eklips.rotation += 15                          * delta
 
-    # Check if rotated fully, then start fading out
-    if (self.rotation > 360 or engine.debug.skip_load) and not engine.debug.freeze_load:
-        self.alpha  -= (300 + (self.rotation/180)) * delta
-        eklips.alpha = self.alpha
+        # Check if rotated fully, then start fading out
+        if (self.rotation > 360 or engine.debug.skip_load) and not engine.debug.freeze_load:
+            self.alpha  -= (300 + (self.rotation/180)) * delta
+            eklips.alpha = self.alpha

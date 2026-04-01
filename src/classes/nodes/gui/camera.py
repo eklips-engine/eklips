@@ -36,6 +36,10 @@ class Camera(CanvasItem):
     
     ## Update
     def update(self):
+        super().update()
+        if not self.processable:
+            return
+        
         if (self._follow_parent and self.parent and self.parent.get("_iscitem", False)
            and not self.parent.get("_isdisplayobject", False)):
             self.parent : CanvasItem
@@ -52,5 +56,3 @@ class Camera(CanvasItem):
             self.viewport.cam.x += (target_x - self.viewport.cam.x) / (engine.fps * 0.35)
             self.viewport.cam.y += (target_y - self.viewport.cam.y) / (engine.fps * 0.35)
             self.position        = self.viewport.cam.position
-        
-        super().update()

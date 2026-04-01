@@ -44,7 +44,7 @@ def on_draw():
         engine.keyboard.text      = ""
         engine.keyboard.motion    = None
     except Exception as error:
-        engine.error_handler.show_error(error)
+        engine.error_handler.report_error(error)
         engine.quit(1)
 
 ## Start the engine

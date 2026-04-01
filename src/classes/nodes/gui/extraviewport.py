@@ -2,20 +2,6 @@
 from classes.nodes.gui.canvasitem import *
 from classes.ui                   import *
 
-## Variables
-viewport_transform = {
-    "position": [0,0],
-    "tsize":    [320,320],
-    "scale":    [1,1],
-    "scroll":   [0,0],
-
-    "rotation": 0,
-    "alpha":    255,
-    "anchor":   "top left",
-    "visible":  True,
-    "skew":     0
-}
-
 ## Classes
 class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
     """
@@ -25,7 +11,6 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
     by using `engine.display.get_viewport(node.viewport_id, wid)`
     or by using `node` itself.
     """
-    _isdisplayobject = True
 
     ## CanvasItem stuff
     def _get_viewport(self):
@@ -51,7 +36,11 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
         self._drawing_vid = len(window.viewports)
 
         ## Init Viewport
-        Viewport.__init__(self, self.viewport_id, window, [])
+        if self.parent:
+            vppr = window.viewports[self.parent.get("_drawing_vid", MAIN_VIEWPORT)]
+        else:
+            vppr = window.viewports[MAIN_VIEWPORT]
+        Viewport.__init__(self, self.viewport_id, window, [], vppr)
 
         # Add a batch and add viewport to window
         self.add_batch()
@@ -74,9 +63,11 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
     ## Rewrites
     def _make_new_item(self):
         self._make_framebuffer()
+    
     def draw(self):
         """Draw the Viewport. This should be called automatically by the `EklWindow`."""
         Viewport.draw(self)
+    
     def get_if_mouse_hovering(self):
         mpos   = engine.mouse.pos
         x,y    = self.into_screen_coords()
@@ -88,5 +79,6 @@ class ExtraViewport(CanvasItem, Viewport): # Group project looking ass node 😭
         )
         
         return is_it
+    
     def _remove_item(self):
         self.close()

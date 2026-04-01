@@ -1,5 +1,5 @@
 ## Import libraries
-import pygame, pyglet as pg, json, xmltodict, pkgutil
+import pyglet as pg, json, xmltodict
 
 ## Import components
 from classes.locals      import *
@@ -36,65 +36,68 @@ class Loader:
     }
 
     def _get_true_path(self, path : str):
-        path = path.replace("\\", "/")
-        
-        if path.startswith("res://"):    return f"{engine.game.project_dir}/{path.removeprefix('res://')}".replace("\\", "/")
+        path     = path.replace("\\", "/")
+        rel_path = os.path.relpath(path).replace("\\", "/") # Don't use if `path` is custom FS
+        proj_dir = os.path.relpath(engine.game.project_dir).replace("\\", "/")
+        save_dir = engine.game.save_dir
+
+        if path.startswith("res://"):    return f"{proj_dir}/{path.removeprefix('res://')}".replace("\\", "/")
         elif path.startswith("root://"): return f"{path.removeprefix('root://')}".replace("\\", "/")
-        elif path.startswith("user://"): return f"{engine.game.save_dir}{path.removeprefix('user://')}".replace("\\", "/")
+        elif path.startswith("user://"): return f"{save_dir}{path.removeprefix('user://')}".replace("\\", "/")
         else:
-            return os.path.relpath(path).replace("\\", "/")
+            parent = "/".join(rel_path.split("/")[:-1])
+            if not parent in pg.resource.path:
+                pg.resource.path.append(parent)
+            return rel_path
 
     def _load(self, path, ext):
         actual_path = self._get_true_path(path)
         
-        try:
-            if ext in self.extensions["img"]:
-                image          = pg.resource.image(actual_path)
-                image.anchor_x = image.width  // 2
-                image.anchor_y = image.height // 2
-                
-                return image
-            if ext in self.extensions["sfx"]:
-                return pg.resource.media(actual_path)
-            if ext in self.extensions["txt"]:
-                with pg.resource.file(actual_path, "r") as f:
-                    return f.read()
-            if ext in [*self.extensions["scn"],
-                       *self.extensions["jsn"]]:
-                with pg.resource.file(actual_path, "r") as f:
-                    return json.loads(f.read())
-                return json.loads(open(actual_path).read())
-            if ext in self.extensions["xml"]:
-                with pg.resource.file(actual_path, "r") as f:
-                    return xmltodict.parse(f.read())
-            if ext in self.extensions["cur"]:
-                image = pg.resource.image(actual_path)
-                return pg.window.ImageMouseCursor(image, hot_x=0, hot_y=image.height)
-            if ext in self.extensions["res"]:
-                with pg.resource.file(actual_path, "r") as f:
-                    data = json.loads(f.read())
-                
-                ## Make Resource
-                classobj = globals().get(data["type"])
-                obj      = classobj.__new__(classobj)
-                obj.__init__(data)
-                
-                ## Setup properties
-                obj._setup_properties()
-                return obj
-            if ext in self.extensions["vid"]:
-                return engine.pvd.VideoPyglet(pg.resource.file(actual_path).read())
-            if ext in self.extensions["fnt"]:
-                pg.resource.add_font(actual_path)
-            if ext in self.extensions["ani"]:
-                image= _ModifiedAnimation(pg.resource.animation(actual_path).frames)
+        if ext in self.extensions["img"]:
+            image          = pg.resource.image(actual_path)
+            image.anchor_x = image.width  // 2
+            image.anchor_y = image.height // 2
+            
+            return image
+        if ext in self.extensions["sfx"]:
+            return pg.resource.media(actual_path)
+        if ext in self.extensions["txt"]:
+            with pg.resource.file(actual_path, "r") as f:
+                return f.read()
+        if ext in [*self.extensions["scn"],
+                    *self.extensions["jsn"]]:
+            with pg.resource.file(actual_path, "r") as f:
+                return json.loads(f.read())
+            return json.loads(open(actual_path).read())
+        if ext in self.extensions["xml"]:
+            with pg.resource.file(actual_path, "r") as f:
+                return xmltodict.parse(f.read())
+        if ext in self.extensions["cur"]:
+            image = pg.resource.image(actual_path)
+            return pg.window.ImageMouseCursor(image, hot_x=0, hot_y=image.height, acceleration=True)
+        if ext in self.extensions["res"]:
+            with pg.resource.file(actual_path, "r") as f:
+                data = json.loads(f.read())
+            
+            ## Make Resource
+            classobj = globals().get(data["type"])
+            obj      = classobj.__new__(classobj)
+            obj.__init__(data)
+            
+            ## Setup properties
+            obj._setup_properties()
+            return obj
+        if ext in self.extensions["vid"]:
+            return engine.pvd.VideoPyglet(pg.resource.file(actual_path).read())
+        if ext in self.extensions["fnt"]:
+            pg.resource.add_font(actual_path)
+        if ext in self.extensions["ani"]:
+            image= _ModifiedAnimation(pg.resource.animation(actual_path).frames)
 
-                for frame in image.frames:
-                    frame.anchor_x = frame.width  // 2
-                    frame.anchor_y = frame.height // 2
-                return
-        except Exception as error:
-            engine.error_handler.show_error(error)
+            for frame in image.frames:
+                frame.anchor_x = frame.width  // 2
+                frame.anchor_y = frame.height // 2
+            return
         
         return None
     

@@ -10,7 +10,7 @@
             "color":       [255,255,255],
             "transform":   {
                 "position": [10,10],
-                "tsize":    [1,  1],
+                "size":     [1,  1],
                 "scale":    [1,  1],
                 "scroll":   [0,  0],
 
@@ -27,7 +27,7 @@
                     
                     "transform":   {
                         "position": [0,    0],
-                        "tsize":    [563, 61],
+                        "size":     [563, 61],
                         "scale":    [1,    1],
                         "scroll":   [0,    0],
 
@@ -44,7 +44,7 @@
 
                     "transform":   {
                         "position": [15,30],
-                        "tsize":    [1,  1],
+                        "size":     [1,  1],
                         "scale":    [1,  1],
                         "scroll":   [0,  0],
 

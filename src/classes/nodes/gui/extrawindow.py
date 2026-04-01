@@ -5,7 +5,7 @@ from classes.ui                   import *
 ## Variables
 window_transform = {
     "position": [0,0],
-    "tsize":    [320,320],
+    "size":     [320,320],
     "scale":    [1,1],
     "scroll":   [0,0],
 
@@ -155,7 +155,7 @@ class ExtraWindow(CanvasItem, Color):
         
         ## UnBaseWindow the BaseWindow
         self._window      = engine.ui._unbase_window(self._window)
-        self._window.size = self.tsize
+        self._window.size = self.size
         self._window.set_caption(self.title)
         self._window.set_icon(self.icon)
 

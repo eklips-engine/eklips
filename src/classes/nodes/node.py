@@ -1,6 +1,5 @@
 ## Import inherited
 from classes.resources.object import *
-from anytree import NodeMixin
 import types
 from typing import Any
 
@@ -28,8 +27,8 @@ class Node(Object, NodeMixin):
     ## Init
     def __init__(
             self,
-            properties : dict             = {}, 
-            parent     : NodeMixin | None = None
+            properties : dict        = {}, 
+            parent     : Self | None = None
         ):
         super().__init__(properties)
         self.parent = parent

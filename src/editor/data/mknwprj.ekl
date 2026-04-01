@@ -73,7 +73,7 @@ def _process(self : ExtraWindow, delta : float):
                 f.write(json.dumps(gjs, indent=4))
 
             # Add to savefile
-            engine.savefile.set(f"projects/{gjsp.replace('/','$').replace(':',';')}", {
+            engine.savefile.set(f"projects/{gjsp.replace("/","$").replace(":",";")}", {
                 "favorited": False,
                 "tags":      []
             })

@@ -15,7 +15,7 @@
 
                     "transform": {
                         "position": [10,84],
-                        "tsize":    [652,533],
+                        "size":     [652,533],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 
@@ -34,7 +34,7 @@
                     
                     "transform": {
                         "position": [10,10],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [0.5,0.5],
                         "scroll":   [0,0],
 
@@ -56,7 +56,7 @@
 
                     "transform": {
                         "position": [10,  84],
-                        "tsize":    [190, 45],
+                        "size":     [190, 45],
                         "anchor":   "top right"
                     }
                 },
@@ -70,7 +70,7 @@
 
                     "transform": {
                         "position": [10,  17],
-                        "tsize":    [190, 45],
+                        "size":     [190, 45],
                         "anchor":   "bottom right"
                     }
                 },
@@ -84,7 +84,7 @@
 
                     "transform": {
                         "position": [20, 134],
-                        "tsize":    [170, 35],
+                        "size":     [170, 35],
                         "anchor":   "top right"
                     }
                 },
@@ -97,7 +97,7 @@
 
                     "transform": {
                         "position": [20, 174],
-                        "tsize":    [170, 35],
+                        "size":     [170, 35],
                         "anchor":   "top right"
                     }
                 },
@@ -110,7 +110,7 @@
                     
                     "transform": {
                         "position": [13.5,25.5],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [0.5,0.5],
                         "scroll":   [0,0],
 
@@ -129,7 +129,7 @@
                     
                     "transform": {
                         "position": [60.5,25.5],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [0.5,0.5],
                         "scroll":   [0,0],
 
@@ -147,7 +147,7 @@
                     
                     "transform": {
                         "position": [2,4],
-                        "tsize":    [1,1],
+                        "size":     [1,1],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 
@@ -176,7 +176,7 @@
                             
                             "transform": {
                                 "position": [10, 23],
-                                "tsize":    [2,  2],
+                                "size":     [2,  2],
                                 "scale":    [1,  1],
                                 "scroll":   [0,  0],
 
@@ -184,7 +184,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "name_entry": {
@@ -193,7 +193,7 @@
                             
                             "transform": {
                                 "position": [76,  20],
-                                "tsize":    [330, 28],
+                                "size":     [330, 28],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -201,7 +201,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
 
@@ -213,7 +213,7 @@
                             
                             "transform": {
                                 "position": [10,53],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -221,7 +221,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "ver_entry": {
@@ -230,7 +230,7 @@
                             
                             "transform": {
                                 "position": [76,  51],
-                                "tsize":    [330, 28],
+                                "size":     [330, 28],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -238,7 +238,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         
@@ -250,7 +250,7 @@
                             
                             "transform": {
                                 "position": [10,84],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -258,7 +258,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "path_entry": {
@@ -267,7 +267,7 @@
                             
                             "transform": {
                                 "position": [76,  82],
-                                "tsize":    [299, 28],
+                                "size":     [299, 28],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -275,7 +275,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "pentr_btn": {
@@ -284,7 +284,7 @@
                             
                             "transform": {
                                 "position": [14, 82],
-                                "tsize":    [28, 28],
+                                "size":     [28, 28],
                                 "scale":    [1,   1],
                                 "scroll":   [0,   0],
 
@@ -292,7 +292,7 @@
                                 "alpha":    255,
                                 "anchor":   "top right",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
 
@@ -302,7 +302,7 @@
                             
                             "transform": {
                                 "position": [0,118],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -310,7 +310,7 @@
                                 "alpha":    255,
                                 "anchor":   "top centerx",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "auth_label": {
@@ -321,7 +321,7 @@
                             
                             "transform": {
                                 "position": [10,133],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -329,7 +329,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "auth_entry": {
@@ -338,7 +338,7 @@
                             
                             "transform": {
                                 "position": [76,  132],
-                                "tsize":    [330, 28],
+                                "size":     [330, 28],
                                 "scale":    [1,    1],
                                 "scroll":   [0,    0],
 
@@ -346,7 +346,7 @@
                                 "alpha":    255,
                                 "anchor":   "top left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
 
@@ -359,7 +359,7 @@
                             
                             "transform": {
                                 "position": [100,10],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -367,7 +367,7 @@
                                 "alpha":    255,
                                 "anchor":   "left",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         },
                         "mnp_nobtn": {
@@ -379,7 +379,7 @@
                             
                             "transform": {
                                 "position": [100,10],
-                                "tsize":    [2,2],
+                                "size":     [2,2],
                                 "scale":    [1,1],
                                 "scroll":   [0,0],
 
@@ -387,14 +387,14 @@
                                 "alpha":    255,
                                 "anchor":   "right",
                                 "visible":  true,
-                                "skew":     25
+                                "skew":     0
                             }
                         }
                     },
                     
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [420,240],
+                        "size":     [420,240],
                         "scale":    [1,1],
                         "scroll":   [0,0],
                         
@@ -415,7 +415,7 @@
 
                     "transform": {
                         "position": [0,0],
-                        "tsize":    [320,320],
+                        "size":     [320,320],
                         "scale":    [1,1],
                         "scroll":   [0,0],
 

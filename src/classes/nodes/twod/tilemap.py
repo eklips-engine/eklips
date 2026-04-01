@@ -47,8 +47,7 @@ class Tilemap(CanvasItem):
             self.citem = None
             return
 
-        self._drawing_bid  = self.viewport.add_batch()
-        self._cached_batch = self.viewport.batches[self.batch_id]
+        self._drawing_bid = self.viewport.add_batch()
     
     def _rebuild(self):
         if self._tileset == None or not self._tiles:
@@ -58,47 +57,6 @@ class Tilemap(CanvasItem):
             return
         
         gw, gh = self._tileset.grid_size
-        
-        vertices = []
-        texcoords = []
-        return
-
-        for (gx, gy), tile_id in self._tiles.items():
-            if tile_id == None:
-                continue
-            if not tile_id in self._tileset.tiles:
-                continue
-            
-            px = gx * gw
-            py = gy * gh
-            
-            quad_verts = [
-                px,      py + gh,  # top-left
-                px + gw, py + gh,  # top-right
-                px + gw, py,      # bottom-right
-                px,      py       # bottom-left
-            ]
-            vertices.extend(quad_verts)
-            
-            uvs = self._tileset.get_uv(tile_id)
-            for i in range(4):
-                texcoords.extend([uvs[i*3], uvs[i*3 + 1], uvs[i*3 + 2]])
-            
-            
-            if tile_id < 0:
-                self._solid_tiles.add((gx, gy))
-        
-        # Update vertex list
-        quad_count  = len(vertices) // 8
-        self._count = len(vertices) // 2
-        
-        if self.citem:
-            self.citem.resize(self._count)
-            if vertices:
-                self.citem.vertices = vertices
-                self.citem.tex_coords = texcoords
-        
-        self._vertices = vertices
 
     def _handle_collisions(self):
         return

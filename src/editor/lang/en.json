@@ -51,7 +51,7 @@
 
         "es_windesc": "Define the properties of the main Window here.",
         "es_propor":  "Dimensions",
-        "es_winsiz":  "Size:",
+        "es_winsiz":  "size",
         "es_bgcol":   "Background color:",
         "es_wmnsiz":  "Minimum size:",
         "es_wmxsiz":  "Maximum size:",
