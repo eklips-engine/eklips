@@ -209,7 +209,7 @@ class CanvasItem(Node, Transform):
         super().update()
         
         ## Reset CITEM if it's fucked.
-        if getattr(self.batch, "invalid", False) and self.citem:# and not self.viewport._refreshing:
+        if getattr(self.batch, "invalid", False) and self.citem and not self.viewport._refreshing:
             self._fix_broken_item()
         
         ## Check for hovering
@@ -249,5 +249,5 @@ class CanvasItem(Node, Transform):
 
         ## Result
         return engine.mouse.collides_ui_aabb(self, ctx_a=(
-            self.viewport, self._isc_get_parent_property()
-        ), ctx_b=(self._get_window(), None))
+            self.viewport, self._isc_get_parent_property(), 0
+        ), ctx_b=(self._get_window(), None, 0))

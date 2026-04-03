@@ -27,25 +27,27 @@ class EklBaseWindow(pg.window.BaseWindow):
             vp.draw()
         
         ## Presentation
-        self._present()
-    def _present(self):
-        vp = self.viewports.get(MAIN_VIEWPORT)
-        if not (vp.framebuffer and vp):
-            return
-        
-        if len(vp._vpchildren):
-            for child in vp._vpchildren:
-                vp.framebuffer.bind()
-                self._present_one(child)
-                vp.framebuffer.unbind()
-        self._present_one(vp)
-    def _present_one(self, vp):
+        for vp in self.viewports.values():
+            if vp._vpparent:
+                return
+            if not (vp.framebuffer and vp):
+                return
+            
+            self.switch_to()
+            self._present(vp)
+    def _present(self, vp):
         if not (vp.framebuffer or vp):
             return
         x,y        = vp.into_viewport_coords(self.size, drawing=True)
         vp.citem.x = x
         vp.citem.y = y
-
+        
+        if len(vp._vpchildren):
+            for child in vp._vpchildren:
+                vp.framebuffer.bind()
+                self._present(child)
+                vp.framebuffer.unbind()
+                
         vp.citem.draw()
         
     ## Getters
@@ -114,24 +116,25 @@ class EklBaseWindow(pg.window.BaseWindow):
     ## Init
     def _refresh_viewports(self):
         self.switch_to()
-        for vid in self.viewports:
-            viewport = self.viewports[vid]
+        for viewport in self.viewports.values():
+            ## Remove framebuffer
             viewport._refreshing = True
             viewport._delete_buffer()
 
             viewport.window = self
             viewport._make_framebuffer()
 
+            ## Remake all batches
             _revive = []
-            for bid in viewport.batches.copy():
+            for bid in viewport.batches:
                 batch : pg.graphics.Batch = viewport.batches[bid]
                 batch.invalid = True
                 
                 _revive.append(bid)
-                viewport.batches.pop(bid)
             viewport._lastbid = MAIN_BATCH
 
             for bid in _revive:
+                viewport.batches.pop(bid)
                 viewport.add_batch()
             viewport._refreshing = False
     def __init__(self, wid : int,
@@ -248,7 +251,7 @@ class EklBaseWindow(pg.window.BaseWindow):
         color : list[int] = BLACK,
         flags : list[int] = [VIEWPORT_EQUAL_WINDOW],
         pos   : list[int] = [0,0],
-        parent            = None
+        parent            = MAIN_WINDOW
     ):
         """
         Add a viewport to Window `wid`. Returns its ID.
@@ -258,13 +261,15 @@ class EklBaseWindow(pg.window.BaseWindow):
             color: Background color of the viewport.
             flags: List of Viewport flags. Ex (`NO_CLEAR, NO_CLEAR_BACKGROUND`..)
             pos: Viewport position.
-            parent: The parent of the viewport.
+            parent: The ID of the parent of the viewport.
         """
-        if parent == None:
-            if len(self.viewports):
-                parent = self.viewports[MAIN_VIEWPORT]
         vid            = self._lastvid
         self._lastvid += 1
+
+        if parent == vid:
+            parent = None
+        else:
+            parent = self.viewports.get(parent)
 
         viewport          = Viewport(vid, self, flags, parent)
         viewport.position = pos

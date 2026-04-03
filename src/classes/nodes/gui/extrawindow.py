@@ -131,7 +131,7 @@ class ExtraWindow(CanvasItem, Color):
         engine.display.windows[self.window_id] = self._window
 
         # Create viewports
-        self._window.add_viewport(flags=[VIEWPORT_EQUAL_WINDOW])                    # MAIN_VIEWPORT
+        self._window.add_viewport(flags=[VIEWPORT_EQUAL_WINDOW], parent=None)       # MAIN_VIEWPORT
         self._window.add_viewport(color=TRANSPARENT, flags=[VIEWPORT_EQUAL_WINDOW]) # UI_VIEWPORT
 
         # Add FPS Display
@@ -158,13 +158,15 @@ class ExtraWindow(CanvasItem, Color):
         self._window.size = self.size
         self._window.set_caption(self.title)
         self._window.set_icon(self.icon)
-
+        
+        engine.display.windows[self.window_id] = self._window
     def _hookonclose(self):
         if not self._window:
             return
         if self._window.closed:
             return
-        self._window = engine.ui._rebase_window(self._window)
+        self._window                           = engine.ui._rebase_window(self._window)
+        engine.display.windows[self.window_id] = self._window
     def _remove_item(self):
         if not self._window:
             return

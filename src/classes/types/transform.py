@@ -42,10 +42,10 @@ class Transform:
         self._layer = 0
 
     ## Collision
-    def _get_screen_aabb(self, viewport, parent_rect=None):
+    def _get_screen_aabb(self, viewport, parent_rect=None, ignore_camera=False):
         x, y = self.into_window_coords(viewport, parent_rect)
         cam  = viewport.cam
-        if cam:
+        if cam and not ignore_camera:
             x = (x - cam.x) * cam.zoom
             y = (y + cam.y) * cam.zoom
             return (
@@ -71,8 +71,9 @@ class Transform:
         
         Args:
             other: The other Transform to check for collisions.
-            ctx_a: The context for this Transform, which is a tuple like so: (viewport, parent_rect).
-            ctx_b: The same thing as `ctx_a` but for the `other` Transform."""
+            ctx_a: The context for this Transform, which is a tuple like so: (viewport, parent_rect, ignore_camera).
+            ctx_b: The same thing as `ctx_a` but for the `other` Transform.
+            ignore_camera: Whether if to ignore the context's cameras."""
         _aabb1 = self._get_screen_aabb(*ctx_a)
         _aabb2 = other._get_screen_aabb(*ctx_b)
 

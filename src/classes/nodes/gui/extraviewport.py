@@ -60,16 +60,21 @@ class ExtraViewport(CanvasItem, Viewport):
     def _set_alpha(self, deg):
         Viewport._set_alpha(self, deg)
     
-    ## Rewrites
+    ## Item managing
     def _make_new_item(self):
         self._make_framebuffer()
+    def _remove_item(self):
+        self.close()
     
+    ## Draw
     def draw(self):
         """Draw the Viewport. This should be called automatically by the `EklWindow`."""
         Viewport.draw(self)
     
-    def get_if_mouse_hovering(self):
+    ## Convenience functions for user
+    def get_if_mouse_hovering(self) -> bool:
+        """Returns true if the mouse is hovering over self."""
+        return engine.mouse.collides_ui_aabb(self, ctx_a=(
+            self, self._isc_get_parent_property(), 1
+        ), ctx_b=(self._get_window(), None, 1))
         return engine.mouse.collides_ui_aabb(self, ctx_a=(self, None), ctx_b=(self._get_window(), None))
-        
-    def _remove_item(self):
-        self.close()
